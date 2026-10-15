@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Import Preview · Collagia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    /* Official Collagia palette (Figma "Colors" frame) */
+    :root {
+      --text: #232121; --muted: #6E6D7A; --border: #E4E4E4; --surface: #FFFFFF;
+      --g1: #ECECED; --g2: #F1F1F1; --g3: #F9FAFB;
+      --red: #E83832; --soft: #FDEFEF; --err: #8B0000; --err-soft: #F9D2D2;
+      --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 14px/1.4 "Inter", system-ui, sans-serif; color: var(--text); background: var(--g3); -webkit-font-smoothing: antialiased; }
+    button { font: inherit; color: inherit; cursor: pointer; }
+    input { font: inherit; color: inherit; }
+    a { color: inherit; }
+    svg.i { width: 16px; height: 16px; flex: none; }
+    .sp { flex: 1; }
+
+    /* App shell behind the modal */
+    .shell { display: flex; min-height: 100vh; filter: blur(1px); }
+    .side { width: 228px; background: var(--surface); border-right: 1px solid var(--border); padding: 16px 12px; }
+    .side .logo { font-size: 22px; font-weight: 700; margin: 0 8px 24px; }
+    .side li { list-style: none; padding: 9px 12px; border-radius: 4px; font-weight: 500; }
+    .side li.on { background: var(--g1); }
+    .side ul { margin: 0; padding: 0; }
+    .shell main { flex: 1; padding: 24px; }
+    .shell h1 { margin: 0; font-size: 24px; }
+    .dim { position: fixed; inset: 0; background: rgba(26, 25, 25, .5); display: flex; align-items: center; justify-content: center; padding: 64px 24px 24px; }
+
+    /* Iteration switcher (prototype only) */
+    .proto { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 12px; background: var(--surface); border-radius: 999px; box-shadow: 0 6px 20px rgba(0,0,0,.25); white-space: nowrap; }
+    .proto .lab { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--red); margin-right: 4px; }
+    .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+    .seg button { border: 0; background: var(--surface); height: 28px; padding: 0 10px; font-size: 12.5px; color: var(--muted); }
+    .seg button.on { background: var(--g1); color: var(--text); }
+    .seg button b { margin-right: 2px; }
+
+    /* Modal */
+    .m { width: min(1200px, 100%); height: min(640px, 100%); background: var(--surface); border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,.25); display: flex; flex-direction: column; overflow: hidden; }
+    .hd { display: grid; gap: 10px; padding: 16px 16px 12px; border-bottom: 1px solid var(--border); }
+    .title { display: flex; align-items: center; gap: 10px; }
+    .icon-btn { border: 0; background: none; padding: 4px; border-radius: 4px; display: grid; }
+    .icon-btn:hover { background: var(--g1); }
+    .crumbs { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 500; color: var(--muted); }
+    .crumbs a { text-decoration: underline; text-underline-offset: 3px; color: var(--muted); }
+    .crumbs a:hover { color: var(--text); }
+    .crumbs b { color: var(--text); font-weight: 600; }
+    .file { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 13px; background: var(--g2); font-size: 12.5px; color: var(--muted); }
+    .file b { color: var(--text); font-weight: 500; font-family: var(--mono); font-size: 12px; }
+    .dry { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; background: var(--soft); font-size: 12.5px; font-weight: 500; }
+    .dry svg { color: var(--red); }
+    .body { flex: 1; min-height: 0; overflow: auto; background: var(--surface); }
+    .ft { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--border); }
+    .ft .note { font-size: 12.5px; color: var(--muted); }
+    .ft .note b { color: var(--text); }
+    .btn { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border-radius: 4px; border: 1px solid var(--border); background: var(--surface); font-size: 14px; font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,.06); white-space: nowrap; }
+    .btn:hover { background: var(--g3); }
+    .btn.primary { background: var(--red); border-color: var(--red); color: #fff; }
+    .btn.primary:hover { filter: brightness(.94); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .link { font-size: 12.5px; color: var(--muted); text-decoration: underline; cursor: pointer; background: none; border: 0; padding: 0; }
+    .flab { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+    .type { font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--g2); padding: 2px 6px; border-radius: 3px; }
+
+    /* Change pills: removed (Error colors), changed (old struck → new), added (+) */
+    .chg { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 3px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+    .chg.rm { background: var(--err-soft); color: var(--err); }
+    .chg.mv { background: var(--g2); color: var(--text); }
+    .chg.mv s { color: var(--muted); }
+    .chg.add { background: var(--surface); color: var(--text); box-shadow: inset 0 0 0 1px var(--text); }
+    .kpi-ic { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+    .kpi-ic.rm { background: var(--err-soft); color: var(--err); }
+    .kpi-ic.mv { background: var(--g1); color: var(--text); }
+    .kpi-ic.add { box-shadow: inset 0 0 0 1px var(--text); }
+
+    /* Value diff: one merged list, status on each chip */
+    .vdiff { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .val { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border-radius: 13px; font-size: 12.5px; font-weight: 500; background: var(--g2); }
+    .val.gone { background: var(--err-soft); color: var(--err); text-decoration: line-through; }
+    .val.new { background: var(--surface); box-shadow: inset 0 0 0 1px var(--text); }
+    .val em { font-style: normal; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+    .legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+    /* Product rows */
+    .orb { width: 40px; height: 40px; flex: none; border-radius: 6px; background: var(--g2); }
+    .prow { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--border); }
+    .prow .nm { display: grid; gap: 2px; min-width: 180px; }
+    .prow .nm b { font-size: 13px; font-weight: 600; }
+    .id { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+    .prow.off { opacity: .45; }
+    .prow.off .chg { text-decoration: line-through; }
+    .cbx { width: 16px; height: 16px; flex: none; border-radius: 4px; border: 1.25px solid var(--muted); background: var(--surface); display: grid; place-items: center; padding: 0; color: #fff; }
+    .cbx.on { background: var(--red); border-color: var(--red); }
+    .more-row { padding: 10px 16px; font-size: 12.5px; color: var(--muted); }
+    .sec-h { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--g3); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 600; position: sticky; top: 0; z-index: 1; }
+    .sec-h.rm { background: var(--err-soft); color: var(--err); }
+
+    /* Iteration 1 — impact summary */
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 16px; }
+    .kpi { padding: 12px 14px; border-radius: 8px; background: var(--g3); display: grid; gap: 4px; }
+    .kpi span { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .kpi b { font-size: 22px; font-weight: 600; }
+    .atable { margin: 0 16px 16px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .arow { display: grid; grid-template-columns: 220px 1fr auto auto; gap: 16px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+    .arow:last-child { border-bottom: 0; }
+    .arow .an { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+    .arow .vs { font-size: 12.5px; color: var(--muted); }
+    .counts { display: flex; gap: 6px; }
+    .adetail { padding: 12px 14px 4px; background: var(--g3); border-bottom: 1px solid var(--border); display: grid; gap: 10px; }
+    .adetail .rows { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 10px; }
+    .adetail .prow:last-child { border-bottom: 0; }
+
+    /* Iteration 2 — tabs */
+    .tabs { display: flex; gap: 4px; padding: 0 16px; border-bottom: 1px solid var(--border); }
+    .tab { display: inline-flex; align-items: center; gap: 6px; padding: 10px 12px; border: 0; border-bottom: 2px solid transparent; background: none; font-size: 14px; font-weight: 500; color: var(--muted); }
+    .tab span { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 8px; background: var(--g1); color: var(--muted); }
+    .tab.on { color: var(--text); font-weight: 600; border-bottom-color: var(--red); }
+    .tab.on span { background: var(--soft); color: var(--red); }
+    .panel { padding: 14px 16px; display: grid; gap: 10px; border-bottom: 1px solid var(--border); }
+    .bar { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .filt { display: inline-flex; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+    .filt button { border: 0; background: var(--surface); height: 30px; padding: 0 12px; font-size: 13px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+    .filt button + button { border-left: 1px solid var(--border); }
+    .filt button.on { background: var(--g1); color: var(--text); font-weight: 600; }
+    .search { display: flex; align-items: center; gap: 8px; height: 32px; width: 240px; padding: 0 12px; border: 1px solid var(--border); border-radius: 4px; color: var(--muted); }
+    .search input { border: 0; outline: 0; width: 100%; font-size: 13px; background: none; }
+
+    /* Iteration 3 — review checklist */
+    .two { display: flex; height: 100%; }
+    .alist { width: 280px; flex: none; border-right: 1px solid var(--border); padding: 14px 12px; display: flex; flex-direction: column; gap: 4px; overflow: auto; }
+    .prog { display: grid; gap: 6px; padding: 4px 6px 12px; }
+    .prog b { font-size: 13px; }
+    .prog i { height: 4px; border-radius: 2px; background: var(--g1); overflow: hidden; }
+    .prog i em { display: block; height: 100%; background: var(--red); border-radius: 2px; transition: width .2s; }
+    .aitem { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 0; border-radius: 6px; background: none; text-align: left; }
+    .aitem:hover { background: var(--g3); }
+    .aitem.on { background: var(--g2); }
+    .aitem .st { width: 18px; height: 18px; border-radius: 50%; border: 1.25px solid var(--muted); flex: none; display: grid; place-items: center; color: #fff; }
+    .aitem .st.done { background: var(--red); border-color: var(--red); }
+    .aitem b { font-size: 13px; font-weight: 600; flex: 1; }
+    .aitem span { font-size: 12px; color: var(--muted); }
+    .detail { flex: 1; min-width: 0; overflow: auto; }
+    .dhead { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); z-index: 2; }
+    .dhead h3 { margin: 0; font-size: 16px; }
+
+    /* Iteration 4 — product table */
+    table.pt { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .pt th { position: sticky; top: 0; z-index: 1; background: var(--g3); text-align: left; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 9px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .pt td { padding: 7px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .pt .pc { display: flex; align-items: center; gap: 10px; }
+    .pt .pc b { font-weight: 600; }
+    .pt .none { color: var(--g1); }
+    .achips { display: flex; gap: 6px; }
+    .achip { height: 28px; padding: 0 10px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); font-size: 12.5px; font-weight: 500; }
+    .achip.on { background: var(--text); border-color: var(--text); color: #fff; }
+
+    /* Iteration 5 — wizard */
+    .steps { display: flex; align-items: center; gap: 8px; list-style: none; margin: 0; padding: 0; font-size: 13px; font-weight: 500; }
+    .steps li { display: flex; align-items: center; gap: 6px; }
+    .steps li + li::before { content: ""; width: 24px; height: 1.5px; background: var(--red); }
+    .steps li.next { color: var(--muted); }
+    .steps li.next::before { background: var(--g1); }
+    .steps li.now { font-weight: 600; }
+    .steps li > span { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 600; background: var(--red); color: #fff; }
+    .steps li.next > span { background: var(--g1); color: var(--muted); }
+    .acc { border-bottom: 1px solid var(--border); }
+    .acc-h { width: 100%; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 0; background: none; text-align: left; }
+    .acc-h:hover { background: var(--g3); }
+    .acc-h b { font-size: 14px; }
+    .acc-h .chev { margin-left: 8px; color: var(--muted); transition: transform .15s; }
+    .acc.open .acc-h .chev { transform: rotate(180deg); }
+    .acc-b { padding: 0 16px 14px; display: grid; gap: 10px; }
+    .acc-b .rows { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    .acc-b .prow:last-child { border-bottom: 0; }
+    .confirm { max-width: 640px; margin: 32px auto; display: grid; gap: 16px; padding: 0 16px; }
+    .confirm h2 { margin: 0; font-size: 20px; }
+    .confirm p { margin: 0; color: var(--muted); }
+    .csum { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .csum div { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .csum div:last-child { border-bottom: 0; }
+    .csum b { flex: 1; }
+    .opt { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+
+    /* Applied state */
+    .done { height: 100%; display: grid; place-items: center; text-align: center; }
+    .done > div { display: grid; justify-items: center; gap: 10px; max-width: 420px; }
+    .done .badge { width: 56px; height: 56px; border-radius: 50%; background: var(--soft); color: var(--red); display: grid; place-items: center; }
+    .done h2 { margin: 4px 0 0; font-size: 20px; }
+    .done p { margin: 0; color: var(--muted); }
+    .done .acts { display: flex; gap: 8px; margin-top: 8px; }
+
+    @media (max-width: 900px) {
+      .side { display: none; }
+      .kpis { grid-template-columns: repeat(2, 1fr); }
+      .arow { grid-template-columns: 1fr; }
+      .two { flex-direction: column; }
+      .alist { width: auto; max-height: 40%; border-right: 0; border-bottom: 1px solid var(--border); }
+      .proto { left: 12px; right: 12px; transform: none; overflow-x: auto; }
+      .steps { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell" aria-hidden="true">
+    <aside class="side"><div class="logo">Collagia</div><ul><li>Studies</li><li>Collages</li><li class="on">Attributes</li></ul></aside>
+    <main><h1>Attributes</h1></main>
+  </div>
+  <div class="proto" id="proto"></div>
+  <div class="dim"><div class="m" id="m" role="dialog" aria-modal="true" aria-label="Import preview"></div></div>
+
+  <script>
+    /* ---------- Sample import: Consumer Preferences ---------- */
+    const BASE = [["Roadster","ORB_1"],["Basic WHITE","ORB_2"],["Spring Robin","ORB_27"],["Forest & Pine Camo","ORB_401"],["Dusty Traces","ORB_42"],["Snow Prints","ORB_44"],["Midnight Rider","ORB_51"],["Sunset Glaze","ORB_63"],["Ocean Drift","ORB_77"],["Ember Swirl","ORB_88"],["Lunar Dust","ORB_90"],["Citrus Pop","ORB_102"],["Desert Bloom","ORB_115"],["Arctic Haze","ORB_120"],["Coral Reef","ORB_133"],["Storm Cloud","ORB_145"],["Golden Hour","ORB_150"],["Night Bloom","ORB_162"]];
+    const ADJ = ["Velvet","Harbor","Canyon","Neon","Glacier","Rustic","Copper","Willow","Saffron","Cobalt","Maple","Onyx"];
+    const NOUN = ["Plum","Fog","Clay","Tide","Mint","Ember","Leaf","Drift","Spark","Wave"];
+    const ORB_COLORS = ["#B8B8B8","#E9E9E9","#7FC4A8","#2F7D6D","#4A4F6A","#D7D7D7","#26365E","#E08A1E","#4F8FB5","#B4472C","#9A9A9A","#E3B11F","#C88A5A","#B9C9D6","#D97C4A","#6B7280","#C9A227","#7A3E6A"];
+    const PRODUCTS = [...BASE];
+    for (let i = 0; PRODUCTS.length < 130; i++) PRODUCTS.push([`${ADJ[i % ADJ.length]} ${NOUN[Math.floor(i / ADJ.length) % NOUN.length]}`, `ORB_${500 + i * 7}`]);
+    const prod = PRODUCTS.map(([name, id], i) => ({ name, id, c: ORB_COLORS[i % ORB_COLORS.length] }));
+
+    // Each attribute: previous vs new values, and per-product changes (remove / change / add)
+    const mkChanges = (start, rm, mv, add, removed, moves, added) => {
+      const out = []; let p = start;
+      for (let i = 0; i < rm; i++) out.push({ type: "rm", p: prod[p++ % prod.length], from: removed[i % removed.length] });
+      for (let i = 0; i < mv; i++) { const [from, to] = moves[i % moves.length]; out.push({ type: "mv", p: prod[p++ % prod.length], from, to }); }
+      for (let i = 0; i < add; i++) out.push({ type: "add", p: prod[p++ % prod.length], to: added[i % added.length] });
+      return out;
+    };
+    const ATTRS = [
+      { k: "series", label: "Series", type: "String", prev: ["Core", "Frost", "Mixed", "Pierced", "Promo"], next: ["Core", "Frost", "Pierced", "Promo", "Limited"],
+        changes: mkChanges(0, 9, 5, 3, ["Core"], [["Mixed", "Frost"], ["Mixed", "Core"]], ["Limited"]) },
+      { k: "style", label: "Design Style", type: "String", prev: ["Solid", "Speckled", "Swirl", "Camo"], next: ["Solid", "Speckled", "Swirl", "Camo", "Gradient"],
+        changes: mkChanges(17, 4, 4, 3, ["Speckled"], [["Solid", "Gradient"], ["Swirl", "Gradient"]], ["Gradient"]) },
+      { k: "scheme", label: "Color Scheme", type: "String", prev: ["Monochrome", "Complementary", "Analogous", "Triadic", "Split"], next: ["Monochrome", "Complementary", "Analogous", "Triadic"],
+        changes: mkChanges(28, 30, 40, 19, ["Split", "Triadic"], [["Split", "Analogous"], ["Triadic", "Complementary"], ["Monochrome", "Analogous"]], ["Monochrome", "Analogous"]) },
+      { k: "family", label: "Color Family", type: "String", prev: ["Warm", "Cool", "Neutral", "Pastel"], next: ["Warm", "Cool", "Neutral", "Pastel", "Metallic"],
+        changes: mkChanges(5, 38, 50, 25, ["Pastel", "Neutral"], [["Neutral", "Metallic"], ["Cool", "Neutral"], ["Pastel", "Warm"]], ["Metallic", "Warm"]) },
+    ];
+    let uid = 0; ATTRS.forEach(a => a.changes.forEach(c => { c.id = uid++; c.a = a.k; }));
+    const ALL = ATTRS.flatMap(a => a.changes);
+    const attr = k => ATTRS.find(a => a.k === k);
+    const TYPES = { rm: "Removed", mv: "Changed", add: "Added" };
+
+    /* ---------- State ---------- */
+    const read = (k, ok, d) => { try { const v = localStorage.getItem(k); return ok[v] ? v : d; } catch { return d; } };
+    const save = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+    const ITERS = { "1": "Impact summary", "2": "Better tabs", "3": "Review checklist", "4": "By product", "5": "Step by step" };
+    const S = { iter: read("importIter", ITERS, "1"), tab: "series", type: "all", q: "", off: new Set(), reviewed: new Set(), open: new Set(), step: "review", applied: false, log: true, cols: new Set(ATTRS.map(a => a.k)) };
+
+    /* ---------- Helpers ---------- */
+    const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    const ic = {
+      back: '<svg class="i" style="width:18px;height:18px" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 5 8l5 5"/></svg>',
+      close: '<svg class="i" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="m4 4 8 8M12 4l-8 8"/></svg>',
+      info: '<svg class="i" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6.25"/><path d="M8 7.25V11" stroke-linecap="round"/><circle cx="8" cy="5" r=".9" fill="currentColor" stroke="none"/></svg>',
+      check: '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3.5 8.5 3 3 6-7"/></svg>',
+      chev: '<svg class="i chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 4 4 4-4"/></svg>',
+      right: '<svg class="i" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 3 5 5-5 5"/></svg>',
+      search: '<svg class="i" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/></svg>',
+      file: '<svg class="i" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M4 1.5h5.5L13 5v9.5H4z"/><path d="M9.5 1.5V5H13"/></svg>',
+      done: '<svg width="26" height="26" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3.5 8.5 3 3 6-7"/></svg>',
+      dl: '<svg class="i" viewBox="0 0 16 16" fill="currentColor"><path d="M7.25 1.5h1.5v6.19l2.22-2.22 1.06 1.06L8 10.56 3.97 6.53l1.06-1.06 2.22 2.22zM2 10h1.5v2.5h9V10H14v4H2z"/></svg>',
+    };
+    const orb = c => `<svg class="orb" viewBox="0 0 40 40" aria-hidden="true"><ellipse cx="20" cy="24" rx="15" ry="4.5" fill="${c}"/><path d="M12 23.5c0-5.5 3.6-9 8-9s8 3.5 8 9" fill="${c}"/><ellipse cx="20" cy="23.5" rx="8" ry="1.6" fill="#232121" opacity=".15"/><ellipse cx="17" cy="18" rx="2.4" ry="1.4" fill="#fff" opacity=".45"/></svg>`;
+    const pill = c => c.type === "rm" ? `<span class="chg rm">− ${esc(c.from)}</span>`
+      : c.type === "add" ? `<span class="chg add">+ ${esc(c.to)}</span>`
+      : `<span class="chg mv"><s>${esc(c.from)}</s> → ${esc(c.to)}</span>`;
+    const counts = list => ({ rm: list.filter(c => c.type === "rm").length, mv: list.filter(c => c.type === "mv").length, add: list.filter(c => c.type === "add").length });
+    const countChips = list => { const n = counts(list); return `<span class="counts">${n.rm ? `<span class="chg rm">− ${n.rm}</span>` : ""}${n.mv ? `<span class="chg mv">⇄ ${n.mv}</span>` : ""}${n.add ? `<span class="chg add">+ ${n.add}</span>` : ""}</span>`; };
+    const valueDiff = a => {
+      const gone = a.prev.filter(v => !a.next.includes(v)), added = a.next.filter(v => !a.prev.includes(v));
+      return `<div class="vdiff">${a.prev.map(v => gone.includes(v) ? `<span class="val gone" title="Removed in this import">${esc(v)}</span>` : `<span class="val">${esc(v)}</span>`).join("")}
+        ${added.map(v => `<span class="val new"><em>New</em>${esc(v)}</span>`).join("")}</div>`;
+    };
+    const legend = `<div class="legend"><span><i style="background:var(--g2)"></i>Kept</span><span><i style="background:var(--err-soft)"></i>Removed value</span><span><i style="box-shadow:inset 0 0 0 1px var(--text)"></i>New value</span></div>`;
+    const valueSummary = a => {
+      const gone = a.prev.filter(v => !a.next.includes(v)).length, added = a.next.filter(v => !a.prev.includes(v)).length;
+      return [gone && `${gone} value${gone > 1 ? "s" : ""} removed`, added && `${added} new value${added > 1 ? "s" : ""}`].filter(Boolean).join(" · ") || "No value changes";
+    };
+    const row = (c, { check = false, attrName = false } = {}) => `
+      <div class="prow${S.off.has(c.id) ? " off" : ""}">
+        ${check ? `<button class="cbx${S.off.has(c.id) ? "" : " on"}" data-a="toggle" data-id="${c.id}" aria-label="Include change">${S.off.has(c.id) ? "" : ic.check}</button>` : ""}
+        ${orb(c.p.c)}<div class="nm"><b>${esc(c.p.name)}</b><span class="id">${c.p.id}</span></div>
+        ${attrName ? `<span class="type">${attr(c.a).label}</span>` : ""}${pill(c)}
+      </div>`;
+    const included = () => ALL.filter(c => !S.off.has(c.id));
+    const affected = list => new Set(list.map(c => c.p.id)).size;
+
+    const header = ({ right = "", dry = true } = {}) => `
+      <div class="hd">
+        <div class="title">
+          <a class="icon-btn" href="index.html" aria-label="Back">${ic.back}</a>
+          <nav class="crumbs"><a href="index.html">Custom Attributes</a><span>/</span><span>Consumer Preferences</span><span>/</span><b>Import preview</b></nav>
+          <span class="file">${ic.file}<b>consumer-preferences.csv</b></span>
+          <span class="sp"></span>${right}
+          <a class="icon-btn" href="index.html" aria-label="Close">${ic.close}</a>
+        </div>
+        ${dry ? `<div class="dry">${ic.info}<span>This is a preview. Nothing in <b>Consumer Preferences</b> changes until you apply the import.</span></div>` : ""}
+      </div>`;
+    const applyBtn = (disabled = false) => {
+      const n = included().length;
+      return `<button class="btn primary" data-a="apply"${disabled ? " disabled" : ""}>Apply ${n} change${n === 1 ? "" : "s"}</button>`;
+    };
+    const footer = (note, extra = "", disabled = false) => `<div class="ft"><span class="note">${note}</span><span class="sp"></span>${extra}<a class="btn" href="index.html">Cancel</a>${applyBtn(disabled)}</div>`;
+    const limit = (list, n, render) => list.slice(0, n).map(render).join("") + (list.length > n ? `<div class="more-row">+ ${list.length - n} more</div>` : "");
+
+    /* ---------- Iterations ---------- */
+    const VIEWS = {
+      // 1 — one screen that answers "what will this import do?" before any detail
+      "1": () => {
+        const n = counts(ALL);
+        return `${header()}
+        <div class="body">
+          <div class="kpis">
+            <div class="kpi"><span>Products affected</span><b>${affected(ALL)}</b></div>
+            <div class="kpi"><span><i class="kpi-ic rm">−</i>Values removed</span><b>${n.rm}</b></div>
+            <div class="kpi"><span><i class="kpi-ic mv">⇄</i>Values changed</span><b>${n.mv}</b></div>
+            <div class="kpi"><span><i class="kpi-ic add">+</i>Values added</span><b>${n.add}</b></div>
+          </div>
+          <div class="atable">${ATTRS.map(a => `
+            <div class="arow">
+              <span class="an">${a.label}<span class="type">${a.type}</span></span>
+              <span class="vs">${valueSummary(a)} · ${affected(a.changes)} products</span>
+              ${countChips(a.changes)}
+              <button class="btn" data-a="expand" data-k="${a.k}">${S.open.has(a.k) ? "Hide" : "Review"}</button>
+            </div>
+            ${S.open.has(a.k) ? `<div class="adetail"><span class="flab">Values</span>${valueDiff(a)}${legend}
+              <span class="flab">Product changes (${a.changes.length})</span><div class="rows">${limit(a.changes, 8, c => row(c))}</div></div>` : ""}`).join("")}
+          </div>
+        </div>
+        ${footer(`<b>${ALL.length}</b> changes across <b>${ATTRS.length}</b> attributes`)}`;
+      },
+
+      // 2 — the original tabs, made legible: change counts, one value diff, filters, opt-out per change
+      "2": () => {
+        const a = attr(S.tab);
+        const q = S.q.trim().toLowerCase();
+        const list = a.changes.filter(c => (S.type === "all" || c.type === S.type) && (!q || c.p.name.toLowerCase().includes(q) || c.p.id.toLowerCase().includes(q)));
+        const n = counts(a.changes), on = a.changes.filter(c => !S.off.has(c.id)).length;
+        return `${header()}
+        <div class="tabs">${ATTRS.map(x => `<button class="tab${x.k === S.tab ? " on" : ""}" data-a="tab" data-k="${x.k}">${x.label}<span>${x.changes.length} changes</span></button>`).join("")}</div>
+        <div class="body">
+          <div class="panel"><div style="display:flex;align-items:center;gap:8px"><span class="flab">Values</span><span class="type">${a.type}</span><span class="sp"></span>${legend}</div>${valueDiff(a)}</div>
+          <div class="bar">
+            <div class="filt">${[["all", `All ${a.changes.length}`], ["rm", `Removed ${n.rm}`], ["mv", `Changed ${n.mv}`], ["add", `Added ${n.add}`]].map(([k, l]) => `<button class="${S.type === k ? "on" : ""}" data-a="type" data-t="${k}">${l}</button>`).join("")}</div>
+            <label class="search">${ic.search}<input class="q" placeholder="Search products or IDs" value="${esc(S.q)}"></label>
+            <span class="sp"></span><span class="note" style="font-size:12.5px;color:var(--muted)">${on} of ${a.changes.length} included</span>
+            <button class="link" data-a="all-on" data-k="${a.k}">Include all</button>
+          </div>
+          ${list.length ? list.map(c => row(c, { check: true })).join("") : `<div class="more-row">No changes match.</div>`}
+        </div>
+        ${footer(`Untick a change to leave that product as it is`)}`;
+      },
+
+      // 3 — a checklist: review each attribute, then apply
+      "3": () => {
+        const a = attr(S.tab), done = S.reviewed.size, all = done === ATTRS.length;
+        const groups = ["rm", "mv", "add"].map(t => [t, a.changes.filter(c => c.type === t)]).filter(([, l]) => l.length);
+        const nextK = ATTRS.find(x => !S.reviewed.has(x.k) && x.k !== a.k);
+        return `${header()}
+        <div class="body"><div class="two">
+          <aside class="alist">
+            <div class="prog"><b>${done} of ${ATTRS.length} attributes reviewed</b><i><em style="width:${done / ATTRS.length * 100}%"></em></i></div>
+            ${ATTRS.map(x => `<button class="aitem${x.k === a.k ? " on" : ""}" data-a="tab" data-k="${x.k}">
+              <span class="st${S.reviewed.has(x.k) ? " done" : ""}">${S.reviewed.has(x.k) ? ic.check : ""}</span><b>${x.label}</b><span>${x.changes.length}</span></button>`).join("")}
+          </aside>
+          <section class="detail">
+            <div class="dhead"><h3>${a.label}</h3><span class="type">${a.type}</span>${countChips(a.changes)}<span class="sp"></span>
+              ${S.reviewed.has(a.k) ? `<span class="chg mv">${ic.check} Reviewed</span>` : `<button class="btn primary" data-a="reviewed" data-k="${a.k}" data-next="${nextK ? nextK.k : ""}">Mark reviewed${nextK ? " & next" : ""}</button>`}</div>
+            <div class="panel"><span class="flab">Values</span>${valueDiff(a)}${legend}</div>
+            ${groups.map(([t, l]) => `<div class="sec-h${t === "rm" ? " rm" : ""}">${TYPES[t]} (${l.length})</div>${limit(l, 12, c => row(c))}`).join("")}
+          </section>
+        </div></div>
+        ${footer(all ? `All attributes reviewed. Ready to apply.` : `Review all ${ATTRS.length} attributes to apply the import`, "", !all)}`;
+      },
+
+      // 4 — product-centric: one row per product, a column per attribute
+      "4": () => {
+        const q = S.q.trim().toLowerCase();
+        const cols = ATTRS.filter(a => S.cols.has(a.k));
+        const byProd = new Map();
+        ALL.filter(c => S.cols.has(c.a) && (S.type === "all" || c.type === S.type)).forEach(c => { if (!byProd.has(c.p.id)) byProd.set(c.p.id, { p: c.p, ch: {} }); byProd.get(c.p.id).ch[c.a] = c; });
+        const rows = [...byProd.values()].filter(r => !q || r.p.name.toLowerCase().includes(q) || r.p.id.toLowerCase().includes(q));
+        return `${header()}
+        <div class="bar">
+          <span class="flab">Attributes</span><div class="achips">${ATTRS.map(a => `<button class="achip${S.cols.has(a.k) ? " on" : ""}" data-a="col" data-k="${a.k}">${a.label}</button>`).join("")}</div>
+          <div class="filt">${[["all", "All"], ["rm", "Removed"], ["mv", "Changed"], ["add", "Added"]].map(([k, l]) => `<button class="${S.type === k ? "on" : ""}" data-a="type" data-t="${k}">${l}</button>`).join("")}</div>
+          <span class="sp"></span><label class="search">${ic.search}<input class="q" placeholder="Search products or IDs" value="${esc(S.q)}"></label>
+        </div>
+        <div class="body"><table class="pt"><thead><tr><th>Product</th>${cols.map(a => `<th>${a.label}</th>`).join("")}</tr></thead><tbody>
+          ${rows.slice(0, 80).map(r => `<tr><td><div class="pc">${orb(r.p.c)}<div><b>${esc(r.p.name)}</b><div class="id">${r.p.id}</div></div></div></td>${cols.map(a => `<td>${r.ch[a.k] ? pill(r.ch[a.k]) : `<span class="none">—</span>`}</td>`).join("")}</tr>`).join("")}
+        </tbody></table>${rows.length > 80 ? `<div class="more-row">+ ${rows.length - 80} more products</div>` : ""}${rows.length ? "" : `<div class="more-row">No products match.</div>`}</div>
+        ${footer(`<b>${rows.length}</b> products shown · “—” means no change`)}`;
+      },
+
+      // 5 — upload → review → confirm, with an explicit final check
+      "5": () => {
+        const steps = [["Upload CSV", "done"], ["Review changes", S.step === "review" ? "now" : "done"], ["Confirm & apply", S.step === "confirm" ? "now" : "next"]];
+        const stepper = `<ol class="steps">${steps.map(([l, s], i) => `<li class="${s}"><span>${s === "done" ? ic.check : i + 1}</span>${l}</li>`).join("")}</ol>`;
+        if (S.step === "confirm") {
+          const n = counts(ALL);
+          return `${header({ right: stepper, dry: false })}
+          <div class="body"><div class="confirm">
+            <h2>Apply this import to Consumer Preferences?</h2>
+            <p>${ALL.length} changes will update ${affected(ALL)} products across ${ATTRS.length} attributes. This creates a new version of the collection.</p>
+            <div class="csum">${ATTRS.map(a => `<div><b>${a.label}</b>${countChips(a.changes)}</div>`).join("")}</div>
+            <p style="display:flex;gap:10px"><span class="chg rm">− ${n.rm} removed</span><span class="chg mv">⇄ ${n.mv} changed</span><span class="chg add">+ ${n.add} added</span></p>
+            <label class="opt"><button class="cbx${S.log ? " on" : ""}" data-a="log">${S.log ? ic.check : ""}</button>Download a change log (CSV) after applying</label>
+          </div></div>
+          <div class="ft"><span class="note">You can restore the previous version from the collection’s history.</span><span class="sp"></span><button class="btn" data-a="step" data-s="review">Back</button>${applyBtn()}</div>`;
+        }
+        return `${header({ right: stepper })}
+        <div class="body">${ATTRS.map(a => `
+          <div class="acc${S.open.has(a.k) ? " open" : ""}">
+            <button class="acc-h" data-a="expand" data-k="${a.k}"><b>${a.label}</b><span class="type">${a.type}</span><span style="font-size:12.5px;color:var(--muted)">${valueSummary(a)}</span><span class="sp"></span>${countChips(a.changes)}${ic.chev}</button>
+            ${S.open.has(a.k) ? `<div class="acc-b"><span class="flab">Values</span>${valueDiff(a)}${legend}<div class="rows">${limit(a.changes, 10, c => row(c))}</div></div>` : ""}
+          </div>`).join("")}
+        </div>
+        <div class="ft"><span class="note">Open an attribute to see its changes</span><span class="sp"></span><a class="btn" href="index.html">Cancel</a><button class="btn primary" data-a="step" data-s="confirm">Continue to confirm ${ic.right}</button></div>`;
+      },
+    };
+
+    const applied = () => `${header({ dry: false })}
+      <div class="body"><div class="done"><div>
+        <span class="badge">${ic.done}</span>
+        <h2>Import applied</h2>
+        <p>${included().length} changes were applied to <b>Consumer Preferences</b>. It’s now version v3.</p>
+        <div class="acts">${S.log ? `<button class="btn" data-a="noop">${ic.dl}Download change log</button>` : ""}<a class="btn primary" href="index.html">Back to Attributes</a></div>
+        <button class="link" data-a="reset">Replay this prototype</button>
+      </div></div></div>`;
+
+    /* ---------- Render ---------- */
+    const m = document.getElementById("m");
+    const render = () => {
+      m.innerHTML = S.applied ? applied() : VIEWS[S.iter]();
+      document.getElementById("proto").innerHTML = `<span class="lab">Import preview</span><div class="seg">${Object.entries(ITERS).map(([id, l]) =>
+        `<button class="${S.iter === id ? "on" : ""}" data-i="${id}"><b>${id}</b> ${l}</button>`).join("")}</div>`;
+    };
+    const reset = () => Object.assign(S, { tab: "series", type: "all", q: "", off: new Set(), reviewed: new Set(), open: new Set(), step: "review", applied: false });
+
+    document.getElementById("proto").addEventListener("click", e => {
+      const b = e.target.closest("[data-i]"); if (!b) return;
+      S.iter = b.dataset.i; save("importIter", S.iter); reset(); render();
+    });
+    m.addEventListener("click", e => {
+      const a = e.target.closest("[data-a]"); if (!a) return;
+      const { a: act, k } = a.dataset;
+      switch (act) {
+        case "tab": S.tab = k; S.type = "all"; S.q = ""; break;
+        case "type": S.type = a.dataset.t; break;
+        case "expand": S.open.has(k) ? S.open.delete(k) : S.open.add(k); break;
+        case "toggle": { const id = +a.dataset.id; S.off.has(id) ? S.off.delete(id) : S.off.add(id); break; }
+        case "all-on": attr(k).changes.forEach(c => S.off.delete(c.id)); break;
+        case "reviewed": S.reviewed.add(k); if (a.dataset.next) S.tab = a.dataset.next; break;
+        case "col": if (S.cols.has(k) && S.cols.size > 1) S.cols.delete(k); else S.cols.add(k); break;
+        case "step": S.step = a.dataset.s; break;
+        case "log": S.log = !S.log; break;
+        case "apply": S.applied = true; break;
+        case "reset": reset(); break;
+        default: return;
+      }
+      const body = m.querySelector(".body, .detail"); const top = body ? body.scrollTop : 0;
+      render();
+      const nb = m.querySelector(".body, .detail"); if (nb && act !== "tab") nb.scrollTop = top;
+    });
+    m.addEventListener("input", e => {
+      if (!e.target.matches(".q")) return;
+      S.q = e.target.value; render();
+      const q = m.querySelector(".q"); q.focus(); q.setSelectionRange(q.value.length, q.value.length);
+    });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && !e.target.matches("input")) location.href = "index.html"; });
+    render();
+  </script>
+</body>
+</html>

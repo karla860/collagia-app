@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Collagia · Chip filters</title>
+  <!-- Attribute summary modal: pill chip filters + grouped list with "+N more" (from the dark filter reference),
+       inside the Collagia read-only collection modal. Data comes from oct15/data.js. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #E83832; --secondary: #FDEFEF; --black: #232121; --white: #fff;
+      --grey1: #ECECED; --grey2: #F1F1F1; --grey3: #F9FAFB; --stroke: #E4E4E4; --muted: #6E6D7A;
+      --sans: "Inter", system-ui, -apple-system, sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin: 0; font: 14px/1.4 var(--sans); color: var(--black); background: var(--grey2); }
+    button { font: inherit; color: inherit; cursor: pointer; }
+    button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+    /* Faint app shell behind the overlay */
+    .shell { display: grid; grid-template-columns: 228px 1fr; height: 100%; }
+    .shell aside { background: var(--white); border-right: 1px solid var(--stroke); padding: 20px 16px; }
+    .shell .logo { font-weight: 700; font-size: 22px; letter-spacing: -.02em; }
+    .shell main { padding: 28px 32px; }
+    .shell h1 { margin: 0; font-size: 26px; }
+    .overlay { position: fixed; inset: 0; background: rgba(35, 33, 33, .45); display: grid; place-items: center; padding: 24px 16px; }
+
+    /* Modal */
+    .modal { width: min(1200px, 100%); height: min(760px, 100%); background: var(--white); border-radius: 12px;
+      display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,.18); }
+    /* Header: breadcrumb left, Grid / List toggle right (as in Index-Oct-15) */
+    .m-head { display: flex; align-items: center; gap: 10px; min-height: 64px; padding: 12px 24px 12px 16px; border-bottom: 1px solid var(--stroke); flex: none; }
+    .m-head h2 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -.2px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .m-head h2 .crumb { color: var(--muted); font-weight: 400; }
+    .m-head .back { border: 0; background: none; padding: 6px; display: grid; place-items: center; border-radius: 6px; }
+    .m-head .back:hover { background: var(--grey2); }
+    .m-head .spacer { flex: 1; }
+    .vtoggle { display: inline-flex; border: 1px solid var(--stroke); border-radius: 4px; overflow: hidden; flex: none; }
+    .vtoggle button { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 0; background: var(--white); font-size: 13px; color: var(--muted); }
+    .vtoggle button + button { border-left: 1px solid var(--stroke); }
+    .vtoggle button:hover { background: var(--grey3); color: var(--black); }
+    .vtoggle button[aria-pressed="true"] { background: var(--grey2); color: var(--black); font-weight: 500; }
+
+    /* Filters: label column + chip rows. Attributes are the primary control; values sit one step down. */
+    .filters { padding: 18px 16px 18px 24px; display: grid; grid-template-columns: 84px 1fr; gap: 14px 16px; align-items: center;
+      border-bottom: 1px solid var(--stroke); flex: none; }
+    .f-label { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); align-self: start; line-height: 36px; }
+    .f-label.values { line-height: 32px; }
+    .chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+    /* Checkbox tabs, copied from the Collagia "Consumer Preferences" modal */
+    .chip { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 30px; padding: 0 10px; border-radius: 4px;
+      border: 1px solid var(--stroke); background: var(--white); color: var(--muted); font-size: 13px; font-weight: 500; line-height: 1; white-space: nowrap;
+      transition: background .12s, border-color .12s; }
+    .chip:hover { background: var(--secondary); border-color: #F6C9C7; }
+    .chip[aria-pressed="true"] { color: var(--black); }
+    .chip .tick { width: 15px; height: 15px; flex: none; display: grid; place-items: center; border-radius: 3px;
+      border: 1.5px solid #C4C3CA; background: var(--white); }
+    .chip .tick svg { width: 11px; height: 11px; display: none; }
+    .chip[aria-pressed="true"] .tick { background: var(--primary); border-color: var(--primary); color: var(--white); }
+    .chip[aria-pressed="true"] .tick svg { display: block; }
+    .chip.more { color: var(--muted); border-style: dashed; }
+    .chip.more:hover { color: var(--black); background: var(--grey3); border-color: #d2d2d5; }
+    .chips.values .chip { height: 28px; }
+    .chip .n { min-width: 20px; height: 18px; padding: 0 6px; display: inline-grid; place-items: center; border-radius: 999px;
+      background: var(--grey2); color: var(--muted); font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .chip[aria-pressed="true"] .n { background: var(--secondary); color: var(--primary); }
+
+    /* Resizable / hideable filter area */
+    .filter-wrap { flex: none; display: flex; flex-direction: column; position: relative; }
+    .filter-wrap .filters { overflow: auto; border-bottom: 0; }
+    /* Attributes stay pinned while values scroll underneath in a shortened area */
+    .filters > .f-label:first-child, .filters > .attr-row { position: sticky; top: 0; z-index: 1; background: var(--white);
+      align-self: stretch; padding-top: 18px; }
+    .filters > .f-label:first-child, .filters > .attr-row { box-shadow: 0 14px 0 var(--white); }
+    .filter-wrap .filters { padding-top: 0; }
+    .filter-wrap[hidden] { display: none !important; }
+    .grip { flex: none; height: 12px; border: 0; border-bottom: 1px solid var(--stroke); background: var(--white); cursor: row-resize;
+      display: grid; place-items: center; padding: 0; touch-action: none; }
+    .grip::before { content: ""; width: 36px; height: 4px; border-radius: 2px; background: var(--grey1); transition: background .12s; }
+    .grip:hover::before, .grip:focus-visible::before, .grip.drag::before { background: #C4C3CA; }
+    .grip:focus-visible { outline: none; }
+    body.resizing { cursor: row-resize; user-select: none; }
+    .chip.zero { color: var(--muted); }
+    .vg { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .vg + .vg { padding-left: 12px; margin-left: 4px; border-left: 1px solid var(--stroke); }
+    .vg-name { font-size: 13px; font-weight: 600; color: var(--black); padding-right: 2px; }
+    .hint { color: var(--muted); line-height: 32px; }
+    .attr-row { display: flex; align-items: flex-start; gap: 6px; min-width: 0; }
+    .attr-row .chips { flex: 1; }
+    .vals-toggle { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 8px; border: 0; border-radius: 4px;
+      background: none; color: var(--muted); font-size: 12px; font-weight: 500; white-space: nowrap; }
+    .vals-toggle:hover { background: var(--grey2); color: var(--black); }
+    .vals-toggle svg { transition: transform .15s; }
+    .filters.no-values .vals-toggle svg { transform: rotate(180deg); }
+    .filters.no-values #values-label, .filters.no-values #value-chips { display: none; }
+
+    /* Results */
+    .results { flex: 1; overflow: auto; padding: 12px 16px 16px; background: var(--grey3); }
+    .groups { display: grid; gap: 10px; }
+    .panel { background: var(--white); border: 1px solid var(--stroke); border-radius: 8px; padding: 0 14px; }
+    .p-head { display: flex; align-items: center; gap: 10px; padding: 9px 0 8px; }
+    .p-head .t { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+    .p-head .attr { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+    .p-head .val { font-size: 14px; font-weight: 600; }
+    .p-head .count { margin-left: auto; padding: 2px 8px; border-radius: 999px; background: var(--grey2); color: var(--muted); font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid var(--grey1); font-size: 13px; }
+    .row .name { flex: 1; min-width: 0; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .row .id { font: 12px var(--mono); color: var(--muted); }
+    .more-btn { border: 0; border-top: 1px solid var(--grey1); background: none; padding: 7px 0 8px; color: var(--muted); font-size: 13px; font-weight: 500; width: 100%; text-align: left; }
+    .more-btn:hover { color: var(--primary); }
+    /* Value sub-sections inside an attribute panel: a grey band names each value */
+    .vsec + .vsec { margin-top: 4px; }
+    .v-head { display: flex; align-items: center; gap: 8px; margin: 0 -14px; padding: 6px 14px; background: var(--grey3);
+      border-top: 1px solid var(--grey1); font-size: 12px; font-weight: 600; color: var(--black); }
+    .v-head .n { color: var(--muted); font-weight: 500; font-variant-numeric: tabular-nums; }
+    .v-head + .row { border-top: 0; }
+    .vsec:last-child .more-btn:last-child { padding-bottom: 9px; }
+
+    .o-th { flex: none; display: block; overflow: hidden; border-radius: 6px; background: #ECE9E4; }
+    .o-th img, .o-th svg { width: 100%; height: 100%; display: block; object-fit: cover; }
+    .row .o-th { width: 32px; height: 32px; border-radius: 4px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+    .card { display: flex; gap: 12px; padding: 4px; padding-right: 12px; background: var(--white); border: 1px solid var(--stroke); border-radius: 6px; min-width: 0; }
+    .card .o-th { width: 96px; height: 96px; border-radius: 4px; }
+    .card .txt { min-width: 0; padding-top: 10px; display: grid; gap: 10px; align-content: start; }
+    .card .name { font-weight: 600; font-size: 13px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card .id { font: 12px var(--mono); color: var(--muted); }
+
+    .empty { display: grid; place-items: center; text-align: center; gap: 8px; padding: 80px 16px; color: var(--muted); }
+    .empty strong { color: var(--black); font-size: 16px; }
+
+    /* Footer */
+    .m-foot { display: flex; align-items: center; gap: 16px; padding: 12px 24px; border-top: 1px solid var(--stroke); background: var(--white); flex: none; flex-wrap: wrap; }
+    .status { color: var(--muted); white-space: nowrap; }
+    .status b { color: var(--black); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 6px; border: 1px solid var(--stroke); background: var(--white); font-weight: 500; }
+    .btn:hover { background: var(--grey3); }
+    .btn.primary { background: var(--primary); border-color: var(--primary); color: var(--white); }
+    .btn.primary:hover { background: #d6302a; }
+
+    @media (max-width: 720px) {
+      .shell { grid-template-columns: 1fr; } .shell aside { display: none; }
+      .filters { grid-template-columns: 1fr; } .f-label, .f-label.values { line-height: 1.2; }
+      .m-head h2 { font-size: 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="tee" viewBox="0 0 64 64"><path d="M22 8 14 11 4 20l6 8 6-4v34h32V24l6 4 6-8-10-9-8-3c-2 4-6 6-10 6s-8-2-10-6z"/></symbol>
+    <symbol id="tank" viewBox="0 0 64 64"><path d="M22 6v8c0 6-4 10-6 12v32h32V26c-2-2-6-6-6-12V6h-4c0 6-2 10-6 10s-6-4-6-10z"/></symbol>
+    <symbol id="long" viewBox="0 0 64 64"><path d="M22 8 12 12 6 56l8 1 4-31v32h28V26l4 31 8-1-6-44-10-4c-2 4-6 6-10 6s-8-2-10-6z"/></symbol>
+    <symbol id="pants" viewBox="0 0 64 64"><path d="M18 6h28l4 52H37L32 22l-5 36H14z"/></symbol>
+    <symbol id="shorts" viewBox="0 0 64 64"><path d="M16 14h32l4 32-16 2-4-18-4 18-16-2z"/></symbol>
+    <symbol id="bra" viewBox="0 0 64 64"><path d="M18 10h4l4 20c3 2 9 2 12 0l4-20h4l2 24v12H16V34z"/></symbol>
+    <symbol id="vest" viewBox="0 0 64 64"><path d="m24 8-6 4-2 12v34h32V24l-2-12-6-4c-2 6-5 8-8 8s-6-2-8-8z"/></symbol>
+    <pattern id="p-striped" width="64" height="8" patternUnits="userSpaceOnUse"><rect width="64" height="3" fill="rgba(20,24,40,.5)"/></pattern>
+    <pattern id="p-floral" width="16" height="16" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="2.4" fill="rgba(255,255,255,.75)"/><circle cx="12" cy="12" r="2.4" fill="rgba(255,255,255,.75)"/>
+      <circle cx="4" cy="4" r=".9" fill="#f2c94c"/><circle cx="12" cy="12" r=".9" fill="#f2c94c"/>
+    </pattern>
+    <pattern id="p-graphic" width="64" height="64" patternUnits="userSpaceOnUse"><circle cx="32" cy="30" r="7" fill="rgba(255,255,255,.85)"/><rect x="24" y="41" width="16" height="3" rx="1" fill="rgba(255,255,255,.85)"/></pattern>
+    <pattern id="p-multi" width="64" height="64" patternUnits="userSpaceOnUse"><rect y="22" width="64" height="14" fill="#f2c94c"/><rect y="36" width="64" height="28" fill="rgba(255,255,255,.55)"/></pattern>
+    <pattern id="p-plaid" width="12" height="12" patternUnits="userSpaceOnUse">
+      <rect width="12" height="4" fill="rgba(0,0,0,.28)"/><rect width="4" height="12" fill="rgba(0,0,0,.28)"/>
+      <rect y="8" width="12" height="1" fill="rgba(255,255,255,.35)"/><rect x="8" width="1" height="12" fill="rgba(255,255,255,.35)"/>
+    </pattern>
+  </svg>
+
+  <div class="shell" aria-hidden="true">
+    <aside><div class="logo">Collagia</div></aside>
+    <main><h1>Attributes</h1></main>
+  </div>
+
+  <div class="overlay">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
+      <header class="m-head">
+        <button class="back" aria-label="Back to Custom Attributes">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 5 8l5 5"/></svg>
+        </button>
+        <h2 id="m-title"><span class="crumb">Custom Attributes /</span> Apparel by Pattern Style</h2>
+        <span class="spacer"></span>
+        <div class="vtoggle" role="group" aria-label="Layout">
+          <button id="v-grid" data-view="grid" aria-pressed="false">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1" fill="currentColor" stroke="none"/><rect x="9" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="9" width="4.5" height="4.5" rx="1"/><rect x="9" y="9" width="4.5" height="4.5" rx="1" fill="currentColor" stroke="none"/></svg>Grid
+          </button>
+          <button id="v-list" data-view="list" aria-pressed="true">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><rect x="2" y="3" width="12" height="4" rx="1" fill="currentColor" stroke="none"/><path d="M2.5 10.5h11M2.5 13h11"/></svg>List
+          </button>
+        </div>
+      </header>
+
+      <div class="filter-wrap" id="filter-wrap">
+        <div class="filters" id="filters">
+          <div class="f-label">Attributes</div>
+          <div class="attr-row">
+            <div class="chips" id="attr-chips"></div>
+            <button class="vals-toggle" id="vals-toggle" aria-controls="value-chips" aria-expanded="true">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m4 10 4-4 4 4"/></svg>
+              <span>Hide all values</span>
+            </button>
+          </div>
+          <div class="f-label values" id="values-label">Values</div>
+          <div class="chips values" id="value-chips"></div>
+        </div>
+        <button class="grip" id="grip" role="separator" aria-orientation="horizontal" aria-label="Resize filters. Drag, or use the up and down arrow keys. Double-click to reset." title="Drag to resize · double-click to reset"></button>
+      </div>
+
+      <div class="results" id="results"></div>
+
+      <footer class="m-foot">
+        <span class="status" id="status"></span>
+        <div class="actions">
+        <button class="btn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M5 7l3 3 3-3M2.5 11v2.5h11V11"/></svg>
+          Export as CSV
+        </button>
+        <button class="btn primary">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 2v12M2 8h12"/></svg>
+          New Attribute Collection
+        </button>
+        </div>
+      </footer>
+    </section>
+  </div>
+
+  <script src="data.js"></script>
+  <script>
+    const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    const $ = id => document.getElementById(id);
+    const TICK = `<span class="tick" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m3.5 8.5 3 3 6-7"/></svg></span>`;
+    const VISIBLE_ATTRS = 8;   // chips shown before "+N more"
+    const ROWS_PER_GROUP = 3;  // rows shown before "+N more" in each group
+
+    // Extra pattern styles for this prototype only, so the attribute row overflows past 8 chips
+    [
+      { k: "polka", label: "Polka dot", values: { "Micro dot": 3, "Classic dot": 2 } }, { k: "camo", label: "Camouflage", values: { Woodland: 2, Urban: 2 } },
+      { k: "animal", label: "Animal print", values: { Leopard: 2, Zebra: 1 } }, { k: "hound", label: "Houndstooth", values: { Classic: 2 } },
+      { k: "paisley", label: "Paisley", values: { Bandana: 2 } }, { k: "abstract", label: "Abstract", values: { Brushstroke: 2, Geometric: 2 } },
+    ].forEach(a => {
+      COLL_ATTRS.push(a);
+      const overlay = { polka: "floral", camo: "multi", animal: "graphic", hound: "plaid", paisley: "floral", abstract: "multi" }[a.k];
+      Object.entries(a.values).forEach(([v, n]) => { for (let i = 0; i < n; i++) COLL_PRODUCTS.push({ ...drawn(v, i, PALETTE.pattern, overlay), attr: a.k, value: v }); });
+    });
+
+    // Opens on the state from the Figma screen: Solid › Warm colors
+    const S = { attrs: new Set(["solid"]), vals: new Set(["solid|Warm colors"]), view: "list", allAttrs: false, open: new Set() };
+    const attrOf = k => COLL_ATTRS.find(a => a.k === k);
+
+    function matches(p) {
+      if (!S.attrs.size) return true;
+      if (!S.attrs.has(p.attr)) return false;
+      const picked = [...S.vals].filter(v => v.startsWith(p.attr + "|"));
+      return !picked.length || S.vals.has(p.attr + "|" + p.value);
+    }
+
+    // "Solid: Warm colors · Striped" — used in the footer and the empty state
+    function filterSummary() {
+      return COLL_ATTRS.filter(a => S.attrs.has(a.k)).map(a => {
+        const v = Object.keys(a.values).filter(v => S.vals.has(a.k + "|" + v));
+        return v.length ? `${a.label}: ${v.join(", ")}` : a.label;
+      }).join(" · ");
+    }
+
+    function renderAttrs() {
+      const chip = a => `<button class="chip" data-attr="${a.k}" aria-pressed="${S.attrs.has(a.k)}">${TICK}${esc(a.label)}</button>`;
+      // Collapsed: first few chips, plus any selected chip that would otherwise be hidden
+      const shown = S.allAttrs ? COLL_ATTRS : COLL_ATTRS.filter((a, i) => i < VISIBLE_ATTRS || S.attrs.has(a.k));
+      const hidden = COLL_ATTRS.length - shown.length;
+      $("attr-chips").innerHTML = shown.map(chip).join("")
+        + (hidden ? `<button class="chip more" data-more="1">+${hidden} more</button>`
+          : S.allAttrs ? `<button class="chip more" data-more="0">Show less</button>` : "");
+    }
+
+    function renderValues() {
+      const sel = COLL_ATTRS.filter(a => S.attrs.has(a.k));
+      if (!sel.length) { $("value-chips").innerHTML = `<span class="hint">Pick an attribute to see its values.</span>`; return; }
+      $("value-chips").innerHTML = sel.map(a => `<div class="vg">
+        ${sel.length > 1 ? `<span class="vg-name">${esc(a.label)}</span>` : ""}
+        ${Object.entries(a.values).map(([v, n]) => `<button class="chip${n ? "" : " zero"}" data-val="${esc(a.k + "|" + v)}" aria-pressed="${S.vals.has(a.k + "|" + v)}">${TICK}${esc(v)}<span class="n">${n}</span></button>`).join("")}</div>`).join("");
+    }
+
+    const row = p => `<div class="row">${thumb(p)}<span class="name">${esc(p.name)}</span><span class="id">${p.id}</span></div>`;
+    const card = p => `<div class="card">${thumb(p)}<div class="txt"><span class="name">${esc(p.name)}</span><span class="id">${p.id}</span></div></div>`;
+
+    function renderResults(list) {
+      if (!list.length) {
+        $("results").innerHTML = `<div class="empty"><strong>No products match ${esc(filterSummary())}</strong>
+          <span>Try another value, or clear the filters to see all ${COLL_PRODUCTS.length} products.</span>
+          <button class="btn" data-clear>Clear filters</button></div>`;
+        return;
+      }
+      if (S.view === "grid") { $("results").innerHTML = `<div class="grid">${list.map(card).join("")}</div>`; return; }
+
+      // One panel per attribute; inside it, a sub-section per value
+      const plural = n => `${n} product${n === 1 ? "" : "s"}`;
+      const byAttr = new Map();
+      list.forEach(p => {
+        if (!byAttr.has(p.attr)) byAttr.set(p.attr, new Map());
+        const vals = byAttr.get(p.attr);
+        if (!vals.has(p.value)) vals.set(p.value, []);
+        vals.get(p.value).push(p);
+      });
+      $("results").innerHTML = `<div class="groups">${[...byAttr].map(([k, vals]) => {
+        const a = attrOf(k), total = [...vals.values()].reduce((n, v) => n + v.length, 0);
+        return `<div class="panel">
+          <div class="p-head"><span class="val">${esc(a.label)}</span><span class="count">${plural(total)}</span></div>
+          ${[...vals].map(([v, items]) => {
+            const key = k + "|" + v, open = S.open.has(key), extra = items.length - ROWS_PER_GROUP;
+            return `<div class="vsec">
+              <div class="v-head"><span>${esc(v)}</span><span class="n">${items.length}</span></div>
+              ${(open ? items : items.slice(0, ROWS_PER_GROUP)).map(row).join("")}
+              ${extra > 0 ? `<button class="more-btn" data-group="${esc(key)}">${open ? "Show less" : `+${extra} more`}</button>` : ""}
+            </div>`;
+          }).join("")}
+        </div>`;
+      }).join("")}</div>`;
+    }
+
+    function render() {
+      const list = COLL_PRODUCTS.filter(matches);
+      renderAttrs(); renderValues(); renderResults(list);
+      $("status").innerHTML = `Showing <b>${list.length}</b> of ${COLL_PRODUCTS.length} products`;
+      document.querySelectorAll(".vtoggle button").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === S.view));
+      const h = parseFloat($("filters").style.height);
+      if (h && h < minH()) setHeight(minH());
+    }
+
+    function clearAll() { S.attrs.clear(); S.vals.clear(); S.open.clear(); render(); }
+
+    document.addEventListener("click", e => {
+      const t = e.target.closest("button"); if (!t) return;
+      if (t.dataset.attr) {
+        const k = t.dataset.attr;
+        if (S.attrs.has(k)) { S.attrs.delete(k); [...S.vals].forEach(v => v.startsWith(k + "|") && S.vals.delete(v)); }
+        else S.attrs.add(k);
+      } else if (t.dataset.val) {
+        S.vals.has(t.dataset.val) ? S.vals.delete(t.dataset.val) : S.vals.add(t.dataset.val);
+      } else if (t.dataset.more) {
+        S.allAttrs = t.dataset.more === "1";
+        render(); return setHeight(null);
+      } else if (t.dataset.group) {
+        S.open.has(t.dataset.group) ? S.open.delete(t.dataset.group) : S.open.add(t.dataset.group);
+      } else if (t.dataset.view) {
+        S.view = t.dataset.view;
+      } else if (t.id === "vals-toggle") {
+        return setValuesHidden(!$("filters").classList.contains("no-values"));
+      } else if ("clear" in t.dataset) {
+        return clearAll();
+      } else return;
+      render();
+    });
+
+    /* Filter area: drag the grip to resize, or hide it to focus on the items. Remembered per browser. */
+    const store = { get: k => { try { return localStorage.getItem("cf-" + k); } catch { return null; } },
+                    set: (k, v) => { try { v == null ? localStorage.removeItem("cf-" + k) : localStorage.setItem("cf-" + k, v); } catch {} } };
+    // The attributes row is always fully visible: the area never gets shorter than it
+    const minH = () => { const cs = getComputedStyle($("filters")); return document.querySelector(".attr-row").offsetHeight + parseFloat(cs.rowGap); };
+    const maxH = () => Math.max(minH(), $("filters").scrollHeight);   // never taller than its content
+    function setHeight(h) {
+      if (h == null) { $("filters").style.height = ""; store.set("h", null); return; }
+      h = Math.round(Math.min(maxH(), Math.max(minH(), h)));
+      $("filters").style.height = h + "px"; store.set("h", h);
+    }
+
+    function setValuesHidden(hide) {
+      $("filters").classList.toggle("no-values", hide);
+      $("vals-toggle").setAttribute("aria-expanded", !hide);
+      $("vals-toggle").querySelector("span").textContent = hide ? "Show all values" : "Hide all values";
+      $("filters").style.height = "";   // let the area shrink or grow to fit
+      store.set("noValues", hide ? "1" : null); store.set("h", null);
+    }
+
+    $("grip").addEventListener("pointerdown", e => {
+      const startY = e.clientY, startH = $("filters").offsetHeight;
+      $("filters").style.height = startH + "px";   // freeze at the natural height before measuring the max
+      const max = $("filters").scrollHeight;
+      $("grip").setPointerCapture(e.pointerId); $("grip").classList.add("drag"); document.body.classList.add("resizing");
+      const move = ev => setHeight(Math.min(max, startH + ev.clientY - startY));
+      const up = () => { $("grip").removeEventListener("pointermove", move); $("grip").classList.remove("drag"); document.body.classList.remove("resizing"); };
+      $("grip").addEventListener("pointermove", move);
+      $("grip").addEventListener("pointerup", up, { once: true });
+    });
+    $("grip").addEventListener("dblclick", () => setHeight(null));
+    $("grip").addEventListener("keydown", e => {
+      const d = { ArrowUp: -16, ArrowDown: 16 }[e.key];
+      if (d) { e.preventDefault(); setHeight($("filters").offsetHeight + d); }
+    });
+
+    render();
+    const savedH = store.get("h");
+    if (store.get("noValues")) setValuesHidden(true);
+    if (savedH) setHeight(+savedH);
+    store.set("hidden", null);   // the hide-filters button was removed; drop any saved hidden state
+  </script>
+</body>
+</html>

@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modal Redesign Options</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --text: #141414;
+      --muted: #6b6b6b;
+      --faint: #9a9a9a;
+      --border: #e3e3e3;
+      --surface: #fff;
+      --sunken: #f4f4f3;
+      --chip: #ececec;
+      --accent: #ee3b33;
+      --accent-soft: #fdecea;
+      --radius: 6px;
+      --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 14px/1.4 "Inter", system-ui, sans-serif; color: var(--text); background: #fafafa; -webkit-font-smoothing: antialiased; }
+    button { font: inherit; color: inherit; cursor: pointer; }
+    svg.i { width: 16px; height: 16px; flex: none; }
+
+    /* ---------- Page chrome ---------- */
+    .top { padding: 32px 40px 0; max-width: 1360px; margin: 0 auto; }
+    .top h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: -0.4px; }
+    .top > p { margin: 0; color: var(--muted); max-width: 760px; }
+    .problems { margin: 20px 0 0; padding: 16px 20px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+    .problems h2 { margin: 0 0 10px; font-size: 14px; }
+    .problems ol { margin: 0; padding-left: 0; list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 28px; counter-reset: p; }
+    .problems li { counter-increment: p; position: relative; padding-left: 30px; font-size: 13px; color: #444; }
+    .problems li::before { content: counter(p); position: absolute; left: 0; top: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 11px; font-weight: 600; display: grid; place-items: center; }
+    .tabs { display: flex; gap: 4px; margin: 28px 0 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
+    .tab { border: 0; background: none; padding: 10px 14px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+    .tab[aria-selected="true"] { color: var(--text); border-color: var(--text); font-weight: 600; }
+    .tab small { color: var(--faint); font-weight: 400; margin-right: 6px; }
+
+    .panel { display: none; max-width: 1360px; margin: 0 auto; padding: 24px 40px 64px; }
+    .panel.on { display: block; }
+    .stage { background: #6e6e6e; border-radius: 12px; padding: 32px; overflow-x: auto; display: flex; justify-content: center; }
+    .why { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 28px; margin-top: 24px; }
+    .why h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .why ul { margin: 0; padding-left: 18px; color: #333; font-size: 13.5px; }
+    .why li { margin-bottom: 6px; }
+    .why .fix { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 10.5px; font-weight: 600; margin-right: 4px; vertical-align: 1px; }
+    .best { margin-top: 18px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--text); border-radius: 6px; font-size: 13.5px; }
+    iframe.current { width: 1200px; height: 685px; border: 0; border-radius: 8px; flex: none; }
+
+    /* ---------- Shared modal parts ---------- */
+    .m { width: 1200px; height: 640px; flex: none; background: var(--surface); border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,.25); display: flex; flex-direction: column; overflow: hidden; position: relative; }
+    .hd { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--border); }
+    .hd .back { border: 0; background: none; padding: 4px; display: grid; }
+    .hd h2 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.2px; }
+    .hd h2 span { color: var(--muted); font-weight: 400; }
+    .hd p { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 720px; }
+    .hd .grow { flex: 1; min-width: 0; }
+    .icon-btn { width: 32px; height: 32px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); display: grid; place-items: center; }
+    .tb { display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-bottom: 1px solid var(--border); }
+    .tb .sp { flex: 1; }
+    .search { display: flex; align-items: center; gap: 8px; height: 32px; width: 240px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius); color: var(--faint); font-size: 13px; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font-size: 13px; color: #444; white-space: nowrap; }
+    .pill b { font-weight: 600; color: var(--text); }
+    .pill.on { background: var(--text); border-color: var(--text); color: #ccc; }
+    .pill.on b { color: #fff; }
+    .pill.add { border-style: dashed; color: var(--muted); }
+    .chip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 6px 0 10px; border-radius: 999px; background: var(--chip); font-size: 12px; color: #444; }
+    .chip .x { font-size: 14px; color: #777; line-height: 1; padding: 0 2px; }
+    .meta { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+    .seg { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .seg button { border: 0; background: var(--surface); width: 32px; height: 30px; display: grid; place-items: center; color: var(--muted); }
+    .seg button.on { background: var(--chip); color: var(--text); }
+    .body { flex: 1; overflow: auto; background: var(--sunken); }
+    .ft { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 20px; border-top: 1px solid var(--border); background: var(--surface); }
+    .ft .actions { display: flex; gap: 8px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); font-size: 13.5px; white-space: nowrap; }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn.ghost { border-color: transparent; background: none; color: var(--muted); }
+
+    .th { background: var(--bg); display: grid; place-items: center; overflow: hidden; border-radius: 4px; }
+    .th svg { width: 62%; height: 62%; fill: var(--c); }
+    .sku { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+
+    /* Vertical, image-first card */
+    .vgrid { display: grid; gap: 16px; padding: 20px; }
+    .vcard { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px; position: relative; }
+    .vcard .th { aspect-ratio: 1; }
+    .vcard h3 { margin: 8px 4px 2px; font-size: 13px; font-weight: 500; line-height: 1.3; min-height: 2.6em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .vcard .sku { display: block; margin: 0 4px 4px; }
+
+    /* ---------- Option 2: facet sidebar ---------- */
+    .split { flex: 1; display: flex; min-height: 0; }
+    .facets { width: 256px; flex: none; border-right: 1px solid var(--border); overflow: auto; padding: 14px 16px; }
+    .facet { padding: 10px 0 12px; border-bottom: 1px solid var(--border); }
+    .facet:last-child { border: 0; }
+    .facet h4 { margin: 0 0 8px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+    .facet h4 a { font-size: 12px; font-weight: 400; color: var(--muted); text-decoration: none; }
+    .opt { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 13px; color: #333; }
+    .opt .n { margin-left: auto; color: var(--faint); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .opt.zero { color: var(--faint); }
+    .opt.zero .n { color: var(--accent); }
+    .cb { width: 15px; height: 15px; border: 1.5px solid #bbb; border-radius: 4px; flex: none; display: grid; place-items: center; background: var(--surface); }
+    .cb.on { background: var(--text); border-color: var(--text); }
+    .cb.on::after { content: ""; width: 7px; height: 4px; border: solid #fff; border-width: 0 0 1.6px 1.6px; transform: rotate(-45deg) translate(1px, -1px); }
+    .sw { width: 12px; height: 12px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+    .preset { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .preset span { font-size: 11.5px; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--border); color: #555; }
+    .preset span.on { background: var(--accent-soft); border-color: #f6c5c1; color: #b3261e; }
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .active-row { display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+
+    /* ---------- Option 3: gap matrix ---------- */
+    .matrix { display: grid; grid-template-columns: 120px repeat(6, 1fr); gap: 8px; padding: 16px 20px; min-width: 1000px; }
+    .mx-h { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; padding: 0 4px; }
+    .mx-h small { margin-left: auto; color: var(--faint); font-weight: 400; }
+    .mx-r { font-size: 13px; font-weight: 600; padding: 10px 4px; display: flex; flex-direction: column; justify-content: center; }
+    .mx-r small { font-weight: 400; color: var(--muted); font-size: 12px; }
+    .cell { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px; min-height: 104px; display: flex; flex-direction: column; gap: 6px; }
+    .cell .thumbs { display: flex; gap: 4px; }
+    .cell .th { width: 40px; height: 40px; }
+    .cell .more { width: 40px; height: 40px; border-radius: 4px; background: var(--chip); display: grid; place-items: center; font-size: 12px; color: var(--muted); }
+    .cell .cnt { margin-top: auto; font-size: 12px; color: var(--muted); }
+    .cell .cnt b { color: var(--text); }
+    .cell.thin { border-color: #f1d9a8; background: #fffaf0; }
+    .cell.thin .cnt::after { content: " · thin"; color: #a86b00; }
+    .cell.gap { border: 1.5px dashed #f0a7a2; background: repeating-linear-gradient(-45deg, #fff, #fff 6px, #fdf2f1 6px, #fdf2f1 12px); align-items: center; justify-content: center; text-align: center; color: #b3261e; font-size: 12px; font-weight: 600; }
+    .cell.gap small { display: block; color: var(--muted); font-weight: 400; margin-top: 2px; }
+    .legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); align-items: center; }
+    .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 5px; }
+
+    /* ---------- Option 4: table ---------- */
+    table.t { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 13px; }
+    .t th { position: sticky; top: 0; background: #fafafa; text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); padding: 9px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; z-index: 1; }
+    .t th.sorted { color: var(--text); }
+    .t td { padding: 6px 12px; border-bottom: 1px solid #efefef; white-space: nowrap; }
+    .t tr:hover td { background: #fafafa; }
+    .t .prod { display: flex; align-items: center; gap: 10px; }
+    .t .prod .th { width: 36px; height: 36px; }
+    .t .tag { display: inline-flex; align-items: center; gap: 6px; }
+    .t .w-cb { width: 36px; }
+
+    /* ---------- Option 5: drawer with selection ---------- */
+    .stage.drawer { padding: 0; justify-content: flex-end; height: 700px; position: relative; overflow: hidden; }
+    .ghost-page { position: absolute; inset: 0; padding: 28px 32px; color: rgba(255,255,255,.35); font-size: 26px; font-weight: 700; }
+    .m.side { width: 1040px; height: 100%; border-radius: 12px 0 0 12px; }
+    .vcard.sel { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent); }
+    .vcard .pick { position: absolute; top: 12px; left: 12px; width: 20px; height: 20px; border-radius: 5px; background: rgba(255,255,255,.9); border: 1.5px solid #bbb; display: grid; place-items: center; }
+    .vcard.sel .pick { background: var(--accent); border-color: var(--accent); }
+    .vcard.sel .pick::after { content: ""; width: 9px; height: 5px; border: solid #fff; border-width: 0 0 2px 2px; transform: rotate(-45deg) translate(1px, -1px); }
+    .selbar { background: var(--text); color: #fff; }
+    .selbar .meta { color: #bbb; }
+    .selbar .meta b { color: #fff; }
+    .selbar .btn { background: transparent; border-color: #444; color: #fff; }
+    .selbar .btn.primary { background: var(--accent); border-color: var(--accent); }
+    .selbar a { color: #fff; margin-left: 12px; font-size: 12.5px; }
+
+    /* ---------- Option 6: grid + table ---------- */
+    .seg.labeled button { width: auto; padding: 0 12px; display: inline-flex; gap: 6px; align-items: center; font-size: 13px; }
+    .vcard .attrs { display: flex; align-items: center; gap: 6px; margin: 0 4px 4px; font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; }
+    .vcard .attrs .sw { width: 9px; height: 9px; }
+    .t th.sortable { cursor: pointer; user-select: none; }
+    .t th.sortable:hover { color: var(--text); }
+    .t tbody tr { cursor: pointer; }
+    .t tr.on td { background: var(--accent-soft); }
+    .t .cb { cursor: pointer; }
+    .t .cb.on { background: var(--accent); border-color: var(--accent); }
+
+    @media (max-width: 900px) {
+      .top, .panel { padding-left: 16px; padding-right: 16px; }
+      .problems ol, .why { grid-template-columns: 1fr; }
+      .stage { padding: 16px; justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="tee" viewBox="0 0 64 64"><path d="M22 8 14 11 4 20l6 8 6-4v34h32V24l6 4 6-8-10-9-8-3c-2 4-6 6-10 6s-8-2-10-6z"/></symbol>
+    <symbol id="tank" viewBox="0 0 64 64"><path d="M22 6v8c0 6-4 10-6 12v32h32V26c-2-2-6-6-6-12V6h-4c0 6-2 10-6 10s-6-4-6-10z"/></symbol>
+    <symbol id="long" viewBox="0 0 64 64"><path d="M22 8 12 12 6 56l8 1 4-31v32h28V26l4 31 8-1-6-44-10-4c-2 4-6 6-10 6s-8-2-10-6z"/></symbol>
+    <symbol id="pants" viewBox="0 0 64 64"><path d="M18 6h28l4 52H37L32 22l-5 36H14z"/></symbol>
+    <symbol id="shorts" viewBox="0 0 64 64"><path d="M16 14h32l4 32-16 2-4-18-4 18-16-2z"/></symbol>
+    <symbol id="bra" viewBox="0 0 64 64"><path d="M18 10h4l4 20c3 2 9 2 12 0l4-20h4l2 24v12H16V34z"/></symbol>
+    <symbol id="vest" viewBox="0 0 64 64"><path d="m24 8-6 4-2 12v34h32V24l-2-12-6-4c-2 6-5 8-8 8s-6-2-8-8z"/></symbol>
+  </svg>
+
+  <header class="top">
+    <h1>Consumer Preferences modal: 6 redesign options</h1>
+    <p>Every option uses the same 20 sample products. Each tab shows the redesign, what changed, why it's better, and what it costs. The numbers refer to the problems below.</p>
+    <section class="problems">
+      <h2>What's not working in the current modal</h2>
+      <ol>
+        <li>The header and description use about 170px, so the grid gets about 60% of the modal and fewer than 3 full rows fit.</li>
+        <li>The attribute chips aren't visibly linked to the "Values" dropdown. Which attribute is "Warm Colors" a value of? Are the chips filters?</li>
+        <li>In a <em>visual</em> catalog, photos are only 100px and titles get cut off ("Performance tank in Terraco…").</li>
+        <li>The stated goal is to "spot gaps in the assortment", but a grid only shows what exists. Missing items are invisible.</li>
+        <li>There's no search or sort, and "64 Items" has no context: 64 out of how many, matching what?</li>
+        <li>It's unclear what "New Attribute Collection" is made from: everything, the filtered items, or a selection?</li>
+      </ol>
+    </section>
+    <nav class="tabs" role="tablist" id="tabs"></nav>
+  </header>
+
+  <section class="panel" id="p0">
+    <div class="stage"><iframe class="current" src="index.html" title="Current modal"></iframe></div>
+  </section>
+
+  <section class="panel" id="p1">
+    <div class="stage" id="o1"></div>
+    <div class="why">
+      <div><h3>What changes</h3><ul>
+        <li>The header is one line, and the description shrinks to a single muted line</li>
+        <li>Each filter is one pill showing <b>Attribute: Value</b>, so the separate Values dropdown is gone</li>
+        <li>Image-first vertical cards in 6 columns</li>
+        <li>Search, a result count and sort sit together in one toolbar</li>
+      </ul></div>
+      <div><h3>Why it's better</h3><ul>
+        <li><span class="fix">1</span>The grid gets about 75% of the height instead of about 60%, so roughly 2 more rows show without scrolling.</li>
+        <li><span class="fix">2</span>"Color: Warm colors" reads as a sentence, so you can't misread which value belongs to which attribute. Unset attributes show "Any".</li>
+        <li><span class="fix">3</span>Photos grow from 100px to about 170px. For a colour and pattern catalog, the image is the content.</li>
+        <li><span class="fix">5</span>"16 of 20 products" next to the filters says exactly what you're looking at.</li>
+      </ul></div>
+      <div><h3>Trade-offs</h3><ul>
+        <li>Long product names wrap to 2 lines under the image instead of beside it</li>
+        <li>With many attributes, the pill row needs to overflow into a "+3 more" menu</li>
+      </ul></div>
+    </div>
+    <p class="best"><b>Best when:</b> you want the smallest change for the biggest gain. It keeps the current structure and fixes density and clarity.</p>
+  </section>
+
+  <section class="panel" id="p2">
+    <div class="stage" id="o2"></div>
+    <div class="why">
+      <div><h3>What changes</h3><ul>
+        <li>The attributes move into a left sidebar, each with its own checkbox values</li>
+        <li>Every value shows a live count, and values with 0 products are flagged in red</li>
+        <li>Presets like "Warm colors" become one-click shortcuts that tick a set of values</li>
+        <li>Active filters are repeated as removable chips above the grid</li>
+      </ul></div>
+      <div><h3>Why it's better</h3><ul>
+        <li><span class="fix">2</span>Each attribute's values sit directly under it, so how attributes and values relate is obvious and you can pick several values.</li>
+        <li><span class="fix">4</span>Counts show how deep the assortment is before you click. "Pink (1)" and "Linen (0)" point out gaps as you browse.</li>
+        <li><span class="fix">5</span>Shoppers know this pattern from e-commerce faceted search, so there's nothing new to learn.</li>
+        <li>"Warm colors" stays available, but it's clear which colours it includes.</li>
+      </ul></div>
+      <div><h3>Trade-offs</h3><ul>
+        <li>The sidebar costs about 250px of grid width (5 columns instead of 6)</li>
+        <li>Needs a collapse toggle on smaller screens</li>
+      </ul></div>
+    </div>
+    <p class="best"><b>Best when:</b> people filter by several attributes at once. This is the strongest general-purpose option.</p>
+  </section>
+
+  <section class="panel" id="p3">
+    <div class="stage" id="o3"></div>
+    <div class="why">
+      <div><h3>What changes</h3><ul>
+        <li>A new "Coverage" view crosses two attributes, product type × colour family</li>
+        <li>Each cell shows thumbnails and a count. Thin cells (1 item) are amber and empty cells are hatched as gaps.</li>
+        <li>Rows and columns can be set to any attribute (Material × Function, and so on)</li>
+        <li>Clicking a cell filters the grid view to those products</li>
+      </ul></div>
+      <div><h3>Why it's better</h3><ul>
+        <li><span class="fix">4</span>This is the only option that makes <em>missing</em> products visible, which is the modal's stated purpose. At a glance: no neutral outerwear, no red bottoms, and bras only in pink.</li>
+        <li>Merchandisers can act on gaps right away ("+ Add" in an empty cell) instead of working them out from a list.</li>
+        <li>It turns a product dump into an assortment-planning tool, which competitors' basic grids don't offer.</li>
+      </ul></div>
+      <div><h3>Trade-offs</h3><ul>
+        <li>Needs a second view, so it can't be the only view</li>
+        <li>Attributes with many values (20+ colours) need grouping into families</li>
+      </ul></div>
+    </div>
+    <p class="best"><b>Best when:</b> the main users are designers or merchandisers planning the range. Ship it as a view toggle alongside option 1 or 2.</p>
+  </section>
+
+  <section class="panel" id="p4">
+    <div class="stage" id="o4"></div>
+    <div class="why">
+      <div><h3>What changes</h3><ul>
+        <li>A grid/list toggle, with list showing a sortable table</li>
+        <li>Each attribute value gets its own column (Category, Color, Material, Function)</li>
+        <li>A sticky header row and checkbox selection</li>
+      </ul></div>
+      <div><h3>Why it's better</h3><ul>
+        <li><span class="fix">2</span>The attribute chips finally show their <em>values</em> for each product instead of being abstract tags.</li>
+        <li><span class="fix">5</span>Sorting by any column (click a header) and scanning SKUs is far faster than reading cards.</li>
+        <li>What you see matches what "Export as CSV" produces, so there are no surprises in the file.</li>
+        <li>About 12 rows fit on screen, versus about 6 cards today.</li>
+      </ul></div>
+      <div><h3>Trade-offs</h3><ul>
+        <li>Thumbnails are small, so it's weaker for judging colour and pattern</li>
+        <li>Should be offered as a toggle, not a replacement for the grid</li>
+      </ul></div>
+    </div>
+    <p class="best"><b>Best when:</b> online store or ops teams audit attributes and SKUs. It's cheap to add next to any other option.</p>
+  </section>
+
+  <section class="panel" id="p5">
+    <div class="stage drawer" id="o5"></div>
+    <div class="why">
+      <div><h3>What changes</h3><ul>
+        <li>The centred modal becomes a full-height side panel, so the page behind stays visible</li>
+        <li>Cards can be selected (checkbox appears on hover, with shift-click for ranges)</li>
+        <li>The footer becomes a selection bar: "4 selected · Export 4 · Create collection (4)"</li>
+      </ul></div>
+      <div><h3>Why it's better</h3><ul>
+        <li><span class="fix">6</span>"New Attribute Collection" now has a clear input, the items you picked, and the button says how many.</li>
+        <li><span class="fix">1</span>Full height gives about 90px more vertical room than the modal, and the panel can be resized.</li>
+        <li>Export can be scoped too: all items, filtered items or selected items.</li>
+        <li>A side panel suits "look something up, then go back" tasks better than a blocking modal.</li>
+      </ul></div>
+      <div><h3>Trade-offs</h3><ul>
+        <li>Selection adds state to manage (keeping it across filter changes, "select all 16")</li>
+        <li>Less of the page behind is visible on narrow laptops</li>
+      </ul></div>
+    </div>
+    <p class="best"><b>Best when:</b> building collections from the catalog is the main job. The selection pattern can also be added to options 1–4.</p>
+  </section>
+
+  <section class="panel" id="p6">
+    <div class="stage" id="o6"></div>
+    <div class="why">
+      <div><h3>What changes</h3><ul>
+        <li>One modal with a <b>Grid / Table</b> switch, and you can try it: click the switch, the column headers and the checkboxes</li>
+        <li>Filters, search, sort and selection are <em>shared</em>, so switching views keeps your place</li>
+        <li>Grid cards gain a one-line attribute summary, and table rows keep a thumbnail, so neither view loses the other's key information</li>
+        <li>Sort lives in one place: a column header click in Table updates the Sort menu in Grid</li>
+        <li>The footer becomes a selection bar as soon as anything is ticked, in either view</li>
+      </ul></div>
+      <div><h3>Why it's better</h3><ul>
+        <li><span class="fix">3</span><span class="fix">5</span>Designers judge colour in Grid while store teams audit SKUs in Table. One screen serves both without forking the feature.</li>
+        <li><span class="fix">2</span>Table shows each attribute's value per product, and Grid shows them as a summary line, so the attribute chips stop being abstract.</li>
+        <li><span class="fix">6</span>Select a few products visually in Grid, switch to Table to check their SKUs and materials, then create a collection without losing anything.</li>
+        <li>What the Table shows matches what "Export as CSV" produces.</li>
+        <li>The view you pick can be remembered per user, so each team lands in the view it uses most.</li>
+      </ul></div>
+      <div><h3>Trade-offs</h3><ul>
+        <li>Two layouts to build and test, although they share all their data and state</li>
+        <li>Grid cards are slightly taller because of the attribute line</li>
+        <li>Shared selection needs a clear count ("4 selected") because selected items may be scrolled out of view</li>
+      </ul></div>
+    </div>
+    <p class="best"><b>Best when:</b> the same screen serves both visual (design) and data (ops and store) users. Pair it with the filter sidebar from option 2 for the most complete version.</p>
+  </section>
+
+  <script>
+    const items = [
+      ["Dri-FIT training tee in Ecru","TOP_117","tee","#f1efe9","#5a5a5a","Neutral","Tops","Polyester","Training"],
+      ["Performance tank in Terracotta","TAN_118","tank","#b4472c","#d9d1c4","Red","Tops","Polyester","Training"],
+      ["Windbreaker in Sienna","WBR_119","long","#a5531f","#c9c6c0","Brown","Outerwear","Nylon","Outdoor"],
+      ["Longsleeve top in Apricot","TOP_120","long","#f6b77e","#ece8e2","Orange","Tops","Cotton","Lifestyle"],
+      ["Fleece crewneck in Camel","CRW_121","long","#b9874e","#e7e3dc","Brown","Tops","Fleece","Lifestyle"],
+      ["Dri-FIT training tee in Beige","TOP_122","tee","#d9d2c6","#ebeae6","Neutral","Tops","Polyester","Training"],
+      ["Dri-FIT training tee in Orange","TOP_123","tee","#ff7a2b","#c8c8c6","Orange","Tops","Polyester","Training"],
+      ["Sports Bra in Magenta","BRA_124","bra","#d0368f","#e6e3de","Pink","Bras","Elastane","Training"],
+      ["Fleece joggers in Sand","JOG_125","pants","#d4c3a6","#e9e6e0","Neutral","Bottoms","Fleece","Lifestyle"],
+      ["Biker shorts in Cinnamon","SRT_126","shorts","#8a5636","#e8e5df","Brown","Bottoms","Elastane","Training"],
+      ["Track pants in Mustard","PNT_127","pants","#e3b11f","#efedea","Yellow","Bottoms","Polyester","Lifestyle"],
+      ["Sweatpants in Toffee","SWP_128","pants","#9a6640","#ebe8e3","Brown","Bottoms","Fleece","Lifestyle"],
+      ["Fleece hoodie in Cognac","HOD_129","long","#b0602a","#b8b9bb","Brown","Outerwear","Fleece","Lifestyle"],
+      ["Puffer vest in Amber","VST_130","vest","#e08a1e","#151515","Orange","Outerwear","Nylon","Outdoor"],
+      ["Track jacket in Brick Red","JKT_131","long","#b53a2e","#e9e9e9","Red","Outerwear","Polyester","Lifestyle"],
+      ["Training shorts in Rust","SRT_132","shorts","#c4602f","#ece9e4","Orange","Bottoms","Polyester","Training"],
+      ["Half-zip pullover in Latte","TOP_133","long","#c9a27a","#e9e5de","Neutral","Tops","Fleece","Lifestyle"],
+      ["Sweatpants in Caramel","SWP_134","pants","#c88a5a","#ece8e1","Brown","Bottoms","Fleece","Lifestyle"],
+      ["Dri-FIT training tee in Peach","TOP_135","tee","#f2a65a","#5a5a5a","Orange","Tops","Polyester","Training"],
+      ["Performance tank in Coral","TAN_136","tank","#d97c4a","#e6e1d8","Orange","Tops","Polyester","Training"],
+    ].map(([name, sku, s, c, bg, fam, cat, mat, fn]) => ({ name, sku, s, c, bg, fam, cat, mat, fn }));
+
+    const famColor = { Red: "#b53a2e", Orange: "#f08a3c", Yellow: "#e3b11f", Brown: "#8a5636", Pink: "#d0368f", Neutral: "#e2d9c8" };
+    const warm = ["Red", "Orange", "Yellow", "Brown", "Pink"];
+    const warmItems = items.filter(i => warm.includes(i.fam));
+    const count = (key, val, list = items) => list.filter(i => i[key] === val).length;
+
+    const ic = {
+      back: '<svg class="i" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 5 8l5 5"/></svg>',
+      chev: '<svg class="i" style="width:12px;height:12px" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3 4.5 3 3 3-3"/></svg>',
+      search: '<svg class="i" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/></svg>',
+      plus: '<svg class="i" style="width:14px;height:14px" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M7 1.5v11M1.5 7h11"/></svg>',
+      dl: '<svg class="i" viewBox="0 0 16 16" fill="currentColor"><path d="M7.25 1.5h1.5v6.19l2.22-2.22 1.06 1.06L8 10.56 3.97 6.53l1.06-1.06 2.22 2.22zM2 10h1.5v2.5h9V10H14v4H2z"/></svg>',
+      info: '<svg class="i" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6"/><path d="M8 7.2V11M8 5v.01" stroke-linecap="round"/></svg>',
+      grid: '<svg class="i" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>',
+      list: '<svg class="i" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 4h12M2 8h12M2 12h12"/></svg>',
+      matrix: '<svg class="i" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M2 6.5h12M6.5 2v12"/></svg>',
+      sort: '<svg class="i" style="width:14px;height:14px" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 3v10M2.5 10.5 5 13l2.5-2.5M11 13V3M8.5 5.5 11 3l2.5 2.5"/></svg>',
+      close: '<svg class="i" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="m4 4 8 8M12 4l-8 8"/></svg>',
+    };
+
+    const thumb = i => `<div class="th" style="--bg:${i.bg};--c:${i.c}"><svg><use href="#${i.s}"/></svg></div>`;
+    const vcard = (i, sel) => `<div class="vcard${sel === true ? " sel" : ""}">${sel !== undefined ? '<span class="pick"></span>' : ""}${thumb(i)}<h3>${i.name}</h3><span class="sku">${i.sku}</span></div>`;
+    const header = (extra = "") => `
+      <div class="hd">
+        <button class="back" aria-label="Back">${ic.back}</button>
+        <div class="grow">
+          <h2><span>Custom Attributes /</span> Consumer Preferences</h2>
+          <p>A visual catalog of apparel products organized by surface pattern, enabling designers and online store teams to filter listings and spot gaps in the assortment.</p>
+        </div>
+        ${extra}
+      </div>`;
+    const viewToggle = on => `<div class="seg"><button class="${on === "grid" ? "on" : ""}" aria-label="Grid">${ic.grid}</button><button class="${on === "list" ? "on" : ""}" aria-label="List">${ic.list}</button><button class="${on === "matrix" ? "on" : ""}" aria-label="Coverage">${ic.matrix}</button></div>`;
+    const footer = (left, primary = "New Attribute Collection") => `
+      <div class="ft"><span class="meta">${left}</span><div class="actions">
+        <button class="btn">${ic.dl} Export as CSV</button>
+        <button class="btn primary">${ic.plus} ${primary}</button>
+      </div></div>`;
+
+    /* Option 1 — image-first gallery */
+    document.getElementById("o1").innerHTML = `
+      <div class="m">
+        ${header(`<button class="icon-btn" aria-label="About">${ic.info}</button>`)}
+        <div class="tb">
+          <div class="search">${ic.search} Search products or SKUs</div>
+          <button class="pill on">Color: <b>Warm colors</b> ${ic.chev}</button>
+          <button class="pill">Material: <b>Any</b> ${ic.chev}</button>
+          <button class="pill">Function: <b>Any</b> ${ic.chev}</button>
+          <button class="pill add">${ic.plus} Attribute</button>
+          <span class="sp"></span>
+          <span class="meta"><b style="color:var(--text)">${warmItems.length}</b> of ${items.length} products</span>
+          <button class="btn ghost">${ic.sort} Newest</button>
+        </div>
+        <div class="body"><div class="vgrid" style="grid-template-columns:repeat(6,1fr)">${warmItems.map(i => vcard(i)).join("")}</div></div>
+        ${footer(`Filtered by Color · Warm colors`, `Save as Collection`)}
+      </div>`;
+
+    /* Option 2 — faceted sidebar */
+    const facet = (title, key, vals, checked, swatch) => `
+      <div class="facet"><h4>${title} <a href="#">Clear</a></h4>
+        ${key === "fam" ? `<div class="preset"><span class="on">Warm colors</span><span>Cool colors</span><span>Neutrals</span></div>` : ""}
+        ${vals.map(v => { const n = count(key, v); return `<label class="opt${n ? "" : " zero"}"><span class="cb${checked.includes(v) ? " on" : ""}"></span>${swatch ? `<span class="sw" style="background:${famColor[v] || "#cfd6e0"}"></span>` : ""}${v}<span class="n">${n || "0 · gap"}</span></label>`; }).join("")}
+      </div>`;
+    document.getElementById("o2").innerHTML = `
+      <div class="m">
+        ${header(`<div class="seg"><button class="on">${ic.grid}</button><button>${ic.list}</button></div>`)}
+        <div class="split">
+          <aside class="facets">
+            <div class="search" style="width:100%;margin-bottom:6px">${ic.search} Search</div>
+            ${facet("Color", "fam", ["Red", "Orange", "Yellow", "Brown", "Pink", "Neutral", "Blue"], warm, true)}
+            ${facet("Material", "mat", ["Polyester", "Fleece", "Nylon", "Elastane", "Cotton", "Linen"], [])}
+            ${facet("Function", "fn", ["Training", "Lifestyle", "Outdoor", "Swim"], [])}
+            <button class="pill add" style="margin-top:10px">${ic.plus} Add attribute</button>
+          </aside>
+          <div class="main">
+            <div class="active-row">
+              <span class="meta"><b style="color:var(--text)">${warmItems.length} products</b></span>
+              <span class="chip">Color: Warm colors <span class="x">×</span></span>
+              <a href="#" style="font-size:12.5px;color:var(--muted)">Clear all</a>
+              <span style="flex:1"></span>
+              <button class="btn ghost">${ic.sort} Sort: Newest</button>
+            </div>
+            <div class="body"><div class="vgrid" style="grid-template-columns:repeat(5,1fr)">${warmItems.map(i => vcard(i)).join("")}</div></div>
+          </div>
+        </div>
+        ${footer(`${warmItems.length} of ${items.length} products shown`)}
+      </div>`;
+
+    /* Option 3 — coverage / gap matrix */
+    const cats = ["Tops", "Bottoms", "Outerwear", "Bras"];
+    const fams = ["Red", "Orange", "Yellow", "Brown", "Pink", "Neutral"];
+    let mx = `<div></div>` + fams.map(f => `<div class="mx-h"><span class="sw" style="background:${famColor[f]}"></span>${f}<small>${count("fam", f)}</small></div>`).join("");
+    cats.forEach(c => {
+      const row = items.filter(i => i.cat === c);
+      mx += `<div class="mx-r">${c}<small>${row.length} products</small></div>`;
+      fams.forEach(f => {
+        const hit = row.filter(i => i.fam === f);
+        if (!hit.length) { mx += `<div class="cell gap">Gap<small>+ Add product</small></div>`; return; }
+        const shown = hit.slice(0, hit.length > 3 ? 2 : 3);
+        mx += `<div class="cell${hit.length === 1 ? " thin" : ""}"><div class="thumbs">${shown.map(thumb).join("")}${hit.length > 3 ? `<span class="more">+${hit.length - 2}</span>` : ""}</div><span class="cnt"><b>${hit.length}</b> product${hit.length > 1 ? "s" : ""}</span></div>`;
+      });
+    });
+    const gaps = cats.length * fams.length - new Set(items.map(i => i.cat + i.fam)).size;
+    document.getElementById("o3").innerHTML = `
+      <div class="m">
+        ${header(viewToggle("matrix"))}
+        <div class="tb">
+          <button class="pill">Rows: <b>Product type</b> ${ic.chev}</button>
+          <span class="meta">×</span>
+          <button class="pill">Columns: <b>Color family</b> ${ic.chev}</button>
+          <button class="pill add">${ic.plus} Filter</button>
+          <span class="sp"></span>
+          <div class="legend"><span><i style="background:#fff;border:1px solid var(--border)"></i>Covered</span><span><i style="background:#fffaf0;border:1px solid #f1d9a8"></i>Thin (1)</span><span><i style="background:#fdf2f1;border:1.5px dashed #f0a7a2"></i>Gap</span></div>
+        </div>
+        <div class="body"><div class="matrix">${mx}</div></div>
+        ${footer(`<b style="color:var(--accent)">${gaps} gaps</b> across ${cats.length * fams.length} combinations · ${items.length} products`)}
+      </div>`;
+
+    /* Option 4 — table / list view */
+    const sorted = [...items].sort((a, b) => a.cat.localeCompare(b.cat) || a.name.localeCompare(b.name));
+    document.getElementById("o4").innerHTML = `
+      <div class="m">
+        ${header(viewToggle("list"))}
+        <div class="tb">
+          <div class="search">${ic.search} Search products or SKUs</div>
+          <button class="pill">Color: <b>Any</b> ${ic.chev}</button>
+          <button class="pill">Material: <b>Any</b> ${ic.chev}</button>
+          <button class="pill">Function: <b>Any</b> ${ic.chev}</button>
+          <span class="sp"></span>
+          <button class="btn ghost">Columns ${ic.chev}</button>
+        </div>
+        <div class="body" style="background:var(--surface)">
+          <table class="t">
+            <thead><tr><th class="w-cb"><span class="cb"></span></th><th>Product</th><th>SKU</th><th class="sorted">Category ↑</th><th>Color</th><th>Material</th><th>Function</th></tr></thead>
+            <tbody>${sorted.map(i => `<tr><td><span class="cb"></span></td><td><div class="prod">${thumb(i)}${i.name}</div></td><td class="sku">${i.sku}</td><td>${i.cat}</td><td><span class="tag"><span class="sw" style="background:${i.c}"></span>${i.fam}</span></td><td>${i.mat}</td><td>${i.fn}</td></tr>`).join("")}</tbody>
+          </table>
+        </div>
+        ${footer(`${items.length} products · sorted by Category`)}
+      </div>`;
+
+    /* Option 5 — side panel with selection */
+    const picked = new Set(["TOP_123", "VST_130", "SRT_132", "TOP_135"]);
+    document.getElementById("o5").innerHTML = `
+      <div class="ghost-page">Attributes</div>
+      <div class="m side">
+        ${header(`<button class="icon-btn" aria-label="Close">${ic.close}</button>`)}
+        <div class="tb">
+          <div class="search">${ic.search} Search products or SKUs</div>
+          <button class="pill on">Color: <b>Warm colors</b> ${ic.chev}</button>
+          <button class="pill">Material: <b>Any</b> ${ic.chev}</button>
+          <button class="pill add">${ic.plus} Attribute</button>
+          <span class="sp"></span>
+          ${viewToggle("grid")}
+        </div>
+        <div class="body"><div class="vgrid" style="grid-template-columns:repeat(5,1fr)">${warmItems.map(i => vcard(i, picked.has(i.sku))).join("")}</div></div>
+        <div class="ft selbar">
+          <span class="meta"><b>${picked.size} selected</b> of ${warmItems.length}<a href="#">Select all ${warmItems.length}</a><a href="#">Clear</a></span>
+          <div class="actions">
+            <button class="btn">${ic.dl} Export ${picked.size} as CSV</button>
+            <button class="btn primary">${ic.plus} Create collection (${picked.size})</button>
+          </div>
+        </div>
+      </div>`;
+
+    /* Option 6 — grid + table in one, interactive */
+    const o6 = { view: "grid", key: "name", dir: 1, sel: new Set(["TOP_123", "VST_130"]) };
+    const cols6 = [["name", "Product"], ["sku", "SKU"], ["cat", "Category"], ["fam", "Color"], ["mat", "Material"], ["fn", "Function"]];
+    const colName6 = k => cols6.find(c => c[0] === k)[1];
+    const render6 = () => {
+      const list = [...warmItems].sort((a, b) => a[o6.key].localeCompare(b[o6.key]) * o6.dir);
+      const n = o6.sel.size;
+      const allOn = n === list.length;
+      const grid = `<div class="vgrid" style="grid-template-columns:repeat(6,1fr)">${list.map(i => `
+        <div class="vcard${o6.sel.has(i.sku) ? " sel" : ""}" data-sku="${i.sku}" style="cursor:pointer">
+          <span class="pick"></span>${thumb(i)}<h3>${i.name}</h3>
+          <span class="sku">${i.sku}</span>
+          <span class="attrs"><span class="sw" style="background:${i.c}"></span>${i.cat} · ${i.mat}</span>
+        </div>`).join("")}</div>`;
+      const table = `<table class="t"><thead><tr>
+          <th class="w-cb"><span class="cb${allOn ? " on" : ""}" data-all></span></th>
+          ${cols6.map(([k, l]) => `<th class="sortable${o6.key === k ? " sorted" : ""}" data-key="${k}">${l}${o6.key === k ? (o6.dir > 0 ? " ↑" : " ↓") : ""}</th>`).join("")}
+        </tr></thead><tbody>${list.map(i => `
+          <tr class="${o6.sel.has(i.sku) ? "on" : ""}" data-sku="${i.sku}">
+            <td><span class="cb${o6.sel.has(i.sku) ? " on" : ""}"></span></td>
+            <td><div class="prod">${thumb(i)}${i.name}</div></td><td class="sku">${i.sku}</td><td>${i.cat}</td>
+            <td><span class="tag"><span class="sw" style="background:${i.c}"></span>${i.fam}</span></td><td>${i.mat}</td><td>${i.fn}</td>
+          </tr>`).join("")}</tbody></table>`;
+      const foot = n
+        ? `<div class="ft selbar"><span class="meta"><b>${n} selected</b> of ${list.length}<a href="#" data-act="all">Select all ${list.length}</a><a href="#" data-act="clear">Clear</a></span>
+             <div class="actions"><button class="btn">${ic.dl} Export ${n} as CSV</button><button class="btn primary">${ic.plus} Create collection (${n})</button></div></div>`
+        : footer(`${list.length} of ${items.length} products · sorted by ${colName6(o6.key)}`);
+      document.getElementById("o6").innerHTML = `
+        <div class="m">
+          ${header(`<button class="icon-btn" aria-label="About">${ic.info}</button>`)}
+          <div class="tb">
+            <div class="search">${ic.search} Search products or SKUs</div>
+            <button class="pill on">Color: <b>Warm colors</b> ${ic.chev}</button>
+            <button class="pill">Material: <b>Any</b> ${ic.chev}</button>
+            <button class="pill">Function: <b>Any</b> ${ic.chev}</button>
+            <span class="sp"></span>
+            <span class="meta"><b style="color:var(--text)">${list.length}</b> of ${items.length}</span>
+            <button class="btn ghost" data-act="dir">${ic.sort} ${colName6(o6.key)} ${o6.dir > 0 ? "A–Z" : "Z–A"}</button>
+            <div class="seg labeled" role="tablist" aria-label="View">
+              <button class="${o6.view === "grid" ? "on" : ""}" data-view="grid">${ic.grid} Grid</button>
+              <button class="${o6.view === "table" ? "on" : ""}" data-view="table">${ic.list} Table</button>
+            </div>
+          </div>
+          <div class="body" style="${o6.view === "table" ? "background:var(--surface)" : ""}">${o6.view === "grid" ? grid : table}</div>
+          ${foot}
+        </div>`;
+    };
+    document.getElementById("o6").addEventListener("click", e => {
+      const t = e.target;
+      const view = t.closest("[data-view]"), th = t.closest("th[data-key]"), act = t.closest("[data-act]"), item = t.closest("[data-sku]");
+      if (view) o6.view = view.dataset.view;
+      else if (t.closest("[data-all]")) o6.sel = o6.sel.size === warmItems.length ? new Set() : new Set(warmItems.map(i => i.sku));
+      else if (th) { o6.dir = o6.key === th.dataset.key ? -o6.dir : 1; o6.key = th.dataset.key; }
+      else if (act) {
+        e.preventDefault();
+        if (act.dataset.act === "dir") o6.dir = -o6.dir;
+        if (act.dataset.act === "all") o6.sel = new Set(warmItems.map(i => i.sku));
+        if (act.dataset.act === "clear") o6.sel.clear();
+      }
+      else if (item) { const s = item.dataset.sku; o6.sel.has(s) ? o6.sel.delete(s) : o6.sel.add(s); }
+      else return;
+      render6();
+    });
+    render6();
+
+    /* Tabs */
+    const labels = ["Current", "Image-first gallery", "Filter sidebar", "Coverage matrix", "Table view", "Side panel + selection", "Grid + Table"];
+    const tabs = document.getElementById("tabs");
+    tabs.innerHTML = labels.map((l, n) => `<button class="tab" role="tab" data-n="${n}"><small>${n ? n : "—"}</small>${l}</button>`).join("");
+    const show = n => {
+      document.querySelectorAll(".panel").forEach((p, k) => p.classList.toggle("on", k === n));
+      tabs.querySelectorAll(".tab").forEach((t, k) => t.setAttribute("aria-selected", k === n));
+      history.replaceState(null, "", "#" + n);
+    };
+    tabs.addEventListener("click", e => { const t = e.target.closest(".tab"); if (t) show(+t.dataset.n); });
+    show(+(location.hash.slice(1)) || 1);
+  </script>
+</body>
+</html>
