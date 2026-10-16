@@ -803,11 +803,11 @@
 .o-sec2 { display: flex; align-items: center; gap: 6px; margin: 10px 0 4px; font-size: 11.5px; font-weight: 600; color: var(--sub); }
 .o-cnt { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; display: inline-grid; place-items: center; background: var(--chip); font-size: 11px; color: var(--text); }
 .o-pend2 { display: grid; gap: 6px; }
-.o-pcard { display: flex; align-items: center; gap: 12px; padding: 10px 8px 10px 12px; border: 1px dashed var(--border-strong); border-radius: 8px; background: var(--surface); }
+.o-invcard { display: flex; align-items: center; gap: 12px; padding: 10px 8px 10px 12px; border: 1px dashed var(--border-strong); border-radius: 8px; background: var(--surface); }
 .o-av.dashed { width: 28px; height: 28px; border: 1px dashed var(--border-strong); background: var(--hover); color: var(--sub); }
 .o-av.dashed svg.i { width: 13px; height: 13px; }
-.o-pcard .o-pwho { flex: 1; min-width: 0; }
-.o-pcard .o-pwho > span { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.o-invcard .o-pwho { flex: 1; min-width: 0; }
+.o-invcard .o-pwho > span { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .o-pill.pend { padding: 1px 7px; border-radius: 999px; background: #FFF6E5; color: #8A5A00; font-size: 11px; font-weight: 600; }
 .o-iacts { display: flex; gap: 2px; }
 .o-iacts .icon-btn { width: 28px; height: 28px; border-radius: 6px; color: var(--sub); }

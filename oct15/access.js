@@ -174,7 +174,7 @@ const ACCESS_V6 = () => {
       <div class="o-plist">${members.map(([p, i]) => personRow(p, i, roleDD(p, i))).join("")}</div>
       ${invites.length ? `<section class="o-pend2" aria-label="Pending invites">
         <div class="o-sec2"><span>Pending invites</span><span class="o-cnt">${invites.length}</span></div>
-        ${invites.map(([p, i]) => `<div class="o-pcard">
+        ${invites.map(([p, i]) => `<div class="o-invcard">
           <span class="o-av dashed">${ic.send}</span>
           <div class="o-pwho"><b>${esc(p.email)}</b><span><span class="o-pill pend">Pending</span>${PERMS[p.perm]} · sent ${AC.sent === i ? "just now" : p.sentAt || "just now"}</span></div>
           <div class="o-iacts">${AC.sent === i ? `<span class="o-sent" title="Invite resent">${ic.check}</span>` : `<button class="icon-btn" data-a="resend" data-v="${i}" aria-label="Resend invite to ${esc(p.email)}" title="Resend invite">${ic.send}</button>`}
