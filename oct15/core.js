@@ -39,6 +39,11 @@ const ic = {
   upload: '<svg class="i" viewBox="0 0 16 16" fill="currentColor"><path d="M7.25 10.5h1.5V4.31l2.22 2.22 1.06-1.06L8 1.44 3.97 5.47l1.06 1.06 2.22-2.22zM2 10h1.5v2.5h9V10H14v4H2z"/></svg>',
   studies: sv('<path d="M6 2h4M6.5 2v4L3 13a1 1 0 0 0 .9 1.5h8.2A1 1 0 0 0 13 13L9.5 6V2"/>', 'stroke-width="1.4"'),
   clock: sv('<circle cx="8" cy="8" r="6.25"/><path d="M8 4.75V8l2.25 1.5"/>', 'stroke-width="1.4"'),
+  history: sv('<path d="M2.5 8a5.5 5.5 0 1 0 1.6-3.9"/><path d="M2.5 2.5v2.75h2.75M8 5v3l2 1.25"/>'),
+  arrowR: sv('<path d="M3 8h9.5M9 4.5 12.5 8 9 11.5"/>'),
+  tag: sv('<path d="M2 2.5h5.5L14 9l-5 5-6.5-6.5z"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor" stroke="none"/>'),
+  box: sv('<path d="M8 1.75 14 5v6l-6 3.25L2 11V5z"/><path d="M2 5l6 3.25L14 5M8 8.25v6"/>'),
+  sortI: sv('<path d="M4.5 3v10M2.5 11l2 2 2-2M11.5 13V3M9.5 5l2-2 2 2"/>'),
 };
 
 /* ---------- Toast ---------- */
@@ -54,29 +59,39 @@ const toast = (msg, undo) => {
 };
 
 /* ---------- Flows (one per Figma column) and their options ---------- */
+// Ordered as the customer journey: land on Attributes → create a collection → review it → import it to a study → share it.
+// The Collage Board is a separate way in, so it comes last. `figma` keeps the Figma column name for reference.
 const FLOWS = [
   { id: "home", label: "Attributes Homepage", figma: "Flow 1: Attributes Homepage",
-    opts: { "1": "Option 1 · Refined cards", "2": "Option 2 · Media cards", "3": "Option 3 · Hover outline", side: "Option 4 · Grouped sidebar", emptyA: "Empty state A", emptyB: "Empty state B", emptyC: "Empty state C · Drop a CSV" } },
+    opts: { "1": "Option 1 · Collection cards", emptyA: "Option 2 · Empty, preview cards", emptyB: "Option 3 · Empty, + New menu" } },
+  { id: "create", label: "Create a Collection", figma: "Flow 3: Creating a new Attribute Collection",
+    opts: { i3: "Option 1 · Side rail", i4: "Option 2 · Header dropdowns", i5: "Option 3 · Filter bar", chips: "Option 4 · Chips", i7: "Option 5 · Attribute multi-select" } },
+  { id: "card", label: "Review a Collection", figma: "Flow 2: Clicking on an Attribute Card",
+    opts: { "1": "Option 1 · Side rail", "2": "Option 2 · Rail + preview", "3": "Option 3 · Tabs", "4": "Option 4 · Use panel" } },
+  { id: "study", label: "Import to a Study", figma: "Flow 4: Adding Attributes to a Study",
+    opts: { pick: "Choose a study", p1: "Preview · Option 1 · Impact summary", p3: "Preview · Option 2 · Review by tabs", p4: "Preview · Option 3 · Summary list", p5: "Preview · Option 4 · Attribute cards", p6: "Preview · Option 5 · Drill-in review", done: "Imported" } },
+  { id: "access", label: "Share & Access", figma: "Flow 1: Access Management",
+    opts: { "2": "Option 1 · Share", "3": "Option 2 · Side panel", "4": "Option 3 · Roles explained", "5": "Option 4 · Floating panel", "6": "Option 5 · Requests & activity" } },
   { id: "board", label: "Collage Board", figma: "Flow 1: Collage Board",
-    opts: { board: "Board", tag: "Creating a new Attribute on the Board" } },
-  { id: "access", label: "Access Management", figma: "Flow 1: Access Management",
-    opts: { "1": "Option 1 · Access Management", "2": "Option 2 · Share", "3": "Option 3 · Side panel", "4": "Option 4 · Roles explained", "5": "Option 5 · Floating panel", "6": "Option 6 · Requests & activity" } },
-  { id: "card", label: "Attribute Card", figma: "Flow 2: Clicking on an Attribute Card",
-    opts: { "1": "Option 1 · Side rail", "2": "Option 2 · Rail + preview", "3": "Option 3 · Tabs", empty: "Empty state" } },
-  { id: "create", label: "New Collection", figma: "Flow 3: Creating a new Attribute Collection",
-    opts: { cur: "Current · Values dropdown", i1: "Iteration 1 · Chip rows", i3: "Iteration 3 · Side rail", i4: "Iteration 4 · Header dropdowns", i5: "Iteration 5 · Filter bar", chips: "Iteration 6 · Chip filters", i7: "Iteration 7 · Attribute multi-select" } },
-  { id: "study", label: "Add to a Study", figma: "Flow 4: Adding Attributes to a Study",
-    opts: { view: "Viewing an Attribute card", pick: "Step 1 · Choose a study", p1: "Step 2 · Preview option 1", p3: "Step 2 · Preview option 3" } },
+    opts: { board: "Option 1 · Board", tag: "Option 2 · New attribute on the board" } },
 ];
 const flowById = id => FLOWS.find(f => f.id === id);
 
+/* Recommended option per step (UX rationale in the chat log):
+   Create · Iteration 3: every attribute and value visible at once with checkboxes, the clearest way to choose.
+   Review · Option 1: items take the space, the rail ticks values, one main action.
+   Import · Step 1 then Summary list: pick a study first; the preview leads with totals and opens per attribute.
+   Share · Option 6: people, pending invites, requests and history in one modal. */
+const BEST = { home: "1", create: "i3", card: "1", study: "pick", access: "6", board: "board" };
+const BEST_PILLS = new Set(["home:1", "create:i3", "card:1", "study:pick", "study:p4", "access:6"]);
 const App = {
-  flow: store.get("flow", "home"),
-  opt: Object.assign({ home: "1", board: "board", access: "1", card: "1", create: "cur", study: "view" }, store.get("opt", {})),
-  previewIter: store.get("previewIter", "1"),
+  flow: "home",     // every visit starts on the Attributes homepage
+  opt: { ...BEST },   // every visit starts each step on its recommended option
+  previewIter: "4",
   page: "home",    // home | board
   modal: null,     // card | access | chooser | create | chips | studyPick | import
 };
+
 // A saved option that no longer exists (e.g. Flow 2 · Option 4 moved to Flow 3) falls back to the first one
 FLOWS.forEach(f => { if (!(App.opt[f.id] in f.opts)) App.opt[f.id] = Object.keys(f.opts)[0]; });
 const setOpt = (flow, v) => { App.opt[flow] = v; store.set("opt", App.opt); };
@@ -85,17 +100,27 @@ const setFlow = id => { App.flow = id; store.set("flow", id); };
 /* ---------- Actions: any element with data-a="name" runs ACTIONS[name] ---------- */
 const ACTIONS = {}, INPUTS = {}, RENDER = {}, JUMP = {};
 
+// Top row = the customer journey: numbered steps joined by arrows (earlier steps show a check), then the board as a separate way in
+const JOURNEY = ["home", "create", "card", "study", "access"];
+const journey = () => {
+  const at = JOURNEY.indexOf(App.flow);
+  const step = (x, i) => { const on = x.id === App.flow, done = at > i;
+    return `<button role="tab" aria-selected="${on}" class="${on ? "on" : ""}${done ? " done" : ""}" data-a="flow" data-v="${x.id}"><span>${done ? ic.check : i + 1}</span>${x.label}</button>`; };
+  const steps = JOURNEY.map((id, i) => step(flowById(id), i)).join(`<i class="o-jsep" aria-hidden="true">${ic.chev}</i>`);
+  const b = flowById("board");
+  return `${steps}<span class="o-jdiv" aria-hidden="true"></span><span class="o-jalso">Also</span>
+    <button role="tab" aria-selected="${App.flow === "board"}" class="o-jside${App.flow === "board" ? " on" : ""}" data-a="flow" data-v="board">${typeof SB !== "undefined" ? SB.collages : ""}${b.label}</button>`;
+};
 const renderNav = () => {
   const f = flowById(App.flow);
   const active = RENDER.navActive ? RENDER.navActive() : App.opt[App.flow];
   $("#o-nav").innerHTML = `
     <div class="o-brand"><b>Collagia</b><span>Prototype · Oct 15</span></div>
-    <div class="o-tabs" role="tablist" aria-label="Figma flows">${FLOWS.map((x, i) =>
-      `<button role="tab" aria-selected="${x.id === App.flow}" class="${x.id === App.flow ? "on" : ""}" data-a="flow" data-v="${x.id}"><span>${i + 1}</span>${x.label}</button>`).join("")}</div>`;
+    <div class="o-tabs o-journey" role="tablist" aria-label="Customer journey">${journey()}</div>`;
   $("#o-opts").innerHTML = `
-    <span class="o-olab">${esc(f.figma)}</span>
+    <span class="o-olab" title="${esc(f.figma)}">${f.id === "study" ? "Screens" : "Options"}</span>
     <div class="o-pills">${Object.entries(f.opts).map(([k, l]) =>
-      `<button class="${k === active ? "on" : ""}" data-a="opt" data-v="${k}">${esc(l)}</button>`).join("")}</div>`;
+      `<button class="${k === active ? "on" : ""}" data-a="opt" data-v="${k}">${esc(l)}${BEST_PILLS.has(f.id + ":" + k) ? `<span class="o-best" title="Recommended">Best</span>` : ""}</button>`).join("")}</div>`;
   // Long option lists scroll sideways; keep the current one visible
   const on = $("#o-opts .on"); if (on) on.scrollIntoView({ block: "nearest", inline: "nearest" });
 };
@@ -105,9 +130,10 @@ const render = () => {
   const ae = document.activeElement, fid = ae && ae.id && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA") ? ae.id : null;
   const pos = fid ? ae.selectionStart : null;
   renderNav();
-  $("#app").hidden = App.page !== "home";
+  // "studies" shares the app shell with the Attributes homepage; the sidebar marks which one is open
+  $("#app").hidden = App.page === "board";
   $("#board").hidden = App.page !== "board";
-  if (App.page === "home") RENDER.home(); else RENDER.board();
+  if (App.page === "board") RENDER.board(); else if (App.page === "studies") RENDER.studies(); else RENDER.home();
   RENDER.modal();
   RENDER.float();
   if (fid) { const el = document.getElementById(fid); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch {} } }

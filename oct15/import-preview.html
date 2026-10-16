@@ -157,7 +157,64 @@
     body.embed { background: transparent; }
     body.embed .shell { display: none; }
     body.embed .dim { background: transparent; padding: 24px; }
-  </style>
+      /* ---------- Iterations 4–6: centered modals with different layouts inside ---------- */
+    .m.mod-md { width: min(760px, 100%); }
+    .m.mod-md.pop { animation: pop .18s ease-out; }
+    @keyframes pop { from { transform: translateX(16px); opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .m.pop { animation: none !important; } } .sh-hd { display: grid; gap: 4px; padding: 16px 16px 14px 20px; border-bottom: 1px solid var(--border); flex: none; }
+    .sh-top { display: flex; align-items: center; gap: 8px; }
+    .sh-top h2 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -.2px; }
+    .sh-desc { margin: 0; font-size: 13px; color: var(--muted); }
+    .sh-desc b { color: var(--text); font-weight: 600; }
+    .sh-body { flex: 1; min-height: 0; overflow: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; }
+    .sh-body > * { flex: none; }
+    .sh-ft { display: flex; align-items: center; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--border); flex: none; background: var(--surface); }
+    .sh-ft .note { font-size: 12.5px; color: var(--muted); }
+    .sh-ft .note b { color: var(--text); }
+    .sh-stats { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .sh-stats div { display: grid; gap: 2px; padding: 10px 12px; }
+    .sh-stats div + div { border-left: 1px solid var(--border); }
+    .sh-stats span { font-size: 11.5px; color: var(--muted); }
+    .sh-stats b { font-size: 20px; font-weight: 600; }
+    .sh-sec { font-size: 11px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; color: var(--muted); }
+    /* 4 · accordion list of attributes */
+    .acc { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .sh-body .acc + .acc { margin-top: -6px; }
+    .acc-h { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: 0; background: var(--surface); text-align: left; font: inherit; cursor: pointer; }
+    .acc-h:hover { background: var(--g3); }
+    .acc-h .chev { transition: transform .15s; color: var(--muted); }
+    .acc.open .acc-h .chev { transform: rotate(180deg); }
+    .acc-h b { font-size: 14px; font-weight: 600; }
+    .acc-h small { font-size: 12px; color: var(--muted); }
+    .acc-b { padding: 4px 12px 12px; border-top: 1px solid var(--border); display: grid; gap: 10px; background: var(--g3); }
+    .acc-b .prow { padding: 8px 0; background: none; }
+    .acc-b .prow .nm { min-width: 0; flex: 1; }
+    .acc-b .rows { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; }
+    .acc-b .rows .prow:last-child { border-bottom: 0; }
+    /* 5 · attribute cards */
+    .bs-hd { display: flex; align-items: center; gap: 12px; padding: 14px 16px 12px 20px; border-bottom: 1px solid var(--border); flex: none; }
+    .bs-hd h2 { margin: 0; font-size: 17px; font-weight: 600; }
+    .bs-cards { display: flex; gap: 10px; padding: 14px 20px; overflow-x: auto; flex: none; border-bottom: 1px solid var(--border); }
+    .bs-card { flex: none; width: 168px; display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); text-align: left; font: inherit; cursor: pointer; }
+    .bs-card:hover { border-color: var(--border-strong, #bdbdc0); }
+    .bs-card.on { border-color: var(--text); box-shadow: inset 0 0 0 1px var(--text); }
+    .bs-card b { font-size: 14px; }
+    .bs-card small { font-size: 12px; color: var(--muted); }
+    .bs-body { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: 260px 1fr; }
+    .bs-side { padding: 16px 20px; border-right: 1px solid var(--border); display: grid; align-content: start; gap: 10px; }
+    .bs-side .vdiff { flex-wrap: wrap; }
+    .bs-list .prow .nm { min-width: 0; flex: 1; }
+    /* 6 · drill-in review */
+    .att-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); text-align: left; font: inherit; cursor: pointer; }
+    .att-row:hover { background: var(--g3); }
+    .att-row.on { border-color: var(--text); }
+    .att-row div { display: grid; gap: 2px; flex: 1; min-width: 0; }
+    .att-row b { font-size: 14px; }
+    .att-row small { font-size: 12px; color: var(--muted); }
+    .drill .prow { padding: 8px 20px; }
+    .drill .prow .nm { min-width: 0; flex: 1; }
+    @media (max-width: 900px) { .bs-body { grid-template-columns: 1fr; } .bs-side { border-right: 0; border-bottom: 1px solid var(--border); } }
+</style>
 </head>
 <body>
   <!-- Garment silhouettes for items without a photo -->
@@ -219,10 +276,10 @@
     /* ---------- State ---------- */
     const read = (k, ok, d) => { try { const v = localStorage.getItem(k); return ok[v] ? v : d; } catch { return d; } };
     const save = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
-    const ITERS = { "1": "Impact summary", "3": "Review by tabs" };
+    const ITERS = { "1": "Impact summary", "3": "Review by tabs", "4": "Summary list", "5": "Attribute cards", "6": "Drill-in review" };
     const P = new URLSearchParams(location.search), EMBED = P.has("embed");
     const STUDY = (P.get("study") || "Consumer Preferences").replace(/[<>&"]/g, "");
-    const S = { iter: (ITERS[P.get("iter")] ? P.get("iter") : read("importIter2", ITERS, "1")), tab: "solid", open: new Set(), sec: new Set(), applied: false };
+    const S = { iter: (ITERS[P.get("iter")] ? P.get("iter") : read("importIter2", ITERS, "1")), tab: "solid", open: new Set(), sec: new Set(), applied: false, skip: new Set(), nest: null, full: false };
 
     /* ---------- Helpers ---------- */
     const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
@@ -319,6 +376,52 @@
         </div>
         ${footer(`<b>${a.changes.length}</b> changes in ${a.label} · <b>${ALL.length}</b> in total`)}`;
       },
+
+      // 4 — summary list: totals, then an accordion per attribute, in a compact modal
+      "4": () => {
+        const n = counts(ALL);
+        return `<div class="sh-hd">
+            <div class="sh-top"><h2>Import to ${STUDY}</h2><span class="sp"></span><a class="icon-btn" href="index.html" aria-label="Close">${ic.close}</a></div>
+            <p class="sh-desc">Preview only. Nothing in <b>${STUDY}</b> changes until you apply.</p></div>
+          <div class="sh-body">
+            <div class="sh-stats"><div><span>Items affected</span><b>${affected(ALL)}</b></div><div><span>Values changed</span><b>${n.mv + n.rm}</b></div><div><span>Values added</span><b>${n.add}</b></div></div>
+            <span class="sh-sec">By attribute</span>
+            ${ATTRS.map(a => { const open = S.open.has(a.k); return `<div class="acc${open ? " open" : ""}">
+              <button class="acc-h" data-a="expand" data-k="${a.k}" aria-expanded="${open}"><span style="display:grid;gap:2px;flex:1"><b>${a.label}</b><small>${valueSummary(a)} · ${affected(a.changes)} items</small></span>${countChips(a.changes)}${ic.chev}</button>
+              ${open ? `<div class="acc-b"><div style="display:flex;align-items:center;gap:8px;padding-top:8px"><span class="flab">Values</span><span class="sp"></span>${legend}</div>${valueDiff(a)}<div class="rows">${limit(a.changes, 6)}</div></div>` : ""}
+            </div>`; }).join("")}
+          </div>
+          <div class="sh-ft"><span class="note"><b>${ALL.length}</b> changes</span><span class="sp"></span><a class="btn" href="index.html">Cancel</a>${applyBtn()}</div>`;
+      },
+
+      // 5 — attribute cards: one card per attribute across the top; the picked card's values and items below
+      "5": () => {
+        const a = attr(S.tab);
+        return `          <div class="bs-hd"><h2>Import to ${STUDY}</h2><span class="dry" style="margin:0">${ic.info}<span>Preview only · <b>${ALL.length}</b> changes across ${affected(ALL)} items</span></span>
+            <span class="sp"></span><a class="btn" href="index.html">Cancel</a>${applyBtn()}<a class="icon-btn" href="index.html" aria-label="Close">${ic.close}</a></div>
+          <div class="bs-cards" role="tablist">${ATTRS.map(x => `<button class="bs-card${x.k === a.k ? " on" : ""}" role="tab" aria-selected="${x.k === a.k}" data-a="tab" data-k="${x.k}"><b>${x.label}</b><small>${affected(x.changes)} items · ${valueSummary(x)}</small>${countChips(x.changes)}</button>`).join("")}</div>
+          <div class="bs-body">
+            <div class="bs-side"><span class="flab">Values</span>${valueDiff(a)}${legend}</div>
+            <div class="bs-list">${a.changes.map(row).join("")}</div>
+          </div>`;
+      },
+
+      // 6 — drill-in review: pick an attribute and the modal steps into it to review its items (read-only; edits happen on the board)
+      "6": () => {
+        const a = S.nest && attr(S.nest);
+        if (a) return `<div class="sh-hd"><div class="sh-top"><button class="icon-btn" data-a="nest" data-k="" aria-label="Back to all attributes">${ic.back}</button><h2>${a.label}</h2><span class="sp"></span>${countChips(a.changes)}</div>
+              <p class="sh-desc">${valueSummary(a)} · ${affected(a.changes)} items</p></div>
+            <div style="padding:12px 20px;border-bottom:1px solid var(--border);display:grid;gap:8px">${valueDiff(a)}</div>
+            <div class="sh-body drill" style="padding:0;gap:0">${a.changes.map(c => `<div class="prow">${thumb(c.item)}<div class="nm"><b>${esc(c.item.name)}</b><span class="id">${c.item.id}</span></div>${mark(c)}</div>`).join("")}</div>
+            <div class="sh-ft"><button class="btn" data-a="nest" data-k="">${ic.back}All attributes</button></div>`;
+        return `<div class="sh-hd">
+            <div class="sh-top"><h2>Import to ${STUDY}</h2><span class="sp"></span><a class="icon-btn" href="index.html" aria-label="Close">${ic.close}</a></div>
+            <p class="sh-desc">Open an attribute to see what changes for its items.</p></div>
+          <div class="sh-body">
+            ${ATTRS.map(x => `<button class="att-row" data-a="nest" data-k="${x.k}"><div><b>${x.label}</b><small>${x.changes.length} changes · ${valueSummary(x)}</small></div>${ic.arrow}</button>`).join("")}
+          </div>
+          <div class="sh-ft"><span class="note"><b>${ALL.length}</b> changes</span><span class="sp"></span><a class="btn" href="index.html">Cancel</a>${applyBtn()}</div>`;
+      },
     };
 
     const applied = () => `${header()}
@@ -333,11 +436,14 @@
     /* ---------- Render ---------- */
     const m = document.getElementById("m");
     const render = () => {
+      const kind = { "4": "mod-md", "6": "mod-md" }[S.iter] || "";
+      m.className = "m " + (S.applied ? "" : kind) + (S.iter === "6" && S.nest ? " pop" : "");
+      m.parentElement.className = "dim";
       m.innerHTML = S.applied ? applied() : VIEWS[S.iter]();
       document.getElementById("proto").innerHTML = `<span class="lab">Import preview</span><div class="seg">${Object.entries(ITERS).map(([id, l]) =>
         `<button class="${S.iter === id ? "on" : ""}" data-i="${id}"><b>${id}</b> ${l}</button>`).join("")}</div>`;
     };
-    const reset = () => Object.assign(S, { tab: "solid", open: new Set(), sec: new Set(), applied: false });
+    const reset = () => Object.assign(S, { tab: "solid", open: new Set(), sec: new Set(), applied: false, skip: new Set(), nest: null, full: false });
 
     document.getElementById("proto").addEventListener("click", e => {
       const b = e.target.closest("[data-i]"); if (!b) return;
@@ -350,15 +456,20 @@
         case "tab": S.tab = k; break;
         case "expand": S.open.has(k) ? S.open.delete(k) : S.open.add(k); break;
         case "sec": S.sec.has(k) ? S.sec.delete(k) : S.sec.add(k); break;
-        case "apply": S.applied = true; break;
+        // Embedded: the prototype shows its own success modal (with the way into the study board)
+        case "apply": if (EMBED) { parent.postMessage({ o15: "import", act: "applied", changes: ALL.length, items: affected(ALL) }, "*"); return; } S.applied = true; break;
+        case "nest": S.nest = k || null; break;
         case "reset": reset(); break;
         default: return;
       }
       const body = m.querySelector(".body"); const top = body ? body.scrollTop : 0;
+      const tops = [...m.querySelectorAll(".sh-body")].map(b => b.scrollTop);
       render();
       const nb = m.querySelector(".body"); if (nb && (act === "expand" || act === "sec")) nb.scrollTop = top;
+      // Keep scroll positions when toggling items
+      if (act === "expand" || act === "skip") m.querySelectorAll(".sh-body").forEach((b, j) => { b.scrollTop = tops[j] || 0; });
     });
-    document.addEventListener("keydown", e => { if (e.key === "Escape") { if (EMBED) parent.postMessage({ o15: "import", act: "close" }, "*"); else location.href = "../index.html"; } });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && S.nest) { S.nest = null; render(); return; } if (e.key === "Escape") { if (EMBED) parent.postMessage({ o15: "import", act: "close" }, "*"); else location.href = "../index.html"; } });
     // Embedded in Index-Oct-15: links back to the app talk to the parent page instead of navigating
     document.addEventListener("click", e => {
       const a = e.target.closest("a[href]"); if (!a) return;

@@ -80,7 +80,7 @@ const ACCESS_V1 = () => `<div class="o-modal am" role="dialog" aria-modal="true"
 const ACCESS_V2 = () => `<div class="o-modal share" role="dialog" aria-modal="true" aria-label="Share ${esc(AC.name)}">
   <header class="o-mh small"><button class="icon-btn" data-a="closeModal" aria-label="Back">${ic.back}</button><h2 class="o-h16">Share “${esc(AC.name)}” Attribute Collection</h2></header>
   <div class="o-share-body">
-    <div class="o-h14">Authorization</div>
+    <div class="o-h14">Invite</div>
     <div class="o-invite"><input id="ac-email" class="o-input${AC.err ? " bad" : ""}" data-in="acEmail" data-enter="share" placeholder="Enter an email" value="${esc(AC.email)}" autocomplete="off">
       <button class="btn primary" data-a="share">Share${ic.share}</button></div>
     ${AC.err ? `<p class="o-err">${AC.err}</p>` : ""}
@@ -118,7 +118,7 @@ const shareHead = (title = `Share “${esc(AC.name)}”`) => `<header class="o-m
 
 /* Option 3 · Side panel */
 const ACCESS_V3 = () => `<aside class="o-modal o-drawer" role="dialog" aria-modal="true" aria-label="Share ${esc(AC.name)}">
-  <header class="o-dh"><div><h2 class="o-h16">Share</h2><span class="o-muted">${esc(AC.name)}</span></div><span class="sp"></span>
+  <header class="o-dh"><h2 class="o-h16">Share</h2><span class="sp"></span>
     <button class="icon-btn" data-a="closeModal" aria-label="Close">${ic.close}</button></header>
   <div class="o-dbody">
     <div class="o-sec-l">Invite</div>${inviteRow()}
@@ -172,20 +172,28 @@ const ACCESS_V6 = () => {
   const body = {
     people: () => `${inviteRow()}
       <div class="o-plist">${members.map(([p, i]) => personRow(p, i, roleDD(p, i))).join("")}</div>
-      ${invites.length ? `<section class="o-invited" aria-label="Pending invites">
-        <div class="o-invited-h">${ic.send}<span>Invited · waiting to join</span><span class="o-invited-n">${invites.length}</span></div>
-        ${invites.map(([p, i]) => `<div class="o-invrow">
-          <span class="o-av mail">${ic.send}</span>
-          <div class="o-pwho"><b>${esc(p.email)}</b><span>Invited ${p.sentAt || "just now"} · ${PERMS[p.perm]}</span></div>
-          ${AC.sent === i ? `<span class="o-sent">${ic.check}Sent</span>` : `<button class="btn o-sm" data-a="resend" data-v="${i}">Resend</button>`}
-          <button class="icon-btn o-rm" data-a="removePerson" data-v="${i}" aria-label="Cancel invite to ${esc(p.email)}" title="Cancel invite">${ic.close}</button>
+      ${invites.length ? `<section class="o-pend2" aria-label="Pending invites">
+        <div class="o-sec2"><span>Pending invites</span><span class="o-cnt">${invites.length}</span></div>
+        ${invites.map(([p, i]) => `<div class="o-pcard">
+          <span class="o-av dashed">${ic.send}</span>
+          <div class="o-pwho"><b>${esc(p.email)}</b><span><span class="o-pill pend">Pending</span>${PERMS[p.perm]} · sent ${AC.sent === i ? "just now" : p.sentAt || "just now"}</span></div>
+          <div class="o-iacts">${AC.sent === i ? `<span class="o-sent" title="Invite resent">${ic.check}</span>` : `<button class="icon-btn" data-a="resend" data-v="${i}" aria-label="Resend invite to ${esc(p.email)}" title="Resend invite">${ic.send}</button>`}
+          <button class="icon-btn" data-a="removePerson" data-v="${i}" aria-label="Cancel invite to ${esc(p.email)}" title="Cancel invite">${ic.close}</button></div>
         </div>`).join("")}
       </section>` : ""}`,
     requests: () => AC.requests.length ? `<div class="o-reqs">${AC.requests.map((r, i) => `<div class="o-req">${avatar(r)}
         <div class="o-pwho"><b>${esc(r.name)} <span class="o-asks">asks for ${PERMS[r.perm] === "View Only" ? "view" : "edit"} access</span></b><span>${esc(r.email)} · ${r.when}</span><q>${esc(r.note)}</q></div>
         <div class="o-reqbtns"><button class="btn" data-a="acDecline" data-v="${i}">Decline</button><button class="btn primary" data-a="acApprove" data-v="${i}">Approve</button></div></div>`).join("")}</div>`
       : `<div class="o-empty small"><b>No pending requests</b><span>When someone asks for access, you can approve or decline it here.</span></div>`,
-    activity: () => `<ol class="o-log">${AC.log.map(l => `<li><span class="o-dot"></span><span><b>${esc(l.who)}</b> ${esc(l.what)}</span><time>${l.when}</time></li>`).join("")}</ol>`,
+    // Activity: grouped by when, each entry gets an icon for its kind of change, joined by a timeline
+    activity: () => {
+      const kind = w => /^invited/.test(w) ? ["send", "inv"] : /^(shared|approved)/.test(w) ? ["share", "add"] : /^(removed|cancelled|declined)/.test(w) ? ["trash", "rm"]
+        : /^created/.test(w) ? ["plus", "new"] : ["pencil", "role"];
+      const groups = [["Today", AC.log.filter(l => l.when === "Just now")], ["September", AC.log.filter(l => l.when !== "Just now")]].filter(([, l]) => l.length);
+      return groups.map(([g, l]) => `<div class="o-sec2"><span>${g}</span></div><ol class="o-act2">${l.map(x => { const [icon, cls] = kind(x.what); return `<li>
+        <span class="o-act-ic ${cls}">${ic[icon]}</span>
+        <div><p><b>${esc(x.who)}</b> ${esc(x.what)}</p><time>${x.when}</time></div></li>`; }).join("")}</ol>`).join("");
+    },
   };
   return `<div class="o-modal share tabs6" role="dialog" aria-modal="true" aria-label="Share ${esc(AC.name)}">
   ${shareHead()}

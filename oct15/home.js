@@ -26,14 +26,22 @@ const moreBtn = c => `<button class="more-btn" data-a="menu" data-v="card:${cInd
 const titleRow = c => `<div class="ctitle"><h3>${esc(c.name)}</h3>${moreBtn(c)}</div>`;
 const edited = c => `<div class="cedit"><span class="when" title="Last edited ${c.edited}">${ic.clock}${ago(c.edited)}</span></div>`;
 const cprev = c => `<div class="cprev"><img src="${c.img}" alt="Preview of ${esc(c.name)}"></div>`;
-const newBtn = () => `<button class="btn primary" data-a="newCollection">${ic.plus}New Attribute Collection</button>`;
+const newBtn = () => `<button class="btn primary" data-a="newCollection" title="New Attribute Collection">${ic.plus}New</button>`;
+// Empty state B: "+ New" opens a short menu of the two ways to start
+const newMenuBtn = () => `<div class="o-dd"><button class="btn primary${App.menu === "newmenu" ? " open" : ""}" data-a="menu" data-v="newmenu" aria-haspopup="menu" aria-expanded="${App.menu === "newmenu"}">${ic.plus}New${ic.chev}</button>
+  ${App.menu === "newmenu" ? `<div class="o-menu o-newmenu" role="menu">
+    <button role="menuitem" data-a="csvUpload">${ic.upload}<span><b>Upload CSV</b><small>Start from a spreadsheet</small></span></button>
+    <button role="menuitem" data-a="fromStudyNew">${ic.studies}<span><b>From a Study</b><small>Use a study’s custom attributes</small></span></button>
+  </div>` : ""}</div>`;
+// Option 1 card: icon + number instead of words (Linear-style); quick actions show on hover over the preview
+const cmeta = c => `<div class="cmeta"><span class="cv" title="Version ${c.v.slice(1)}">${c.v}</span><span class="sp"></span><span class="when" title="Last edited ${c.edited}">${ic.clock}${ago(c.edited)}</span></div>`;
 
 // Outline the collection being shared while the floating share panel is open
 const sharing = c => App.modal === "access" && App.opt.access === "5" && c.name === AC.name ? " is-sharing" : "";
-const card = (c, ring = false) => `
-  <article class="ccard${ring ? " has-ring" : ""}${sharing(c)}" data-a="openCard" data-v="${cIndex(c)}" tabindex="0">
-    ${cprev(c)}
-    <div class="cbody">${titleRow(c)}${ring ? `<p class="cdesc">${esc(c.desc)}</p>` : ""}${ctags(c, ring ? 3 : 4)}${edited(c)}</div>
+const card = c => `
+  <article class="ccard v1${sharing(c)}" data-a="openCard" data-v="${cIndex(c)}" tabindex="0">
+    <div class="cprevwrap">${cprev(c)}</div>
+    <div class="cbody">${titleRow(c)}${ctags(c, 3)}${cmeta(c)}</div>
   </article>`;
 const mediaCard = c => `
   <article class="ccard media${sharing(c)}" data-a="openCard" data-v="${cIndex(c)}" tabindex="0">
@@ -45,10 +53,10 @@ const emptyActions = primary => `<div class="empty-actions">${primary ? newBtn()
 const tagIcon = size => `<svg viewBox="0 0 16 16" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M2 2.5h5.5L14 9l-5 5-6.5-6.5z"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor" stroke="none"/></svg>`;
 const emptyB = () => `
   <div class="empty-body">
-    <span class="empty-icon big">${tagIcon(24)}</span>
+    <span class="empty-icon big solid">${tagIcon(24)}</span>
     <b>No attribute collections yet</b>
     <p>Create your first collection to tag products the same way across studies. You can also bring in attributes published from a study, or upload a CSV.</p>
-    ${emptyActions(true)}
+    <div class="empty-actions">${newMenuBtn()}</div>
   </div>`;
 const emptyA = () => `
   <div class="h-empty">
@@ -63,8 +71,9 @@ const emptyA = () => `
 const noMatches = () => `<div class="no-match"><b>No collections match “${esc(H.q)}”</b><span>Try another name or attribute, or clear the search.</span><button class="btn" data-a="clearSearch">Clear search</button></div>`;
 
 RENDER.home = () => {
-  RENDER.sidebar();
-  const o = App.opt.home, empty = o.startsWith("empty");
+  RENDER.sidebar(); markNav();
+  // Other flows open over the homepage, so behind them it always shows the collections (never an empty state)
+  const o = App.flow === "home" ? App.opt.home : "1", empty = o.startsWith("empty");
   const section = o === "side" && H.section !== "all";   // Option 4 · a sub-page picked in the sidebar
   const list = empty ? [] : shownCollections(), total = empty ? 0 : COLLECTIONS.length;
   let body;
@@ -74,8 +83,7 @@ RENDER.home = () => {
   else if (section) body = sectionBody(list) || noMatches();
   else if (!COLLECTIONS.length) body = emptyB();
   else if (!list.length) body = noMatches();
-  else if (o === "2") body = `<div class="h-grid wide">${list.map(mediaCard).join("")}</div>`;
-  else if (o === "3") body = `<div class="h-grid four">${list.map(c => card(c, true)).join("")}</div>`;
+
   else body = `<div class="h-grid">${list.map(c => card(c)).join("")}</div>`;
 
   $("#home").innerHTML = `
@@ -85,7 +93,7 @@ RENDER.home = () => {
       <span class="h-count">${section ? `${sectionCount(H.section)} Attribute Collections` : `${H.q ? `${list.length} of ${total}` : total} Attribute Collections`}</span>
       <span class="sp"></span>
       ${empty || !COLLECTIONS.length ? "" : `<label class="h-search">${ic.search}<input id="hq" data-in="homeSearch" placeholder="Search an Attribute…" value="${esc(H.q)}"></label>
-      <label class="h-sort">Sort: <select id="hsort" data-in="homeSort">${Object.entries(SORTS).map(([k, l]) => `<option value="${k}"${H.sort === k ? " selected" : ""}>${l}</option>`).join("")}</select></label>`}
+      ${sortDD()}`}
       ${o === "emptyB" || (!empty && !COLLECTIONS.length) ? "" : newBtn()}
     </div>
     ${body}`;
@@ -102,6 +110,9 @@ RENDER.float = () => {
     <button role="menuitem" data-a="openCard" data-v="${m[1]}">${ic.open}Open</button>
     <button role="menuitem" data-a="openAccess" data-v="${m[1]}">${ic.share}Share</button>
     <button role="menuitem" data-a="openImport" data-v="${m[1]}">${ic.importStudy}Import to a Study</button>
+    <hr class="o-msep"><div class="o-mgroup">Update collection</div>
+    <button role="menuitem" data-a="updateFromStudy">${ic.studies}From a study</button>
+    <button role="menuitem" data-a="csvToCollection">${ic.csv}From a CSV</button>
     <button role="menuitem" class="danger" data-a="askDelete" data-v="${m[1]}">${ic.trash}Delete</button>
   </div>`;
 };
@@ -126,6 +137,32 @@ ACTIONS.confirmDelete = () => {
   toast(`Deleted “${c.name}”`, () => { DELETED.splice(DELETED.indexOf(c), 1); COLLECTIONS.splice(i, 0, c); toast(`Restored “${c.name}”`); });
 };
 
+// Sort uses the same button + menu as every other dropdown in the app
+const sortDD = () => `<div class="o-dd"><button class="o-select h-sortbtn${App.menu === "hsort" ? " open" : ""}" data-a="menu" data-v="hsort" aria-haspopup="menu" aria-expanded="${App.menu === "hsort"}" title="Sort">${ic.sortI}<span>${SORTS[H.sort]}</span>${ic.chev}</button>
+  ${App.menu === "hsort" ? `<div class="o-menu right" role="menu">${Object.entries(SORTS).map(([k, l]) => `<button role="menuitemradio" aria-checked="${H.sort === k}" class="${H.sort === k ? "cur" : ""}" data-a="homeSortPick" data-v="${k}">${l}${H.sort === k ? ic.check : ""}</button>`).join("")}</div>` : ""}</div>`;
+ACTIONS.homeSortPick = el => { H.sort = el.dataset.v; };
+
+/* ---------- Studies page (sidebar › Studies): the same study cards as Import to a Study; a card opens its board ---------- */
+const S_PAGE = { q: "" };
+RENDER.studies = () => {
+  RENDER.sidebar(); markNav();
+  const q = S_PAGE.q.trim().toLowerCase(), list = STUDIES.filter(s => !q || s.name.toLowerCase().includes(q));
+  $("#home").innerHTML = `
+    <div class="h-title"><div class="h-heading"><h1>Studies</h1></div></div>
+    <div class="h-toolbar"><span class="h-count">${q ? `${list.length} of ${STUDIES.length}` : STUDIES.length} Studies</span><span class="sp"></span>
+      <label class="h-search">${ic.search}<input id="sq" data-in="studySearch" placeholder="Search a Study…" value="${esc(S_PAGE.q)}"></label>
+      <button class="btn primary" data-a="bdToast" data-v="New study">${ic.plus}New</button></div>
+    ${list.length ? `<div class="o-studies page">${list.map(s => `
+      <div class="o-study" data-a="openStudy" data-v="${esc(s.name)}" tabindex="0" role="link">
+        <div class="o-sprev"><img src="${s.img}" alt=""></div>
+        <div class="o-sbody"><div><b>${esc(s.name)}</b><span>${esc(s.collage)} · ${s.edited}</span><span class="o-fit">${s.products} products</span></div></div>
+      </div>`).join("")}</div>` : `<div class="no-match"><b>No studies match “${esc(S_PAGE.q)}”</b><span>Try another name.</span></div>`}`;
+};
+INPUTS.studySearch = el => { S_PAGE.q = el.value; };
+ACTIONS.openStudy = () => { setFlow("board"); JUMP.board(null); return false; };
+// Sidebar: mark the open page
+const markNav = () => document.querySelectorAll(".sidebar .nav li").forEach(li => li.classList.toggle("active", li.dataset.v === (App.page === "studies" ? "studies" : "attributes")));
+
 /* ---------- Actions ---------- */
 INPUTS.homeSearch = el => { H.q = el.value; };
 INPUTS.homeSort = el => { H.sort = el.value; };
@@ -135,6 +172,7 @@ ACTIONS.toStudies = () => { toast("Prototype: Studies isn't part of this prototy
 ACTIONS.nav = el => {
   const v = el.dataset.v;
   if (v === "attributes") { setFlow("home"); App.page = "home"; App.modal = null; return; }
+  if (v === "studies") { setFlow("home"); App.page = "studies"; App.modal = null; S_PAGE.q = ""; return; }
   if (v === "collages") { setFlow("board"); JUMP.board(null); return false; }
   toast(`Prototype: ${el.textContent.trim()} isn't part of this prototype`); return false;
 };

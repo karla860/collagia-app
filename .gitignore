@@ -1,0 +1,8 @@
+# Only the live prototype is versioned: index.html, oct15/, assets/
+/*
+!/index.html
+!/oct15/
+!/assets/
+!/README.md
+!/.gitignore
+.DS_Store

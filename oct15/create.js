@@ -9,7 +9,7 @@ const CR = { name: "Consumer Preferences", editing: false, included: new Set(), 
 const resetCreate = () => Object.assign(CR, { name: "Consumer Preferences", editing: false, included: new Set(["color", "mat1", "mat2"]), active: "color", value: "Warm colors",
   picks: new Set(["color|Warm colors"]), attrs: new Set(["color", "mat1"]), mq: "" });
 // Iterations 5 and 7 pick several values at once
-const multiPick = () => ["i5", "i7"].includes(App.opt.create);
+const multiPick = () => ["i3", "i5", "i7"].includes(App.opt.create);
 const crAttrs = () => ["i4", "i5", "i7"].includes(App.opt.create) ? STUDY_ATTRS : STUDY_ATTRS.filter(a => a.k !== "design");
 const picksOf = k => [...CR.picks].filter(s => s.startsWith(k + "|")).map(s => s.slice(k.length + 1));
 // Several values of one attribute widen the list; values of different attributes narrow it
@@ -31,8 +31,8 @@ const MODAL_CHOOSER = () => `<div class="o-modal chooser" role="dialog" aria-mod
 const titleEdit = () => `<div class="o-crtitle">
   <button class="icon-btn" data-a="toChooser" aria-label="Back">${ic.back}</button>
   <span class="o-crumbgrey">Custom Attributes</span><span class="o-crumbgrey">/</span>
-  ${CR.editing ? `<input id="cr-name" class="o-namein" data-in="crName" data-enter="crNameDone" value="${esc(CR.name)}" aria-label="Collection name">`
-    : `<button class="o-namebox" data-a="crNameEdit">${esc(CR.name)}${ic.pencil}</button>`}
+  ${CR.editing ? `<input id="cr-name" class="o-namein o-titlein" data-in="crName" data-enter="crNameDone" value="${esc(CR.name)}" aria-label="Collection name">`
+    : `<button class="o-titlebtn" data-a="crNameEdit" title="Rename">${esc(CR.name)}</button><button class="icon-btn o-titleedit" data-a="crNameEdit" aria-label="Rename collection" title="Rename">${ic.pencil}</button>`}
 </div>`;
 const attrChip = (a, style) => {
   const inc = CR.included.has(a.k), act = CR.active === a.k;
@@ -44,32 +44,44 @@ const valChip = (v, style) => {
   const n = vCount(CR.active, v), on = CR.value === v;
   return `<button class="o-vchip ${style}${on ? " on" : ""}" data-a="crValue" data-v="${esc(v)}">${esc(v)}<span class="n">${n}</span></button>`;
 };
-const crCards = cols => `<div class="o-crgrid c${cols}">${crShown().map(p => `<div class="o-crcard">${thumb(p, "s100")}<div><div class="nm">${esc(p.name)}</div><div class="o-id">${p.id}</div></div></div>`).join("")}</div>`;
-const crFooter = label => `<footer class="o-mf"><span class="o-showing">Showing <b>${crShown().length}</b> of ${STUDY_PRODUCTS.length} products</span><span class="sp"></span>
-  <button class="btn" data-a="crExport">${ic.exportCsv}Export as CSV</button><button class="btn primary" data-a="crCreate">${ic.plus}${label}</button></footer>`;
+// Grid or List, picked in the header (every iteration has the switch)
+const crSeg = () => `<div class="o-seg icons" role="radiogroup" aria-label="View"><button class="${CR.view !== "list" ? "on" : ""}" data-a="crView" data-v="grid" role="radio" aria-checked="${CR.view !== "list"}" title="Grid" aria-label="Grid">${ic.grid}</button><button class="${CR.view === "list" ? "on" : ""}" data-a="crView" data-v="list" role="radio" aria-checked="${CR.view === "list"}" title="List" aria-label="List">${ic.list}</button></div>`;
+const crList = () => { const l = crShown(), half = Math.ceil(l.length / 2); return `<div class="o-cols c2 o-crlist">${[l.slice(0, half), l.slice(half)].map(col => `<div class="o-col"><div class="o-thd"><span>Product</span><span>ID</span></div>${col.map(p => `<div class="o-trw">${thumb(p, "s36")}<span class="nm">${esc(p.name)}</span><span class="o-id">${p.id}</span></div>`).join("")}</div>`).join("")}</div>`; };
+ACTIONS.crView = el => { CR.view = el.dataset.v; };
+const crCards = cols => CR.view === "list" ? crList() : `<div class="o-crgrid c${cols}">${crShown().map(p => `<div class="o-crcard">${thumb(p, "s100")}<div><div class="nm">${esc(p.name)}</div><div class="o-id">${p.id}</div></div></div>`).join("")}</div>`;
+/* Flow 3 is about choosing: a strip under the header says what the ticks do, and the footer counts the selection.
+   (Flow 2 only browses, so it has neither.) */
+const crChosen = () => App.opt.create === "i7" ? CR.attrs : CR.included;
+const GUIDE = "Choose the attributes to keep. Values only change the preview.";
+const crGuide = () => `<div class="o-selguide">${GUIDE}</div>`;
+// One direct CTA everywhere: says what gets made and from how much
+// The count lives only on the button, as a badge
+const crCta = () => { const n = crChosen().size; return `Create Collection${n ? `<span class="o-ctan" title="${n} attribute${n === 1 ? "" : "s"}">${n}</span>` : ""}`; };
+const crFooter = () => `<footer class="o-mf"><span class="o-showing o-iconly" title="Products in the preview">${ic.box}${crShown().length} of ${STUDY_PRODUCTS.length}</span><span class="sp"></span>
+  <button class="btn primary" data-a="crCreate"${crChosen().size ? "" : " disabled"}>${ic.plus}${crCta()}</button></footer>`;
 const valuesMenu = (id, cls = "") => App.menu === id ? `<div class="o-menu ${cls}" role="menu">${crAttrs().filter(a => CR.included.has(a.k)).map(a => `
   <div class="o-mgroup">${a.label}</div>${a.values.map(v => `<button role="menuitemradio" class="${CR.active === a.k && CR.value === v ? "cur" : ""}" data-a="crPick" data-v="${a.k}|${esc(v)}">${esc(v)}<span class="n">${vCount(a.k, v)}</span></button>`).join("")}`).join("")}</div>` : "";
 const attrsMenu = (id, cls = "") => App.menu === id ? `<div class="o-menu ${cls}" role="menu" data-keep>${crAttrs().map(a =>
   `<button role="menuitemcheckbox" aria-checked="${CR.included.has(a.k)}" data-a="crInclude" data-v="${a.k}" data-keep>${cbox(CR.included.has(a.k) ? "on" : "")}${a.label}${App.opt.create === "i5" ? `<span class="n">${a.values.length}</span>` : ""}</button>`).join("")}</div>` : "";
 
 const CREATE_VIEWS = {
-  cur: () => `<header class="o-mh tall">${titleEdit()}</header>
+  cur: () => `<header class="o-mh tall">${titleEdit()}</header>${crGuide()}
     <div class="o-crrow"><span class="o-rl">Attributes</span>${crAttrs().map(a => attrChip(a, "box")).join("")}</div>
     <div class="o-crrow line"><span class="o-rl">Values</span><div class="o-dd"><button class="o-select w200${App.menu === "crv" ? " open" : ""}" data-a="menu" data-v="crv">${esc(CR.value || "All values")}${ic.chev}</button>${valuesMenu("crv")}</div></div>
-    <div class="o-scroll grey">${crCards(5)}</div>${crFooter("New Attribute Collection")}`,
-  i1: () => `<header class="o-mh tall">${titleEdit()}</header>
+    <div class="o-scroll grey">${crCards(5)}</div>${crFooter()}`,
+  i1: () => `<header class="o-mh tall">${titleEdit()}</header>${crGuide()}
     <div class="o-crrow"><span class="o-caps">Attributes</span>${crAttrs().map(a => attrChip(a, "box")).join("")}</div>
     <div class="o-crrow line"><span class="o-caps">Values</span>${activeAttr().values.map(v => valChip(v, "pink")).join("")}</div>
-    <div class="o-scroll grey">${crCards(5)}</div>${crFooter("Create")}`,
-  i3: () => `<header class="o-mh tall line">${titleEdit()}</header>
+    <div class="o-scroll grey">${crCards(5)}</div>${crFooter()}`,
+  i3: () => `<header class="o-mh tall line">${titleEdit()}<span class="sp"></span>${crSeg()}<button class="icon-btn o-ibtn" data-a="crExport" title="Export as CSV" aria-label="Export as CSV">${ic.exportCsv}</button></header>
     <div class="o-mb with-rail"><aside class="o-rail"><div class="o-rail-h">Attributes &amp; Values</div>${crAttrs().map(a => `<div class="o-rg">
       <button class="o-rrow attr" data-a="crInclude" data-v="${a.k}">${cbox(CR.included.has(a.k) ? "on" : "")}<b>${a.label}</b><span class="n">${a.values.length}</span></button>
-      ${a.values.map(v => `<button class="o-rrow" data-a="crPick" data-v="${a.k}|${esc(v)}">${cbox(CR.active === a.k && CR.value === v ? "on" : "")}<span>${esc(v)}</span><span class="n">${vCount(a.k, v)}</span></button>`).join("")}</div>`).join("")}</aside>
-    <div class="o-scroll grey">${crCards(4)}</div></div>${crFooter("Create Custom Attributes")}`,
+      ${a.values.map(v => `<button class="o-rrow" data-a="crValToggle" data-v="${a.k}|${esc(v)}" aria-pressed="${CR.picks.has(a.k + "|" + v)}">${cbox(CR.picks.has(a.k + "|" + v) ? "on" : "")}<span>${esc(v)}</span><span class="n">${vCount(a.k, v)}</span></button>`).join("")}</div>`).join("")}</aside>
+    <div class="o-scroll grey"><p class="o-gridguide">${GUIDE}</p>${crCards(4)}</div></div>${crFooter()}`,
   i4: () => `<header class="o-mh tall">${titleEdit()}<span class="sp"></span>
       <div class="o-dd"><button class="o-select w200${App.menu === "cra" ? " open" : ""}" data-a="menu" data-v="cra">${ic.importStudy}Attributes${ic.chev}</button>${attrsMenu("cra", "full")}</div>
-      <div class="o-dd"><button class="o-select w200${App.menu === "crv" ? " open" : ""}" data-a="menu" data-v="crv">${ic.list}${esc(CR.value || "Values")}${ic.chev}</button>${valuesMenu("crv", "full")}</div></header>
-    <div class="o-scroll grey">${crCards(5)}</div>${crFooter("Create Custom Attributes")}`,
+      <div class="o-dd"><button class="o-select w200${App.menu === "crv" ? " open" : ""}" data-a="menu" data-v="crv">${ic.list}${esc(CR.value || "Values")}${ic.chev}</button>${valuesMenu("crv", "full")}</div>${crSeg()}<button class="icon-btn o-ibtn" data-a="crExport" title="Export as CSV" aria-label="Export as CSV">${ic.exportCsv}</button></header>${crGuide()}
+    <div class="o-scroll grey">${crCards(5)}</div>${crFooter()}`,
   i5: () => {
     // Values are multi-select; the chosen ones show as removable chips right in the filter bar
     const inc = crAttrs().filter(a => CR.included.has(a.k));
@@ -80,7 +92,7 @@ const CREATE_VIEWS = {
         ${inc.map(a => `<div class="o-mgroup">${a.label}${picksOf(a.k).length ? ` · ${picksOf(a.k).length} of ${a.values.length}` : ""}</div>${a.values.map(v => { const on = CR.picks.has(a.k + "|" + v); return `
           <button role="option" aria-selected="${on}" data-a="crValToggle" data-v="${a.k}|${esc(v)}" data-keep>${cbox(on ? "on" : "")}<span>${esc(v)}</span><span class="n">${vCount(a.k, v)}</span></button>`; }).join("")}`).join("")}
       </div>` : "";
-    return `<header class="o-mh tall">${titleEdit()}<span class="sp"></span><button class="btn" data-a="crExport">${ic.exportCsv}Export as CSV</button><button class="btn primary" data-a="crCreate">${ic.plus}Create Custom Attributes</button></header>
+    return `<header class="o-mh tall">${titleEdit()}<span class="sp"></span>${crSeg()}<button class="icon-btn o-ibtn" data-a="crExport" title="Export as CSV" aria-label="Export as CSV">${ic.exportCsv}</button><button class="btn primary" data-a="crCreate"${crChosen().size ? "" : " disabled"}>${ic.plus}${crCta()}</button></header>${crGuide()}
     <div class="o-filterbar">
       <div class="o-dd"><button class="o-select w260${App.menu === "cra" ? " open" : ""}" data-a="menu" data-v="cra"><span class="o-fl">Attributes:</span>${CR.included.size} selected${ic.chev}</button>${attrsMenu("cra", "full")}</div>
       <div class="o-dd"><button class="o-select w200${App.menu === "crv" ? " open" : ""}" data-a="menu" data-v="crv"><span class="o-fl">Values:</span><span class="o-selv">${esc(label)}</span>${ic.chev}</button>${menu}</div>
@@ -105,7 +117,7 @@ const CREATE_VIEWS = {
           ${v.length ? `<button class="o-vmenu-clear" data-a="crValClear" data-v="${a.k}" data-keep>Show all ${esc(a.label)} values</button>` : ""}
         </div>` : ""}</div>`;
     };
-    return `<header class="o-mh tall">${titleEdit()}</header>
+    return `<header class="o-mh tall">${titleEdit()}<span class="sp"></span>${crSeg()}<button class="icon-btn o-ibtn" data-a="crExport" title="Export as CSV" aria-label="Export as CSV">${ic.exportCsv}</button></header>${crGuide()}
     <div class="o-crrow o-mrow"><span class="o-rl">Attributes</span>
       <div class="o-dd o-mwrap">
         <div class="o-mfield${open ? " open" : ""}" data-a="crMultiOpen">
@@ -125,7 +137,7 @@ const CREATE_VIEWS = {
       ${picked.length ? picked.map(valueDD).join("") : `<span class="o-muted">Pick attributes above to filter by their values.</span>`}
       ${CR.picks.size ? `<button class="o-clear" data-a="crMultiClear">Clear values</button>` : ""}
     </div>
-    <div class="o-scroll grey">${crCards(5)}</div>${crFooter("New Attribute Collection")}`;
+    <div class="o-scroll grey">${crCards(5)}</div>${crFooter()}`;
   },
 };
 const MODAL_CREATE = () => `<div class="o-modal xl cr-${App.opt.create}" role="dialog" aria-modal="true" aria-label="Create from ${esc(CR.name)}">${CREATE_VIEWS[App.opt.create]()}</div>`;
@@ -166,7 +178,7 @@ const saveCollection = (name, tags, source) => {
 };
 // Iteration 7 keeps the chosen attributes; the rest keep the checked ones
 const crTags = () => {
-  if (!multiPick()) return STUDY_ATTRS.filter(a => CR.included.has(a.k)).map(a => a.label);
+  if (App.opt.create !== "i7") return crAttrs().filter(a => CR.included.has(a.k)).map(a => a.label);
   const keep = crAttrs().filter(a => CR.attrs.has(a.k));
   return (keep.length ? keep : crAttrs()).map(a => a.label);
 };
@@ -188,3 +200,5 @@ JUMP.create = v => {
   else openChooser();
   render();
 };
+// Homepage "+ New › From a Study" skips the chooser
+ACTIONS.fromStudyNew = () => { setFlow("create"); ACTIONS.fromStudy(); };
