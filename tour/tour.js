@@ -231,8 +231,9 @@
   addEventListener("resize", place);
 
   const wantsTour = /[?&#]tour\b/.test(location.href);
+  const firstStep = Math.min(STEPS.length, Math.max(1, +(location.href.match(/[?&#]tour=(\d+)/) || [])[1] || 1)) - 1; // ?tour=9 opens on step 9
   let seen = false; try { seen = !!localStorage.getItem(DONE_KEY); } catch {}
   // The app boots after the catalogue loads; start once it says it is ready
-  document.addEventListener("app:ready", () => { build(); if (wantsTour || !seen) setTimeout(() => start(0), 300); });
+  document.addEventListener("app:ready", () => { build(); if (wantsTour || !seen) setTimeout(() => start(wantsTour ? firstStep : 0), 300); });
   window.PrototypeTour = { start, stop, steps: STEPS };
 })();

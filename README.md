@@ -15,7 +15,7 @@ Then open http://localhost:8765. It needs a server (not file://) because the Nik
 | Open | What it is |
 | --- | --- |
 | http://localhost:8765 | The Oct 19 version. Starts on the study board |
-| http://localhost:8765/?tour=1 | Same, with the guided tour (34 short steps) |
+| http://localhost:8765/?tour=1 | Same, with the guided tour (34 short steps). `?tour=27` opens on step 27 |
 | http://localhost:8765/#card | Jump straight to a screen: `#board`, `#home`, `#create`, `#card`, `#study`, `#access`, `#settings` |
 | http://localhost:8765/karla-oct15.html | Karla's Oct 15/16 version, unchanged, for comparing |
 | http://localhost:8765/oct15/import-preview.html | Karla's import preview on its own (her 5 layouts are in the top bar) |
