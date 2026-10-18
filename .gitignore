@@ -1,8 +1,12 @@
-# Only the live prototype is versioned: index.html, oct15/, assets/
+# Only the prototype is versioned
 /*
 !/index.html
+!/karla-oct15.html
 !/oct15/
+!/oct17/
+!/tour/
 !/assets/
 !/README.md
+!/REVIEW.md
 !/.gitignore
 .DS_Store

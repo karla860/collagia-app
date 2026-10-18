@@ -1,25 +1,34 @@
-# Collagia · Attributes Portal prototype
+# Collagia · Attributes prototype
 
-A clickable prototype of the Collagia Attributes portal (Phase 3, v2).
+Clickable prototype of the Collagia Attributes feature (today's Label Library). Task: SIG-6087.
 
-Open `index.html` in a browser. No build step or server needed.
+## Run it
 
-## The journey
+```bash
+python3 -m http.server 8765
+```
 
-The dark top bar follows the customer journey; the row under it switches between options for each step ("Best" marks the recommended one).
+Then open http://localhost:8765. It needs a server (not file://) because the Nike catalogue loads from JSON.
 
-1. **Attributes Homepage**: collections, search, sort, + New
-2. **Create a Collection**: choose a study's attributes to save as a collection
-3. **Review a Collection**: browse the attributes and items, version history, import
-4. **Import to a Study**: choose a study → preview changes → imported → study board
-5. **Share & Access**: invite people, roles, requests, activity
+## What's where
 
-Also: **Collage Board**, tagging groups of products directly on the board.
+| Open | What it is |
+| --- | --- |
+| http://localhost:8765 | The Oct 19 version. Starts on the study board |
+| http://localhost:8765/?tour=1 | Same, with the guided tour (34 short steps) |
+| http://localhost:8765/#card | Jump straight to a screen: `#board`, `#home`, `#create`, `#card`, `#study`, `#access`, `#settings` |
+| http://localhost:8765/karla-oct15.html | Karla's Oct 15/16 version, unchanged, for comparing |
+| http://localhost:8765/oct15/import-preview.html | Karla's import preview on its own (her 5 layouts are in the top bar) |
+
+Inside the Oct 19 version, press ⌘K (bottom right) for the guide: every screen in order, plus the tour.
 
 ## Files
 
-- `index.html`: the prototype
-- `oct15/`: styles, scripts, and the embedded import-preview and chips pages
-- `assets/`: product photos and collection previews
+- `index.html`, `oct17/`: the Oct 19 version. Plain JS, no build step
+- `tour/`: the guided tour that sits on top of it
+- `oct15/`: Karla's version, untouched
+- `karla-oct15.html`: Karla's original `index.html`, so both can run side by side
+- `assets/nike/`: 320 real men's shoes from nike.com/gb (names, style codes, prices, photos). Sales numbers are simulated
+- `REVIEW.md`: what changed from the Oct 16 version and why
 
-Designs: Figma "🖼️ Collagia - App" › Phase 3: Attributes Portal › *Phase 3: Attributes Portal - v2*.
+Designs: Figma "🖼️ Collagia - App" › Phase 3: Attributes Portal.
