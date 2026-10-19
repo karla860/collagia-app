@@ -984,3 +984,26 @@ button.cpx-sv.on { border-color: var(--text); box-shadow: 0 0 0 1px var(--text) 
 /* The attributes icon is drawn white for its red "on" state; darken it everywhere else */
 .bx-tools button:not(.on) .fi[src$="tool-attributes.svg"], .bx-ph .fi[src$="tool-attributes.svg"] { filter: brightness(0); }
 .cpx-k { letter-spacing: var(--ls-overline); }
+
+/* ---------- Collection edge states: partial data is flagged in place, never blocking ---------- */
+.o-notice { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 8px 10px; margin: 12px 20px 0; padding: 10px 12px; border: 1px solid var(--alert-stroke); border-radius: 6px; background: var(--alert-soft); font-size: var(--fs-13); line-height: var(--lh-13); color: var(--text); }
+.o-notice > svg.i { flex: none; margin-top: 1px; color: var(--alert); }
+.o-notice > span:first-of-type { flex: 1; min-width: 260px; }
+.o-notice b { font-weight: 600; }
+.o-notice .btn { height: 28px; }
+.o-notice .o-clear { align-self: center; }
+.o-sample { align-self: center; padding: 1px 8px; border: 1px dashed var(--border-strong); border-radius: 999px; background: var(--surface); font-size: var(--fs-11); color: var(--muted); white-space: nowrap; }
+.o-unmatched { display: grid; margin: 8px 20px 0; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
+.o-unmatched > div { display: grid; grid-template-columns: 64px 120px 1fr; align-items: center; gap: 12px; padding: 8px 12px; font-size: var(--fs-12); border-bottom: 1px solid var(--border); }
+.o-unmatched > div:last-child { border-bottom: 0; }
+.o-unmatched code { font: var(--fs-12)/var(--lh-12) var(--mono); color: var(--text); }
+.o-unmatched > div > span:last-child { color: var(--muted); }
+.o-th.missing { display: grid; place-items: center; align-content: center; gap: 6px; background: repeating-linear-gradient(135deg, var(--sunken) 0 8px, #F7F7F7 8px 16px); color: var(--faint); }
+.o-th.missing svg.i { width: 20px; height: 20px; }
+.o-th.missing small { font-size: var(--fs-11); color: var(--muted); }
+.o-th.s36.missing svg.i { width: 14px; height: 14px; }
+.o-empty0 { min-height: 420px; }
+.o-empty0 > span:first-of-type { max-width: 480px; }
+.o-empty-acts { display: flex; gap: 8px; margin-top: 4px; }
+.o-unmatched mark { background: var(--alert-soft); color: var(--alert); border-radius: 2px; padding: 0 1px; }
+.o-selbar[hidden] { display: none; }

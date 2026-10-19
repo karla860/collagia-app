@@ -96,6 +96,27 @@
     { kick: "Open a collection", title: "Pick an attribute and the grid sorts itself by colour", go: () => { goCard(); CD.sel = { k: "franchise", v: null }; render(); }, sel: ".o-vsec", place: "below", body: `
       ${did("Clicking an attribute splits the grid into one colour section per value, biggest first. Click a section header to see just that value. Find a product searches by name or style code.")}` },
 
+    /* ---------- Collection edge states: empty, partial and missing data ---------- */
+    { kick: "Edge states", title: "When search finds nothing", go: () => { setFlow("edge"); JUMP.edge("nomatch"); }, sel: ".v2card .o-empty2 > span", place: "left", body: `
+      ${did("Says what was searched and where (names and style codes in this collection only), with one button to clear it.")}
+      ${why("A blank grid looks like a broken screen. Naming the scope tells you whether to rephrase or look elsewhere.")}
+      <p class="tr-hint">Every edge state answers three things: why it looks like this, whether anything is lost, and what to do next.</p>` },
+    { kick: "Edge states", title: "Products with no value", go: () => { setFlow("edge"); JUMP.edge("novalue"); }, sel: ".v2card .o-selbar", place: "below", body: `
+      ${did("The rail gets a “No value” row, cards show a dashed “No Material”, and a note warns that applying clears any Material a study already has on them.")}
+      ${why("Gaps are easy to miss when you only see what's there. Calling them out before applying stops a silent loss.")}` },
+    { kick: "Edge states", title: "A value only one product carries", go: () => { setFlow("edge"); JUMP.edge("single"); }, sel: ".v2card .o-selbar", place: "below", body: `
+      ${did("Its count turns orange, and a note says a one-product value is often a typo.")}
+      ${why("Singletons are usually mistakes. Catching one here is cheaper than fixing it in every study later.")}` },
+    { kick: "Edge states", title: "Photos that didn't load", go: () => { setFlow("edge"); JUMP.edge("nophotos"); }, sel: ".v2card .o-notice", place: "below", body: `
+      ${did("Products stay on screen with a placeholder, name and style code. One note says how many photos failed, that nothing is lost, and offers Try again.")}
+      ${why("Photos fail for reasons unrelated to the data. Keeping the products visible lets you carry on, and the note makes clear the collection itself is fine.")}` },
+    { kick: "Edge states", title: "CSV rows that matched nothing", go: () => { setFlow("edge"); JUMP.edge("unmatched"); }, sel: ".v2card .o-unmatched", place: "below", body: `
+      ${did("The 30 rows that matched show as normal. A note says 3 didn't, lists each with a likely reason, and offers Update from a CSV.")}
+      ${why("Partial success is normal for spreadsheets. Seeing exactly which rows failed means you fix three rows instead of guessing why the counts are off.")}` },
+    { kick: "Edge states", title: "A collection with no products", go: () => { setFlow("edge"); JUMP.edge("empty"); }, sel: ".v2card .o-empty0 > span", place: "left", body: `
+      ${did("Says none of the 24 rows matched, gives the usual cause (SKUs instead of style codes) and one main action: Update from a CSV. Compare and Apply are switched off.")}
+      ${why("An empty screen should explain itself and point to the fix. Switching off Apply stops you sending nothing to a study.")}` },
+
     /* ---------- Compare with a study (optional, right before applying) ---------- */
     { kick: "Compare with a study", title: "An optional look before you apply", go: () => { goCard(); render(); }, sel: ".v2card .o-mf .o-cmpbtn", place: "above", body: `
       ${was("The only way to see what a collection would do was to start the import: pick a study, then read a dry-run list with “+1” on every row. On the kickoff Roo asked: “am I supposed to do something here?”")}

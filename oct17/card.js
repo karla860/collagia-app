@@ -3,9 +3,14 @@
    selector (one thing selected at a time, never a checkbox). Every product shows the value it carries.
    The four moves (apply / update from a study, download / update from a CSV) are all here, ranked by use. */
 
-const CD = { id: "franchise", view: "grid", sel: null, q: "", histOpen: false, viewV: null, editing: false, draft: "", closed: new Set() };
-const curColl = () => collById(CD.id) || COLLECTIONS[0];
-const openCard = id => { CD.id = id || CD.id; Object.assign(CD, { view: "grid", sel: null, q: "", histOpen: false, viewV: null, editing: false, closed: new Set() }); App.modal = "card"; App.menu = null; };
+const CD = { id: "franchise", view: "grid", sel: null, q: "", histOpen: false, viewV: null, editing: false, draft: "", closed: new Set(), demo: null, showRows: false };
+// Sample collection for the "no products" edge state: a CSV whose rows matched nothing. Never listed on the Attributes page.
+let EMPTY_COLL = null;
+const emptyColl = () => EMPTY_COLL || (EMPTY_COLL = { id: "__empty", name: "Archive materials", desc: "Material for each archive lot, from the registrar's spreadsheet.",
+  attrs: ["stone"], values: { stone: {} }, productIds: [], source: { type: "csv", name: "archive_materials.csv" }, owner: PEOPLE.leyla, shared: [ME], v: "v1",
+  created: "Oct 18, 2026", edited: "Oct 18, 2026", sample: true, csvRows: 24 });
+const curColl = () => (CD.id === "__empty" ? emptyColl() : collById(CD.id)) || COLLECTIONS[0];
+const openCard = id => { CD.id = id || CD.id; Object.assign(CD, { view: "grid", sel: null, q: "", histOpen: false, viewV: null, editing: false, closed: new Set(), demo: null, showRows: false }); App.modal = "card"; App.menu = null; };
 
 const sorted = list => [...list].sort((a, b) => a.name.localeCompare(b.name));
 const cardShown = () => {
@@ -48,7 +53,10 @@ const pchips = p => {
   const c = curColl(), ks = CD.sel ? [CD.sel.k] : c.attrs;
   return `<div class="o-pchips">${ks.map(k => cValue(c, k, p.id) ? addChip(k, cValue(c, k, p.id)) : `<span class="o-addchip nov" title="This collection has no ${esc(attrLabel(k))} for this product">No ${esc(attrLabel(k))}</span>`).join("")}</div>`;
 };
-const pcard = p => `<div class="o-pcard">${thumb(p, "sq")}<div class="nm">${esc(p.name)}</div><div class="o-id">${p.id}${p.price ? ` · ${money(p.price)}` : ""}</div>${pchips(p)}</div>`;
+/* Edge state: some product photos didn't load (it happens in the live app). The product stays, shown by name and code. */
+const photoFailed = p => CD.demo === "nophotos" && cProducts(curColl()).findIndex(x => x.id === p.id) % 4 === 1;
+const pthumb = (p, cls) => photoFailed(p) ? `<span class="o-th ${cls} missing" title="The photo didn't load. The product is still in the collection.">${ic.box}${cls === "sq" ? "<small>Photo didn't load</small>" : ""}</span>` : thumb(p, cls);
+const pcard = p => `<div class="o-pcard">${pthumb(p, "sq")}<div class="nm">${esc(p.name)}</div><div class="o-id">${p.id}${p.price ? ` · ${money(p.price)}` : ""}</div>${pchips(p)}</div>`;
 const gridView = list => {
   const c = curColl();
   if (!CD.sel || CD.sel.v) return `<div class="o-pgrid">${list.map(pcard).join("")}</div>`;
@@ -61,7 +69,7 @@ const listView = list => {
   const c = curColl(), ks = CD.sel ? [CD.sel.k] : c.attrs;
   return `<div class="o-ltable" style="--cols:${ks.length}">
     <div class="o-lhd"><span>Product</span><span>ID</span>${ks.map(k => `<span>${esc(attrLabel(k))}</span>`).join("")}</div>
-    ${list.map(p => `<div class="o-lrow">${thumb(p, "s36")}<span class="nm">${esc(p.name)}</span><span class="o-id">${p.id}</span>${ks.map(k => `<span>${cValue(c, k, p.id) ? addChip(k, cValue(c, k, p.id), true) : `<span class="o-none">—</span>`}</span>`).join("")}</div>`).join("")}
+    ${list.map(p => `<div class="o-lrow">${pthumb(p, "s36")}<span class="nm">${esc(p.name)}</span><span class="o-id">${p.id}</span>${ks.map(k => `<span>${cValue(c, k, p.id) ? addChip(k, cValue(c, k, p.id), true) : `<span class="o-none">—</span>`}</span>`).join("")}</div>`).join("")}
   </div>`;
 };
 
@@ -135,8 +143,31 @@ const selMsg = (c, list, total, selName) => {
   if (CD.sel.v && list.length === 1 && !CD.q) return `<span class="o-adds">${ic.info}<span>Only <b>1</b> product carries <b>${esc(CD.sel.v)}</b>. A one-product value is often a typo or a one-off: check it in the study before applying.</span></span>`;
   return `<span class="o-adds">${ic.plus}<b>${list.length}</b> of ${total} products get <b>${esc(selName)}</b></span>`;
 };
+/* Partial results stay on screen; what's wrong is flagged above them with one way to fix it */
+const UNMATCHED = [
+  { row: 7, id: "ANT_23O", mark: 6, why: "Ends in the letter O, not zero. Did you mean ANT_230?" },
+  { row: 19, id: "ant-241", why: "No product has this ID in Christie's Antiquities." },
+  { row: 26, id: "", why: "The product ID cell is empty." },
+];
+const notices = (c, total) => {
+  if (CD.demo === "nophotos") {
+    const n = cProducts(c).filter((_, i) => i % 4 === 1).length;
+    return `<div class="o-notice">${ic.warn}<span><b>${n} of ${total} product photos didn't load.</b> The products are still here, with their names and style codes, and nothing in the collection is affected.</span><span class="o-sample">Simulated</span><button class="btn" data-a="cdRetryPhotos">Try again</button></div>`;
+  }
+  if (CD.demo === "unmatched" && c.source.type === "csv") {
+    return `<div class="o-notice">${ic.warn}<span><b>${UNMATCHED.length} rows in ${esc(c.source.name)} didn't match a product,</b> so they aren't in this collection. The other ${total} are here as normal.</span><span class="o-sample">Sample rows</span>
+      <button class="o-clear" data-a="cdRows">${CD.showRows ? "Hide rows" : "See which rows"}</button><button class="btn" data-a="updateFromCsv" data-v="${c.id}">${ic.upload}Update from a CSV</button></div>
+      ${CD.showRows ? `<div class="o-unmatched">${UNMATCHED.map(r => `<div><span class="o-id">Row ${r.row}</span><code>${!r.id ? "(empty)" : r.mark != null ? `${esc(r.id.slice(0, r.mark))}<mark>${esc(r.id[r.mark])}</mark>${esc(r.id.slice(r.mark + 1))}` : esc(r.id)}</code><span>${esc(r.why)}</span></div>`).join("")}</div>` : ""}`;
+  }
+  return "";
+};
+/* A collection with no products at all: say why, what it means, and the one thing to do */
+const emptyColl0 = c => `<div class="o-empty o-empty2 o-empty0">${ic.box}<b>None of the ${c.csvRows || "rows"} rows in ${esc(c.source.name)} matched a product</b>
+  <span>Collagia matches rows by product ID. None of these IDs are in a collage you can see, so there's nothing to show or apply yet. Sheets that use SKUs or lot numbers instead of style codes often do this.</span>
+  <span class="o-empty-acts"><button class="btn primary" data-a="cdFixCsv">${ic.upload}Update from a CSV</button><button class="btn" data-a="cdDownloadRows">${ic.download}Download the ${c.csvRows || ""} rows</button></span>
+  <span class="o-sample">Sample collection</span></div>`;
 /* Nothing to show: say why, and offer the one way out */
-const emptyState = (c, total, selName) => CD.q
+const emptyState = (c, total, selName) => !total ? emptyColl0(c) : CD.q
   ? `<div class="o-empty o-empty2">${ic.search}<b>No products match “${esc(CD.q)}”</b><span>Search looks at product names and style codes in this collection only (${total} products)${CD.sel ? `, within ${esc(selName)}` : ""}.</span><button class="btn" data-a="cardQClear">Clear search</button></div>`
   : `<div class="o-empty o-empty2">${ic.box}<b>No products carry ${esc(selName)}</b><span>This version of the collection has nothing here.</span><button class="btn" data-a="cardAll">Show all products</button></div>`;
 
@@ -177,7 +208,8 @@ const MODAL_CARD = () => {
     ${old ? oldBar() : ""}
     <div class="o-mb with-rail">${rail()}
       <div class="o-scroll grey">
-        <div class="o-selbar">${CD.sel ? `${selMsg(c, list, total, selName)}<button class="o-clear" data-a="cardAll">Show all</button>` : `<span class="o-adds">${ic.plus}Applying this adds <b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) to <b>${total} products</b>. Each product shows the tag it gets.</span>`}<span class="sp"></span><label class="o-searchbox o-cdsearch">${ic.search}<input id="cd-q" data-in="cardQ" value="${esc(CD.q)}" placeholder="Find a product" aria-label="Find a product">${CD.q ? `<button class="icon-btn" data-a="cardQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label>${seg}</div>
+        ${!total ? `<div class="o-selbar"><span class="o-adds">${ic.info}This collection has no products yet.</span></div>` : ""}<div class="o-selbar"${total ? "" : " hidden"}>${CD.sel ? `${selMsg(c, list, total, selName)}<button class="o-clear" data-a="cardAll">Show all</button>` : `<span class="o-adds">${ic.plus}Applying this adds <b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) to <b>${total} products</b>. Each product shows the tag it gets.</span>`}<span class="sp"></span><label class="o-searchbox o-cdsearch">${ic.search}<input id="cd-q" data-in="cardQ" value="${esc(CD.q)}" placeholder="Find a product" aria-label="Find a product">${CD.q ? `<button class="icon-btn" data-a="cardQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label>${seg}</div>
+        ${notices(c, total)}
         ${list.length ? (CD.view === "grid" ? gridView(list) : listView(list)) : emptyState(c, total, selName)}
       </div>
       ${CD.histOpen ? histPanel() : ""}
@@ -187,6 +219,8 @@ const MODAL_CARD = () => {
       ${appliedDD(c)}
       <span class="sp"></span>
       ${old ? `<button class="btn" data-a="verLatest">Back to latest</button><button class="btn primary" data-a="verRestore">${ic.history}Restore as ${nextV(c)}</button>`
+        : !total ? `<button class="btn o-cmpbtn" disabled title="There are no products to compare yet"><span class="o-cmpg">⇄</span>Compare with a study</button>
+          <button class="btn primary o-cta" disabled title="There are no products to apply yet">${ic.importStudy}Apply to a study</button>`
         : `<button class="btn o-cmpbtn" data-a="cpOpen" title="Optional: see what applying would change in a study, product by product, before you apply"><span class="o-cmpg">⇄</span>Compare with a study</button>
           <button class="btn primary o-cta" data-a="toStudyPick" data-v="apply">${ic.importStudy}Apply to a study</button>`}
     </footer>
@@ -205,11 +239,19 @@ ACTIONS.closeModal = () => { App.modal = null; };
 
 JUMP.card = () => { App.page = "home"; openCard(CD.id); render(); };
 
-/* Guide entries: the collection screen's edge states (#edge/novalue|single|nomatch) */
+ACTIONS.cdRetryPhotos = () => { CD.demo = null; toast("Photos reloaded"); };
+ACTIONS.cdRows = () => { CD.showRows = !CD.showRows; };
+ACTIONS.cdFixCsv = () => { toast("Sample collection: this opens Update from a CSV with a corrected sheet"); return false; };
+ACTIONS.cdDownloadRows = () => { const c = curColl(); toast(`Downloaded ${c.csvRows} rows with a “reason” column`); return false; };
+
+/* Guide entries: the collection screen's edge states (#edge/novalue|single|nomatch|nophotos|unmatched|empty) */
 JUMP.edge = v => {
   App.page = "home";
   if (v === "single") { openCard("franchise"); const one = valueCounts(curColl(), "franchise").find(([, n]) => n === 1); CD.sel = one ? { k: "franchise", v: one[0] } : null; }
   else if (v === "nomatch") { openCard("franchise"); CD.q = "Air Max 2099"; }
+  else if (v === "nophotos") { openCard("franchise"); CD.demo = "nophotos"; }
+  else if (v === "unmatched") { openCard("statues"); CD.demo = "unmatched"; CD.showRows = true; }
+  else if (v === "empty") { openCard("__empty"); }
   else { openCard("statues"); CD.sel = { k: "stone", v: NOVAL }; }
   render();
 };
