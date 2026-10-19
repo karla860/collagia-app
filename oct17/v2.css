@@ -1007,3 +1007,52 @@ button.cpx-sv.on { border-color: var(--text); box-shadow: 0 0 0 1px var(--text) 
 .o-empty-acts { display: flex; gap: 8px; margin-top: 4px; }
 .o-unmatched mark { background: var(--alert-soft); color: var(--alert); border-radius: 2px; padding: 0 1px; }
 .o-selbar[hidden] { display: none; }
+
+/* ---------- Alerts and notes (Figma Alert State): icon and text in Alert Primary, fill Secondary, border Stroke ---------- */
+.o-notice { color: var(--alert); }
+.o-notice b { color: var(--alert); }
+.o-notice > svg.i { color: var(--alert); }
+/* A neutral note: worth a look, nothing is lost */
+.o-notice.note { border-color: var(--border); background: var(--surface); color: var(--muted); }
+.o-notice.note b { color: var(--text); }
+.o-notice.note > svg.i { color: var(--muted); }
+.o-vdot.none { background: transparent; border: 1px dashed var(--slider-handle); }
+.o-selbar .o-adds .o-muted { margin-left: 4px; font-weight: 400; }
+.o-selbar .o-adds .o-vdot { margin-right: 6px; }
+/* Photos still loading: a soft shimmer in the thumbnail's place */
+.o-th.loading { background: linear-gradient(115deg, #ECECED 0%, #ECECED 38%, #FAFAFA 50%, #ECECED 62%, #ECECED 100%); background-size: 300% 100%; animation: o-shimmer 1.6s ease-in-out infinite; }
+@keyframes o-shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+.o-spin { flex: none; width: 14px; height: 14px; margin-top: 2px; border: 2px solid var(--border); border-top-color: var(--muted); border-radius: 50%; animation: o-spin .8s linear infinite; }
+@keyframes o-spin { to { transform: rotate(360deg); } }
+
+/* ---------- A collection with no products: say so, show why, show the fix ---------- */
+.o-empty0 { min-height: 0; display: grid; gap: 20px; justify-items: center; width: min(640px, 100%); margin: 48px auto; padding: 0 24px; }
+.o-e0-h { display: grid; gap: 6px; justify-items: center; text-align: center; }
+.o-e0-h > svg.i { width: 24px; height: 24px; color: var(--muted); }
+.o-e0-h > b { font-size: var(--fs-16); line-height: var(--lh-16); font-weight: 600; letter-spacing: var(--ls-tight); }
+.o-e0-h > span { max-width: 440px; font-size: var(--fs-13); line-height: var(--lh-13); color: var(--muted); }
+.o-e0-h > span b { color: var(--text); font-weight: 500; }
+.o-e0-why { display: grid; grid-template-columns: 1fr 32px 1fr; align-items: center; gap: 8px; width: 100%; padding: 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.o-e0-col { display: grid; gap: 6px; justify-items: start; }
+.o-e0-col small { font-size: var(--fs-11); font-weight: 600; letter-spacing: var(--ls-overline); text-transform: uppercase; color: var(--muted); }
+.o-e0-col > span { font-size: var(--fs-12); color: var(--muted); }
+.o-e0-col code { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 4px; font: var(--fs-12)/var(--lh-12) var(--mono); }
+.o-e0-col code svg.i { width: 12px; height: 12px; }
+.o-e0-col code.no { background: var(--error-soft); color: var(--error); }
+.o-e0-col code.ok { background: var(--sunken); color: var(--text); }
+.o-e0-arrow { display: grid; place-items: center; color: var(--faint); }
+.o-e0-steps { list-style: none; width: 100%; margin: 0; padding: 0; display: grid; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.o-e0-steps li { display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.o-e0-steps li:last-child { border-bottom: 0; }
+.o-e0-steps i { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--sunken); font: 600 var(--fs-12)/1 Inter, sans-serif; font-style: normal; }
+.o-e0-steps span { display: grid; gap: 2px; font-size: var(--fs-13); line-height: var(--lh-13); }
+.o-e0-steps b { font-weight: 600; }
+.o-e0-steps small { font-size: var(--fs-12); color: var(--muted); }
+/* Notes stay one full-width row: icon, text (takes the space), then any tags or buttons */
+.o-notice { align-self: stretch; flex-wrap: nowrap; }
+.o-notice > span:first-of-type { flex: initial; min-width: 0; }
+.o-notice > span:not(.o-spin):not(.o-sample) { flex: 1; min-width: 0; }
+.o-notice > .o-spin { flex: none; width: 14px; height: 14px; }
+/* Stronger sheen, like the app's loading cards */
+.o-th.loading { background: linear-gradient(110deg, #E9E9EA 0%, #E9E9EA 35%, #FFFFFF 48%, #F4F4F4 55%, #E9E9EA 68%, #E9E9EA 100%); background-size: 260% 100%; }
+.o-th.loading { background: linear-gradient(110deg, #E4E4E4 0%, #E4E4E4 40%, #FBFBFB 50%, #E4E4E4 60%, #E4E4E4 100%); background-size: 300% 100%; }

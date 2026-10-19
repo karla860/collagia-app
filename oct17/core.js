@@ -76,7 +76,7 @@ const FLOWS = [
   { id: "create", label: "New collection", hint: "Save a study's tags" },
   { id: "card", label: "Inside a collection", hint: "What it holds, who has it" },
   { id: "compare", label: "Compare with a study", hint: "Optional, before applying", subs: [["changes", "Changes + removals"], ["uptodate", "Up to date"], ["statues", "Only additions"], ["noshared", "No shared products"], ["loading", "Loading"], ["error", "Error"], ["noattrs", "No attributes"], ["many", "Many studies"], ["search", "Search a product"]] },
-  { id: "edge", label: "Collection edge states", hint: "Empty, partial and missing data", subs: [["nomatch", "No match"], ["novalue", "No value"], ["single", "One product"], ["nophotos", "Photos didn't load"], ["unmatched", "CSV rows not matched"], ["empty", "No products"]] },
+  { id: "edge", label: "Collection edge states", hint: "Empty, partial and missing data", subs: [["nomatch", "No match"], ["novalue", "No value"], ["single", "One product"], ["nophotos", "Photos loading"], ["empty", "No products"]] },
   { id: "study", label: "Apply to a study", hint: "Preview, then replace" },
   { id: "access", label: "Share", hint: "Private until shared" },
   { id: "settings", label: "Settings", hint: "Profile, security, access" },

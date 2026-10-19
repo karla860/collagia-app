@@ -53,9 +53,9 @@ const pchips = p => {
   const c = curColl(), ks = CD.sel ? [CD.sel.k] : c.attrs;
   return `<div class="o-pchips">${ks.map(k => cValue(c, k, p.id) ? addChip(k, cValue(c, k, p.id)) : `<span class="o-addchip nov" title="This collection has no ${esc(attrLabel(k))} for this product">No ${esc(attrLabel(k))}</span>`).join("")}</div>`;
 };
-/* Edge state: some product photos didn't load (it happens in the live app). The product stays, shown by name and code. */
-const photoFailed = p => CD.demo === "nophotos" && cProducts(curColl()).findIndex(x => x.id === p.id) % 4 === 1;
-const pthumb = (p, cls) => photoFailed(p) ? `<span class="o-th ${cls} missing" title="The photo didn't load. The product is still in the collection.">${ic.box}${cls === "sq" ? "<small>Photo didn't load</small>" : ""}</span>` : thumb(p, cls);
+/* Edge state: photos still loading. The product is already there (name, code, tag); its thumbnail shimmers until the photo arrives. */
+const photoLoading = p => CD.demo === "nophotos" && cProducts(curColl()).findIndex(x => x.id === p.id) % 4 === 1;
+const pthumb = (p, cls) => photoLoading(p) ? `<span class="o-th ${cls} loading" role="img" aria-label="Photo loading"></span>` : thumb(p, cls);
 const pcard = p => `<div class="o-pcard">${pthumb(p, "sq")}<div class="nm">${esc(p.name)}</div><div class="o-id">${p.id}${p.price ? ` · ${money(p.price)}` : ""}</div>${pchips(p)}</div>`;
 const gridView = list => {
   const c = curColl();
@@ -139,8 +139,9 @@ document.addEventListener("focusout", e => { if (e.target.id === "cd-name" && CD
 /* What the bar above the grid says for a selection, including the two edge states */
 const selMsg = (c, list, total, selName) => {
   const k = CD.sel.k, lab = esc(attrLabel(k));
-  if (CD.sel.v === NOVAL) return `<span class="o-adds warn">${ic.warn}<span><b>${list.length}</b> of ${total} products have no ${lab} in this collection. Applying leaves them without one, and <b>removes</b> any ${lab} a study already has on them.</span></span>`;
-  if (CD.sel.v && list.length === 1 && !CD.q) return `<span class="o-adds">${ic.info}<span>Only <b>1</b> product carries <b>${esc(CD.sel.v)}</b>. A one-product value is often a typo or a one-off: check it in the study before applying.</span></span>`;
+  // Short labels only: the explanation sits in its own row underneath (selNote), so the toolbar stays one tidy line
+  if (CD.sel.v === NOVAL) return `<span class="o-adds"><i class="o-vdot none"></i><b>No ${lab}</b><span class="o-muted">· ${list.length} of ${total} products</span></span>`;
+  if (CD.sel.v && list.length === 1 && !CD.q) return `<span class="o-adds"><i class="o-vdot" ${hue(k, CD.sel.v)}></i><b>${esc(CD.sel.v)}</b><span class="o-muted">· 1 product</span></span>`;
   return `<span class="o-adds">${ic.plus}<b>${list.length}</b> of ${total} products get <b>${esc(selName)}</b></span>`;
 };
 /* Partial results stay on screen; what's wrong is flagged above them with one way to fix it */
@@ -149,10 +150,15 @@ const UNMATCHED = [
   { row: 19, id: "ant-241", why: "No product has this ID in Christie's Antiquities." },
   { row: 26, id: "", why: "The product ID cell is empty." },
 ];
-const notices = (c, total) => {
+const notices = (c, total, list) => {
+  const lab = CD.sel ? esc(attrLabel(CD.sel.k)) : "";
+  // Alert (Figma "Alert State"): something will be lost if you apply
+  if (CD.sel && CD.sel.v === NOVAL) return `<div class="o-notice">${ic.warn}<span><b>${list.length} of ${total} products have no ${lab} in this collection.</b> Applying leaves them without one, and removes any ${lab} a study already has on them.</span></div>`;
+  // Note (neutral): worth a look, nothing is lost
+  if (CD.sel && CD.sel.v && list.length === 1 && !CD.q) return `<div class="o-notice note">${ic.info}<span><b>Only 1 product carries ${esc(CD.sel.v)}.</b> A one-product value is often a typo or a one-off, so check it in the study before applying.</span></div>`;
   if (CD.demo === "nophotos") {
     const n = cProducts(c).filter((_, i) => i % 4 === 1).length;
-    return `<div class="o-notice">${ic.warn}<span><b>${n} of ${total} product photos didn't load.</b> The products are still here, with their names and style codes, and nothing in the collection is affected.</span><span class="o-sample">Simulated</span><button class="btn" data-a="cdRetryPhotos">Try again</button></div>`;
+    return `<div class="o-notice note"><span class="o-spin" aria-hidden="true"></span><span><b>Loading photos: ${n} of ${total} still on their way.</b> The products are already here with their names, style codes and tags.</span><span class="o-sample">Simulated</span></div>`;
   }
   if (CD.demo === "unmatched" && c.source.type === "csv") {
     return `<div class="o-notice">${ic.warn}<span><b>${UNMATCHED.length} rows in ${esc(c.source.name)} didn't match a product,</b> so they aren't in this collection. The other ${total} are here as normal.</span><span class="o-sample">Sample rows</span>
@@ -161,11 +167,24 @@ const notices = (c, total) => {
   }
   return "";
 };
-/* A collection with no products at all: say why, what it means, and the one thing to do */
-const emptyColl0 = c => `<div class="o-empty o-empty2 o-empty0">${ic.box}<b>None of the ${c.csvRows || "rows"} rows in ${esc(c.source.name)} matched a product</b>
-  <span>Collagia matches rows by product ID. None of these IDs are in a collage you can see, so there's nothing to show or apply yet. Sheets that use SKUs or lot numbers instead of style codes often do this.</span>
-  <span class="o-empty-acts"><button class="btn primary" data-a="cdFixCsv">${ic.upload}Update from a CSV</button><button class="btn" data-a="cdDownloadRows">${ic.download}Download the ${c.csvRows || ""} rows</button></span>
-  <span class="o-sample">Sample collection</span></div>`;
+/* A collection with no products at all: say so plainly, show why (the IDs don't match), and show the fix as three steps */
+const emptyColl0 = c => {
+  const sheet = ["LOT-0412", "LOT-0413", "LOT-0414"], ids = STATUE_IDS.slice(0, 3);
+  return `<div class="o-empty0">
+    <div class="o-e0-h">${ic.box}<b>This collection has no products</b><span>None of the ${c.csvRows} rows in <b>${esc(c.source.name)}</b> matched a product, so there's nothing to show or apply yet.</span></div>
+    <div class="o-e0-why">
+      <div class="o-e0-col"><small>Your sheet uses</small>${sheet.map(x => `<code class="no">${x}${ic.close}</code>`).join("")}<span>Lot numbers</span></div>
+      <div class="o-e0-arrow">${ic.arrowR}</div>
+      <div class="o-e0-col"><small>Collagia matches</small>${ids.map(x => `<code class="ok">${esc(x)}${ic.check}</code>`).join("")}<span>Product IDs in ${esc(COLLAGES.christies.name)}</span></div>
+    </div>
+    <ol class="o-e0-steps">
+      <li><i>1</i><span><b>Download the ${c.csvRows} rows</b><small>They come with a column saying why each one didn't match.</small></span><button class="btn" data-a="cdDownloadRows">${ic.download}Download</button></li>
+      <li><i>2</i><span><b>Put the product ID in the first column</b><small>The style code or lot ID your collage uses, like ${esc(ids[0])}.</small></span></li>
+      <li><i>3</i><span><b>Upload the corrected sheet</b><small>Products appear here as soon as their IDs match.</small></span><button class="btn primary" data-a="cdFixCsv">${ic.upload}Update from a CSV</button></li>
+    </ol>
+    <span class="o-sample">Sample collection</span>
+  </div>`;
+};
 /* Nothing to show: say why, and offer the one way out */
 const emptyState = (c, total, selName) => !total ? emptyColl0(c) : CD.q
   ? `<div class="o-empty o-empty2">${ic.search}<b>No products match “${esc(CD.q)}”</b><span>Search looks at product names and style codes in this collection only (${total} products)${CD.sel ? `, within ${esc(selName)}` : ""}.</span><button class="btn" data-a="cardQClear">Clear search</button></div>`
@@ -208,8 +227,8 @@ const MODAL_CARD = () => {
     ${old ? oldBar() : ""}
     <div class="o-mb with-rail">${rail()}
       <div class="o-scroll grey">
-        ${!total ? `<div class="o-selbar"><span class="o-adds">${ic.info}This collection has no products yet.</span></div>` : ""}<div class="o-selbar"${total ? "" : " hidden"}>${CD.sel ? `${selMsg(c, list, total, selName)}<button class="o-clear" data-a="cardAll">Show all</button>` : `<span class="o-adds">${ic.plus}Applying this adds <b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) to <b>${total} products</b>. Each product shows the tag it gets.</span>`}<span class="sp"></span><label class="o-searchbox o-cdsearch">${ic.search}<input id="cd-q" data-in="cardQ" value="${esc(CD.q)}" placeholder="Find a product" aria-label="Find a product">${CD.q ? `<button class="icon-btn" data-a="cardQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label>${seg}</div>
-        ${notices(c, total)}
+        <div class="o-selbar"${total ? "" : " hidden"}>${CD.sel ? `${selMsg(c, list, total, selName)}<button class="o-clear" data-a="cardAll">Show all</button>` : `<span class="o-adds">${ic.plus}Applying this adds <b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) to <b>${total} products</b>. Each product shows the tag it gets.</span>`}<span class="sp"></span><label class="o-searchbox o-cdsearch">${ic.search}<input id="cd-q" data-in="cardQ" value="${esc(CD.q)}" placeholder="Find a product" aria-label="Find a product">${CD.q ? `<button class="icon-btn" data-a="cardQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label>${seg}</div>
+        ${notices(c, total, list)}
         ${list.length ? (CD.view === "grid" ? gridView(list) : listView(list)) : emptyState(c, total, selName)}
       </div>
       ${CD.histOpen ? histPanel() : ""}

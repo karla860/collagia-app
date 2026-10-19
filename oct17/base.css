@@ -14,6 +14,8 @@
   --alert: #B45309;         /* Alert / Primary: warning text and icons */
   --alert-soft: #FEF3E2;    /* Alert / Secondary: warning surfaces */
   --alert-stroke: #EFD3B7;  /* Alert / Stroke: warning borders */
+  --error: #8B0000;         /* Error / Primary */
+  --error-soft: #F9D2D2;    /* Error / Secondary */
   /* Extended neutrals (Figma "Extended Neutrals"); --muted above is Text Secondary #6E6D7A */
   --nav-text: #3F3E47;      /* Text Nav: sidebar navigation */
   --placeholder: #757575;   /* Placeholder: input placeholders */
