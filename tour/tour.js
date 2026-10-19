@@ -17,6 +17,7 @@
   const goHome = () => { setFlow("home"); App.modal = null; JUMP.home(); };
   const goPick = () => { const s = STUDIES[0]; setFlow("create"); App.page = "home"; openCreate("study"); CR.study = s.name; CR.included = new Set(s.published); CR.peek = null; CR.step = "pick"; };
   const goCard = () => { setFlow("card"); App.page = "home"; openCard("franchise"); CD.sel = null; App.menu = null; };
+  const goCompare = (q = "") => { setFlow("compare"); App.page = "home"; openCard("franchise"); openCompare(); Object.assign(CP, { study: "Price architecture", loading: false, at: new Date(), q, open: null, touched: false }); App.menu = null; };
   const goAccess = () => { setFlow("access"); App.page = "home"; openCard("franchise"); openAccess("franchise"); App.menu = null; };
 
   const STEPS = [
@@ -26,7 +27,7 @@
     { kick: "Start here", title: "What an attribute collection is", sel: null, body: `
       <p>Published tags only live in the study that made them. An <b>attribute collection</b> (today "Label Library") lifts a set of them out so they can be kept, versioned, shared and applied to other studies.</p>
       <div class="tr-diagram"><span>Study</span><em>⇄</em><span class="lib">Collection</span><em>⇄</em><span>CSV</span></div>
-      <p>Every button in the feature is one arrow in that picture. This tour follows the loop once: tag on a board, save a collection, open it, apply it to another study, share it.</p>
+      <p>Every button in the feature is one arrow in that picture. This tour follows the loop once: tag on a board, save a collection, open it, compare it with a study, apply it, share it.</p>
       <p class="tr-hint">Next and Back move between screens. The prototype stays live underneath, so click around whenever you like. Esc stops the tour; the guide (⌘K, bottom right) restarts it.</p>` },
 
     /* ---------- Board ---------- */
@@ -95,6 +96,29 @@
     { kick: "Open a collection", title: "Pick an attribute and the grid sorts itself by colour", go: () => { goCard(); CD.sel = { k: "franchise", v: null }; render(); }, sel: ".o-vsec", place: "below", body: `
       ${did("Clicking an attribute splits the grid into one colour section per value, biggest first. Click a section header to see just that value. Find a product searches by name or style code.")}` },
 
+    /* ---------- Compare with a study (optional, right before applying) ---------- */
+    { kick: "Compare with a study", title: "An optional look before you apply", go: () => { goCard(); render(); }, sel: ".v2card .o-mf .o-cmpbtn", place: "above", body: `
+      ${was("The only way to see what a collection would do was to start the import: pick a study, then read a dry-run list with “+1” on every row. On the kickoff Roo asked: “am I supposed to do something here?”")}
+      ${did("<b>Compare with a study</b> sits right before Apply as an outlined button. It is read-only and optional: Apply to a study stays the one red button, and you can skip Compare entirely.")}
+      ${why("People want to know what a collection will do to their study before they commit. Now they can find out without starting anything.")}` },
+    { kick: "Compare with a study", title: "Choosing which study to compare with", go: () => { goCompare(); render(); }, sel: ".cpx-pick", place: "below", body: `
+      ${did("“Compare with” is one dropdown. It opens already set to a study that has an older version of this collection: here Price architecture has v1 and the collection is v2. Open the list to switch: there is a search box, studies with an older version come first, then the rest by when they were last edited. Each one shows its version and how many products it shares with the collection. Studies that share no products sit folded away at the bottom.")}
+      ${why("A study with an older version is the one most likely to change when you apply, so starting there usually means there is nothing to pick. A dropdown with search stays the same size whether someone has 3 studies or 30, where a row of buttons would keep growing. Showing the version and shared products on each study tells you which ones are worth comparing before you open them. A study with no shared products can only ever show “nothing changes”, so it is kept out of the way.")}` },
+    { kick: "Compare with a study", title: "One headline, the numbers beside it", go: () => { goCompare(); render(); }, sel: ".cpx-side", place: "left", body: `
+      ${was("The live preview lists every item with no summary, so you count the changes yourself.")}
+      ${did("One headline, “38 products would change in Price architecture”. Beside it, a card names the study and its version (Has v1 · this is v2), then At a glance: 38 change, 8 lose their Franchise, 282 stay the same.")}
+      ${why("It answers “what will this do to my study?” in one look, and shows any data loss in red before anything else.")}` },
+    { kick: "Compare with a study", title: "Grouped by what happens, riskiest first", go: () => { goCompare(); render(); }, sel: ".cpx-table", place: "left", body: `
+      ${was("Giorgi's walkthrough: the live preview's +, ⇄ and − chips are “a little bit too colourful”, don't say what they mean, and waste a lot of space.")}
+      ${did("Four sections in plain words: Removed (8 products lose their Franchise), Changed, Added and Stays the same. Each line reads Now → After, like “Slides → No value · 8 products”. Open it and every product shows its own before → after. The values that stay the same sit underneath with their counts, and open too.")}
+      ${why("You see the difference, not a list to work through. There is nothing to tick or choose, because applying is all or nothing.")}` },
+    { kick: "Compare with a study", title: "Ask about any product", go: () => { goCompare("nike calm"); render(); }, sel: ".cpx-sr", place: "below", body: `
+      ${did("Search covers every product in the study and the collection. Each match says what happens to it (Removed, Changed, Added, Stays the same, Not affected or Not in this study) with its value before and after.")}
+      ${why("The question people actually have is about their own product. This answers it directly, with no scrolling and no marks to decode.")}` },
+    { kick: "Compare with a study", title: "Then apply, already set to that study", go: () => { goCompare(); render(); }, sel: ".cpx .o-mf .btn.primary", place: "above", body: `
+      ${did("Apply to Price architecture goes straight to the preview with the study already chosen, so there is no second pick. The preview shows the same view, so it confirms what you just read, and Back returns to Compare.")}
+      ${why("Compare is optional but never a detour: it hands you to the next step right where you were.")}` },
+
     /* ---------- Apply ---------- */
     { kick: "Apply to a study", title: "The collage decides whether anything happens", go: () => { goCard(); setFlow("study"); JUMP.study("pick"); }, sel: ".o-studies .o-study:nth-child(2)", place: "left", body: `
       ${did("Each study shows its collage and how many of the collection's products it contains. One that shares nothing is greyed out with a reason. A study that already has this collection says which version.")}
@@ -102,12 +126,12 @@
     { kick: "Apply to a study", title: "Always a preview, never a toggle", sel: ".pick .o-mf", place: "above", body: `
       ${was("Staging has a Dry run switch a user can turn off before seeing anything.")}
       ${did("The only button is Preview changes.")}` },
-    { kick: "Apply to a study", title: "Lead with one honest sentence", go: () => { goCard(); ST.sel = "Price architecture"; JUMP.study("preview"); }, sel: ".o-lead", place: "below", body: `
+    { kick: "Apply to a study", title: "Lead with one honest sentence", go: () => { goCard(); ST.sel = "Price architecture"; JUMP.study("preview"); }, sel: ".cpx-verdict", place: "below", body: `
       ${did("One sentence that says whether it adds or replaces, in which study, and how many tags are added, changed or removed. If values would be lost, it says so in bold.")}
       ${why("The real dry run on staging deleted 17 values the study had and the library didn't. Applying replaces the study's version of each attribute. The preview has to say so.")}` },
-    { kick: "Apply to a study", title: "Totals first, then the detail", sel: ".o-counters", place: "below", body: `
+    { kick: "Apply to a study", title: "Totals first, then the detail", sel: ".cpx-table", place: "left", body: `
       ${was("The live preview repeats “+ BW” 113 times with no summary. Roo: “am I supposed to do something here?”")}
-      ${did("Four counters, then one row per attribute, removals first. The answer to Roo's question is: no, read this, then confirm.")}` },
+      ${did("One line per change, “Slides → No value · 8 products”, in sections by outcome, removals first. The same view as Compare with a study. The answer to Roo's question is: no, read this, then confirm.")}` },
     { kick: "Apply to a study", title: "The button says what it does", sel: ".preview .o-mf .btn.primary", place: "above", body: `
       ${did("“Replace 1 attribute in Price architecture” or “Add…”, never “Import”. When nothing would change it says already up to date.")}` },
     { kick: "Apply to a study", title: "Then tell them where to look", go: () => { goCard(); ST.sel = "Price architecture"; JUMP.study("done"); }, sel: ".o-success", place: "left", body: `
@@ -234,6 +258,6 @@
   const firstStep = Math.min(STEPS.length, Math.max(1, +(location.href.match(/[?&#]tour=(\d+)/) || [])[1] || 1)) - 1; // ?tour=9 opens on step 9
   let seen = false; try { seen = !!localStorage.getItem(DONE_KEY); } catch {}
   // The app boots after the catalogue loads; start once it says it is ready
-  document.addEventListener("app:ready", () => { build(); if (wantsTour || !seen) setTimeout(() => start(wantsTour ? firstStep : 0), 300); });
+  document.addEventListener("app:ready", () => { build(); if (wantsTour || (!seen && !new URLSearchParams(location.search).has("screen"))) setTimeout(() => start(wantsTour ? firstStep : 0), 300); });
   window.PrototypeTour = { start, stop, steps: STEPS };
 })();

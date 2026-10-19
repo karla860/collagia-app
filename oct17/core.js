@@ -75,6 +75,8 @@ const FLOWS = [
   { id: "home", label: "Attributes", hint: "The page being redesigned" },
   { id: "create", label: "New collection", hint: "Save a study's tags" },
   { id: "card", label: "Inside a collection", hint: "What it holds, who has it" },
+  { id: "compare", label: "Compare with a study", hint: "Optional, before applying", subs: [["changes", "Changes + removals"], ["uptodate", "Up to date"], ["statues", "Only additions"], ["noshared", "No shared products"], ["loading", "Loading"], ["error", "Error"], ["noattrs", "No attributes"], ["many", "Many studies"], ["search", "Search a product"]] },
+  { id: "edge", label: "Collection edge states", hint: "No value, one product, no match", subs: [["novalue", "No value"], ["single", "One product"], ["nomatch", "No match"]] },
   { id: "study", label: "Apply to a study", hint: "Preview, then replace" },
   { id: "access", label: "Share", hint: "Private until shared" },
   { id: "settings", label: "Settings", hint: "Profile, security, access" },
@@ -91,10 +93,11 @@ RENDER.guide = () => {
   if (!G.open) { el.innerHTML = `<button class="g-pill" data-a="guideToggle" title="Open the prototype guide (⌘K or ⌘J)">${ic.info}Guide<kbd>⌘K</kbd></button>`; return; }
   el.innerHTML = `<aside class="g-card" aria-label="Prototype guide">
     <div class="g-h"><b>Prototype guide</b><span class="sp"></span><kbd>⌘K</kbd><button class="icon-btn" data-a="guideToggle" aria-label="Minimise">${ic.minus}</button></div>
-    <ol class="g-steps">${FLOWS.map((f, i) => `<li><button class="${App.flow === f.id ? "on" : ""}" data-a="flow" data-v="${f.id}"><span class="g-n">${i + 1}</span><span class="g-t"><b>${f.label}</b><small>${f.hint}</small></span></button></li>`).join("")}</ol>
+    <ol class="g-steps">${FLOWS.map((f, i) => `<li><button class="${App.flow === f.id ? "on" : ""}" data-a="flow" data-v="${f.id}"><span class="g-n">${i + 1}</span><span class="g-t"><b>${f.label}</b><small>${f.hint}</small></span></button>${f.subs && App.flow === f.id ? `<div class="g-subs">${f.subs.map(([v, l]) => `<button data-a="guideSub" data-v="${f.id}|${v}">${l}</button>`).join("")}</div>` : ""}</li>`).join("")}</ol>
     <div class="g-f"><button class="btn primary" data-a="guideTour">${ic.open}Take the tour</button><span class="g-note">Click a step to jump there. The tour explains each screen.</span></div>
   </aside>`;
 };
+ACTIONS.guideSub = el => { const [f, v] = el.dataset.v.split("|"); setFlow(f); JUMP[f](v); return false; };
 ACTIONS.guideToggle = () => { G.open = !G.open; store.set("guideOpen", G.open); };
 ACTIONS.guideTour = () => { if (window.PrototypeTour) { G.open = false; store.set("guideOpen", false); PrototypeTour.start(0); } return true; };
 // ⌘K toggles the guide; ⌘J does too, for browsers where an extension already owns ⌘K

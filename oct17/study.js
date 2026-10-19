@@ -42,55 +42,19 @@ const MODAL_COLLPICK = () => {
 </div>`;
 };
 
-/* ---------- Preview ---------- */
-const dchip = (kind, from, to) => kind === "remove" ? `<span class="o-dchip rm">${ic.minus}${esc(from)}</span>`
-  : kind === "change" ? `<span class="o-dchip ch"><s>${esc(from)}</s>${ic.arrowR}${esc(to)}</span>` : `<span class="o-dchip add">${ic.plus}${esc(to)}</span>`;
-const sentence = (c, s, t) => {
-  const n = c.attrs.length, label = n === 1 ? attrLabel(c.attrs[0]) : `${n} attributes`;
-  const parts = [t.added && `${t.added} tags added`, t.changed && `${t.changed} changed`, t.removed && `${t.removed} removed`].filter(Boolean);
-  return `${s.published.some(k => c.attrs.includes(k)) ? "Replaces" : "Adds"} <b>${esc(label)}</b> in <b>${esc(s.name)}</b> with this collection's version: ${parts.join(", ") || "no changes"}.`;
-};
+/* ---------- Preview ----------
+   The same view as Compare with a study (cpSummary + cpGroups in compare.js), so this step confirms what Compare showed
+   rather than telling it again in different numbers. Then one button that says what it does. */
 const MODAL_PREVIEW = () => {
-  const c = stColl(), s = stStudy(), d = diffFor(c, s), t = diffTotals(d), synced = s.applied[c.id] === c.v || !t.items;
-  const rows = [...d].sort((a, b) => b.removed.length - a.removed.length || b.total - a.total);
-  if (ST.open === null) ST.open = rows[0] && rows[0].total ? rows[0].k : null;
-  const group = (label, cls, items, fn) => items.length ? `<div class="o-dgroup ${cls}"><div class="o-dgh">${label}<span class="n">${items.length}</span></div>
-    ${items.slice(0, 6).map(x => `<div class="o-drow">${thumb(x.p, "s36")}<span class="nm">${esc(x.p.name)}</span><span class="o-id">${x.p.id}</span>${fn(x)}</div>`).join("")}
-    ${items.length > 6 ? `<div class="o-dmore">+ ${items.length - 6} more</div>` : ""}</div>` : "";
-  const row = a => {
-    const open = ST.open === a.k, sum = [a.removed.length && `<b class="rm">${a.removed.length} removed</b>`, a.changed.length && `${a.changed.length} changed`, a.added.length && `${a.added.length} added`].filter(Boolean).join(" · ");
-    return `<section class="o-arow${open ? " open" : ""}${a.removed.length ? " warn" : ""}">
-      <button class="o-arow-h" data-a="pvToggle" data-v="${a.k}" aria-expanded="${open}">
-        ${ic.tag}<b>${esc(attrLabel(a.k))}</b>
-        <span class="o-arow-sum">${a.total ? sum : "Already identical"}</span>
-        <span class="o-arow-vals">${a.studyValues.slice(0, 4).map(v => `<s>${esc(v)}</s>`).join("")}${a.studyValues.length ? `<i>${ic.arrowR}</i>` : ""}${valueCounts(c, a.k).slice(0, 6).map(([v]) => `<span>${esc(v)}</span>`).join("")}${valueCounts(c, a.k).length > 6 ? `<span class="more">+${valueCounts(c, a.k).length - 6} more</span>` : ""}</span>
-        <span class="o-arow-n"><span class="rm">−${a.removed.length}</span><span class="ch">⇄${a.changed.length}</span><span class="add">+${a.added.length}</span></span>${ic.chev}
-      </button>
-      ${open && a.total ? `<div class="o-arow-b">
-        ${a.removed.length ? `<p class="o-why">${ic.warn}These products carry <b>${esc(attrLabel(a.k))}</b> in the study but aren't in this collection, so the value is removed.</p>` : ""}
-        ${group("Removed", "rm", a.removed, x => dchip("remove", x.from))}
-        ${group("Changed", "ch", a.changed, x => dchip("change", x.from, x.to))}
-        ${group("Added", "add", a.added, x => `<span class="o-addchip">${ic.plus}<small>${esc(attrLabel(a.k))}:</small><i class="o-vdot" ${hue(a.k, x.to)}></i>${esc(x.to)}</span>`)}
-      </div>` : ""}
-    </section>`;
-  };
-  return `<div class="o-modal xl preview" role="dialog" aria-modal="true" aria-label="Preview">
+  const c = stColl(), s = stStudy(), m = cpModel(c, s), synced = !m.changed.length;
+  return `<div class="o-modal xl preview cpx" role="dialog" aria-modal="true" aria-label="Preview">
     <header class="o-mh"><button class="icon-btn" data-a="pvBack" aria-label="Back">${ic.back}</button><h2 class="o-h20">Apply <b>${esc(c.name)}</b> to <b>${esc(s.name)}</b></h2><span class="sp"></span><span class="o-pvtag">${ic.eye}Preview · nothing applied yet</span></header>
-    <div class="o-scroll grey"><div class="o-pv">
-      ${synced ? `<div class="o-lead ok">${ic.check}<div><b>Already up to date.</b> ${esc(s.name)} has this collection's tags. Applying it again changes nothing.</div></div>`
-        : `<div class="o-lead${t.removed ? " warn" : ""}">${t.removed ? ic.warn : ic.info}<div>${sentence(c, s, t)}${t.removed ? ` <b>${t.removed} products lose a value</b> because this collection has nothing for them.` : ""}</div></div>
-      <div class="o-counters">
-        <div><span>Changes</span><b>${t.items}</b></div>
-        <div class="add"><span>Tags added</span><b>${t.added}</b></div>
-        <div class="ch"><span>Changed</span><b>${t.changed}</b></div>
-        <div class="rm"><span>Removed</span><b>${t.removed}</b></div>
-      </div>`}
-      <div class="o-sec">By attribute${t.removed ? " · removals first" : ""}</div>
-      ${rows.map(row).join("")}
+    <div class="o-scroll grey"><div class="cpx-body">
+      ${cpLayout(c, s, m, "")}
     </div></div>
-    <footer class="o-mf"><span class="o-showing">${synced ? "" : `<b>${t.items}</b> changes across ${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}`}</span><span class="sp"></span>
+    <footer class="o-mf"><span class="sp"></span>
       <button class="btn" data-a="pvBack">Cancel</button>
-      ${synced ? `<button class="btn primary" data-a="pvBack">Choose another study</button>` : `<button class="btn primary${t.removed ? " danger" : ""}" data-a="pvApply">${ic.importStudy}${s.published.some(k => c.attrs.includes(k)) ? "Replace" : "Add"} ${c.attrs.length === 1 ? esc(attrLabel(c.attrs[0])) : c.attrs.length + " attributes"} in ${esc(s.name)}</button>`}
+      ${synced ? `<button class="btn primary" data-a="pvBack">Choose another study</button>` : `<button class="btn primary${m.lost ? " danger" : ""}" data-a="pvApply">${m.lost ? ic.warn : ic.importStudy}${s.published.some(k => c.attrs.includes(k)) ? "Replace" : "Add"} ${c.attrs.length === 1 ? esc(attrLabel(c.attrs[0])) : c.attrs.length + " attributes"} in ${esc(s.name)}</button>`}
     </footer>
   </div>`;
 };
@@ -115,7 +79,7 @@ const MODAL_SUCCESS = () => {
 };
 
 /* ---------- Modal shell: one overlay, the open modal decides its content. No iframes. ---------- */
-const MODALS = { success: () => MODAL_SUCCESS(), card: () => MODAL_CARD(), confirmDelete: () => MODAL_DELETE(), access: () => MODAL_ACCESS(), create: () => MODAL_CREATE(), studyPick: () => MODAL_PICK(), collPick: () => MODAL_COLLPICK(), preview: () => MODAL_PREVIEW() };
+const MODALS = { success: () => MODAL_SUCCESS(), card: () => MODAL_CARD(), confirmDelete: () => MODAL_DELETE(), access: () => MODAL_ACCESS(), create: () => MODAL_CREATE(), studyPick: () => MODAL_PICK(), collPick: () => MODAL_COLLPICK(), preview: () => MODAL_PREVIEW(), compare: () => MODAL_COMPARE() };
 RENDER.modal = () => {
   const ov = $("#o-ov");
   document.body.classList.toggle("locked", !!App.modal);
@@ -131,7 +95,8 @@ RENDER.escape = () => {
   if (!App.modal) return false;
   if (App.modal === "card" && CD.editing) { CD.editing = false; return true; }
   if (App.modal === "studyPick") App.modal = ST.fromBoard ? null : "card";
-  else if (App.modal === "preview") App.modal = ST.fromBoard ? "collPick" : "studyPick";
+  else if (App.modal === "preview") App.modal = ST.fromCompare ? "compare" : ST.fromBoard ? "collPick" : "studyPick";
+  else if (App.modal === "compare") { App.modal = "card"; setFlow("card"); }
   else App.modal = null;
   return true;
 };
@@ -140,15 +105,14 @@ document.addEventListener("mousedown", e => { pressedBackdrop = e.target.id === 
 document.addEventListener("click", e => { if (e.target.id === "o-ov" && pressedBackdrop && App.modal) { App.modal = null; render(); } });
 
 /* ---------- Actions ---------- */
-ACTIONS.toStudyPick = () => { setFlow("study"); ST.q = ""; ST.sel = null; ST.open = null; ST.fromBoard = false; App.modal = "studyPick"; };
+ACTIONS.toStudyPick = () => { setFlow("study"); ST.q = ""; ST.sel = null; ST.open = null; ST.fromBoard = false; ST.fromCompare = false; App.modal = "studyPick"; };
 ACTIONS.applyFromMenu = el => { openCard(el.dataset.v); ACTIONS.toStudyPick(); };
 ACTIONS.pickBack = () => { App.modal = "card"; setFlow("card"); };
 ACTIONS.pickStudy = el => { ST.sel = el.dataset.v; };
 INPUTS.stQ = el => { ST.q = el.value; };
-ACTIONS.toPreview = () => { ST.open = null; App.modal = "preview"; };
-ACTIONS.pickColl = el => { CD.id = el.dataset.v; ST.sel = ST.target; ST.open = null; ST.fromBoard = true; App.modal = "preview"; };
-ACTIONS.pvBack = () => { App.modal = ST.fromBoard ? "collPick" : "studyPick"; };
-ACTIONS.pvToggle = el => { ST.open = ST.open === el.dataset.v ? "" : el.dataset.v; };
+ACTIONS.toPreview = () => { ST.open = null; CP.open = null; CP.touched = false; CP.q = ""; App.modal = "preview"; };
+ACTIONS.pickColl = el => { CD.id = el.dataset.v; ST.sel = ST.target; ST.open = null; ST.fromBoard = true; ST.fromCompare = false; App.modal = "preview"; };
+ACTIONS.pvBack = () => { if (ST.fromCompare) { App.modal = "compare"; setFlow("compare"); return; } App.modal = ST.fromBoard ? "collPick" : "studyPick"; };
 ACTIONS.pvApply = () => {
   const c = stColl(), s = stStudy(), t = diffTotals(diffFor(c, s));
   applyCollection(c, s);

@@ -148,6 +148,7 @@ const buildStudies = () => {
 
   const statues = { values: { bg: {}, stone: {} }, productIds: [...STATUE_IDS] };
   STATUE_IDS.forEach(id => { statues.values.bg[id] = PRODUCTS[id]._bg; statues.values.stone[id] = PRODUCTS[id]._stone; });
+  STATUE_IDS.slice(-4).forEach(id => delete statues.values.stone[id]); // the spreadsheet left Material blank for the last four lots (edge state: no value)
   COLLECTIONS.push({ id: "statues", name: "Statue backgrounds", desc: "Background colour and material for each lot, from the photo studio's spreadsheet.",
     attrs: ["bg", "stone"], ...statues, source: { type: "csv", name: "statue_backgrounds.csv" }, owner: PEOPLE.leyla, shared: [ME], v: "v1", created: "Sep 2, 2026", edited: "Sep 30, 2026" });
 };

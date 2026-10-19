@@ -12,8 +12,12 @@ const cardShown = () => {
   const c = curColl(), q = CD.q.trim().toLowerCase(), ps = cProducts(c).filter(p => !q || p.name.toLowerCase().includes(q) || String(p.id).toLowerCase().includes(q));
   if (!CD.sel) return sorted(ps);
   if (!CD.sel.v) return sorted(ps.filter(p => cValue(c, CD.sel.k, p.id)));
+  if (CD.sel.v === NOVAL) return sorted(ps.filter(p => !cValue(c, CD.sel.k, p.id)));
   return sorted(ps.filter(p => cValue(c, CD.sel.k, p.id) === CD.sel.v));
 };
+// Edge states: products in the collection with no value for an attribute, and values only one product carries
+const NOVAL = "__none";
+const noValue = (c, k) => cProducts(c).filter(p => !cValue(c, k, p.id));
 const usedBy = c => STUDIES.filter(s => s.applied[c.id]);
 
 /* ---------- Rail: a tree. The attribute is the parent, its values are the children. One selection at a time. ---------- */
@@ -29,7 +33,7 @@ const rail = () => {
           <button class="o-tchev" data-a="cardFold" data-v="${k}" aria-label="${closed ? "Show" : "Hide"} values" aria-expanded="${!closed}">${ic.chev}</button>
           <button class="o-tname" data-a="cardSel" data-v="${k}" role="radio" aria-checked="${!!onA}">${ic.tag}<b>${esc(attrLabel(k))}</b><small>${vals.length} value${vals.length === 1 ? "" : "s"}</small><span class="n">${n}</span></button>
         </div>
-        ${closed ? "" : `<ul class="o-tvals">${vals.map(([v, n]) => { const on = CD.sel && CD.sel.k === k && CD.sel.v === v; return `<li><button class="o-tval${on ? " on" : ""}" data-a="cardSel" data-v="${k}|${esc(v)}" role="radio" aria-checked="${!!on}" ${hue(k, v)}><i class="o-vdot"></i><span>${esc(v)}</span><span class="o-vbar" title="${Math.round(n / ps.length * 100)}% of products"><i style="width:${Math.max(4, Math.round(n / vals[0][1] * 100))}%"></i></span><span class="n">${n}</span></button></li>`; }).join("")}</ul>`}
+        ${closed ? "" : `<ul class="o-tvals">${vals.map(([v, n]) => { const on = CD.sel && CD.sel.k === k && CD.sel.v === v; return `<li><button class="o-tval${on ? " on" : ""}${n === 1 ? " one" : ""}" data-a="cardSel" data-v="${k}|${esc(v)}" role="radio" aria-checked="${!!on}" ${hue(k, v)}${n === 1 ? ` title="Only one product carries ${esc(v)}"` : ""}><i class="o-vdot"></i><span>${esc(v)}</span><span class="o-vbar" title="${Math.round(n / ps.length * 100)}% of products"><i style="width:${Math.max(4, Math.round(n / vals[0][1] * 100))}%"></i></span><span class="n">${n}</span></button></li>`; }).join("")}${(() => { const nv = noValue(c, k).length, on = CD.sel && CD.sel.k === k && CD.sel.v === NOVAL; return nv ? `<li><button class="o-tval none${on ? " on" : ""}" data-a="cardSel" data-v="${k}|${NOVAL}" role="radio" aria-checked="${on}" title="In this collection, but with no ${esc(attrLabel(k))}"><i class="o-vdot"></i><span>No value</span><span class="o-vbar"></span><span class="n">${nv}</span></button></li>` : ""; })()}</ul>`}
       </div>`;
     }).join("")}
   </aside>`;
@@ -42,7 +46,7 @@ ACTIONS.cardFold = el => { const k = el.dataset.v; CD.closed.has(k) ? CD.closed.
 const addChip = (k, v, short = false) => `<span class="o-addchip hue" ${hue(k, v)} title="Applying this collection adds ${esc(attrLabel(k))} = ${esc(v)}">${ic.plus}${short ? "" : `<small>${esc(attrLabel(k))}:</small>`}${esc(v)}</span>`;
 const pchips = p => {
   const c = curColl(), ks = CD.sel ? [CD.sel.k] : c.attrs;
-  return `<div class="o-pchips">${ks.filter(k => cValue(c, k, p.id)).map(k => addChip(k, cValue(c, k, p.id))).join("")}</div>`;
+  return `<div class="o-pchips">${ks.map(k => cValue(c, k, p.id) ? addChip(k, cValue(c, k, p.id)) : `<span class="o-addchip nov" title="This collection has no ${esc(attrLabel(k))} for this product">No ${esc(attrLabel(k))}</span>`).join("")}</div>`;
 };
 const pcard = p => `<div class="o-pcard">${thumb(p, "sq")}<div class="nm">${esc(p.name)}</div><div class="o-id">${p.id}${p.price ? ` · ${money(p.price)}` : ""}</div>${pchips(p)}</div>`;
 const gridView = list => {
@@ -124,6 +128,18 @@ ACTIONS.cdNameDone = () => {
 };
 document.addEventListener("focusout", e => { if (e.target.id === "cd-name" && CD.editing) { ACTIONS.cdNameDone(); setTimeout(render); } });
 
+/* What the bar above the grid says for a selection, including the two edge states */
+const selMsg = (c, list, total, selName) => {
+  const k = CD.sel.k, lab = esc(attrLabel(k));
+  if (CD.sel.v === NOVAL) return `<span class="o-adds warn">${ic.warn}<span><b>${list.length}</b> of ${total} products have no ${lab} in this collection. Applying leaves them without one, and <b>removes</b> any ${lab} a study already has on them.</span></span>`;
+  if (CD.sel.v && list.length === 1 && !CD.q) return `<span class="o-adds">${ic.info}<span>Only <b>1</b> product carries <b>${esc(CD.sel.v)}</b>. A one-product value is often a typo or a one-off: check it in the study before applying.</span></span>`;
+  return `<span class="o-adds">${ic.plus}<b>${list.length}</b> of ${total} products get <b>${esc(selName)}</b></span>`;
+};
+/* Nothing to show: say why, and offer the one way out */
+const emptyState = (c, total, selName) => CD.q
+  ? `<div class="o-empty o-empty2">${ic.search}<b>No products match “${esc(CD.q)}”</b><span>Search looks at product names and style codes in this collection only (${total} products)${CD.sel ? `, within ${esc(selName)}` : ""}.</span><button class="btn" data-a="cardQClear">Clear search</button></div>`
+  : `<div class="o-empty o-empty2">${ic.box}<b>No products carry ${esc(selName)}</b><span>This version of the collection has nothing here.</span><button class="btn" data-a="cardAll">Show all products</button></div>`;
+
 /* ---------- The screen ---------- */
 const appliedDD = c => {
   const used = usedBy(c), id = "applied";
@@ -137,7 +153,7 @@ ACTIONS.openStudyFromCard = el => { App.modal = null; setFlow("board"); const c 
 const MODAL_CARD = () => {
   const c = curColl(), list = cardShown(), total = cProducts(c).length, old = CD.viewV && CD.viewV !== c.v;
   const seg = `<div class="o-seg icons" role="radiogroup" aria-label="View"><button class="${CD.view === "grid" ? "on" : ""}" data-a="cardView" data-v="grid" role="radio" aria-checked="${CD.view === "grid"}" title="Grid" aria-label="Grid">${ic.grid}</button><button class="${CD.view === "list" ? "on" : ""}" data-a="cardView" data-v="list" role="radio" aria-checked="${CD.view === "list"}" title="List" aria-label="List">${ic.list}</button></div>`;
-  const selName = CD.sel ? (CD.sel.v ? `${attrLabel(CD.sel.k)} · ${CD.sel.v}` : attrLabel(CD.sel.k)) : "";
+  const selName = CD.sel ? (CD.sel.v === NOVAL ? `no ${attrLabel(CD.sel.k)}` : CD.sel.v ? `${attrLabel(CD.sel.k)} · ${CD.sel.v}` : attrLabel(CD.sel.k)) : "";
   return `<div class="o-modal xl v2card" role="dialog" aria-modal="true" aria-label="${esc(c.name)}">
     <header class="o-mh v2h">
       <button class="icon-btn" data-a="closeModal" aria-label="Back to Attributes">${ic.back}</button>
@@ -161,8 +177,8 @@ const MODAL_CARD = () => {
     ${old ? oldBar() : ""}
     <div class="o-mb with-rail">${rail()}
       <div class="o-scroll grey">
-        <div class="o-selbar">${CD.sel ? `<span class="o-adds">${ic.plus}<b>${list.length}</b> of ${total} products get <b>${esc(selName)}</b></span><button class="o-clear" data-a="cardAll">Show all</button>` : `<span class="o-adds">${ic.plus}Applying this adds <b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) to <b>${total} products</b>. Each product shows the tag it gets.</span>`}<span class="sp"></span><label class="o-searchbox o-cdsearch">${ic.search}<input id="cd-q" data-in="cardQ" value="${esc(CD.q)}" placeholder="Find a product" aria-label="Find a product">${CD.q ? `<button class="icon-btn" data-a="cardQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label>${seg}</div>
-        ${list.length ? (CD.view === "grid" ? gridView(list) : listView(list)) : `<div class="o-empty"><b>${CD.q ? `Nothing matches “${esc(CD.q)}”` : `No products carry ${esc(selName)}`}</b>${CD.q ? `<button class="o-clear" data-a="cardQClear">Clear search</button>` : ""}</div>`}
+        <div class="o-selbar">${CD.sel ? `${selMsg(c, list, total, selName)}<button class="o-clear" data-a="cardAll">Show all</button>` : `<span class="o-adds">${ic.plus}Applying this adds <b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) to <b>${total} products</b>. Each product shows the tag it gets.</span>`}<span class="sp"></span><label class="o-searchbox o-cdsearch">${ic.search}<input id="cd-q" data-in="cardQ" value="${esc(CD.q)}" placeholder="Find a product" aria-label="Find a product">${CD.q ? `<button class="icon-btn" data-a="cardQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label>${seg}</div>
+        ${list.length ? (CD.view === "grid" ? gridView(list) : listView(list)) : emptyState(c, total, selName)}
       </div>
       ${CD.histOpen ? histPanel() : ""}
     </div>
@@ -171,7 +187,8 @@ const MODAL_CARD = () => {
       ${appliedDD(c)}
       <span class="sp"></span>
       ${old ? `<button class="btn" data-a="verLatest">Back to latest</button><button class="btn primary" data-a="verRestore">${ic.history}Restore as ${nextV(c)}</button>`
-        : `<button class="btn primary o-cta" data-a="toStudyPick" data-v="apply">${ic.importStudy}Apply to a study</button>`}
+        : `<button class="btn o-cmpbtn" data-a="cpOpen" title="Optional: see what applying would change in a study, product by product, before you apply"><span class="o-cmpg">⇄</span>Compare with a study</button>
+          <button class="btn primary o-cta" data-a="toStudyPick" data-v="apply">${ic.importStudy}Apply to a study</button>`}
     </footer>
   </div>`;
 };
@@ -187,3 +204,12 @@ ACTIONS.exportCsv = () => { const c = curColl(); toast(`Downloaded ${c.productId
 ACTIONS.closeModal = () => { App.modal = null; };
 
 JUMP.card = () => { App.page = "home"; openCard(CD.id); render(); };
+
+/* Guide entries: the collection screen's edge states (#edge/novalue|single|nomatch) */
+JUMP.edge = v => {
+  App.page = "home";
+  if (v === "single") { openCard("franchise"); const one = valueCounts(curColl(), "franchise").find(([, n]) => n === 1); CD.sel = one ? { k: "franchise", v: one[0] } : null; }
+  else if (v === "nomatch") { openCard("franchise"); CD.q = "Air Max 2099"; }
+  else { openCard("statues"); CD.sel = { k: "stone", v: NOVAL }; }
+  render();
+};

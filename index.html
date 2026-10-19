@@ -90,6 +90,7 @@
   <script src="oct17/card.js"></script>
   <script src="oct17/create.js"></script>
   <script src="oct17/study.js"></script>
+  <script src="oct17/compare.js"></script>
   <script src="oct17/access.js"></script>
   <script src="oct17/board.js"></script>
   <script src="oct17/settings.js"></script>
@@ -97,7 +98,8 @@
   <script>
     // Load the Nike catalogue (assets/nike/catalog.json), then open a step from the URL (#board, #card, #study/preview …) or the board
     loadCatalog().then(() => {
-      const [hf, ho] = location.hash.slice(1).split("/");
+      // ?screen=edge/single works like #edge/single, for links whose hash is taken (e.g. Figma captures)
+      const [hf, ho] = (new URLSearchParams(location.search).get("screen") || location.hash.slice(1)).split("/");
       if (flowById(hf)) { setFlow(hf); JUMP[hf](ho || null); } else JUMP.board(null);
       document.dispatchEvent(new Event("app:ready"));
     });
