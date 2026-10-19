@@ -1078,3 +1078,7 @@ button.cpx-sv.on { border-color: var(--text); box-shadow: 0 0 0 1px var(--text) 
 .cpx-th, .cpx-t { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) 220px; gap: 0; }
 .cpx-th > span:first-child, .cpx-t > .cpx-now { padding-right: 12px; }
 .cpx-after::before { content: ""; }
+/* Photos that haven't loaded: the grey card's sheen sweeps across so it never reads as blank */
+.o-th.loading { position: relative; overflow: hidden; background: #ECECEC; }
+.o-th.loading::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.85) 50%, transparent 70%); transform: translateX(-100%); animation: o-sweep 1.6s ease-in-out infinite; }
+@keyframes o-sweep { to { transform: translateX(100%); } }

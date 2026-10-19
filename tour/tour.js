@@ -144,10 +144,7 @@
     { kick: "Apply to a study", title: "Always a preview, never a toggle", sel: ".pick .o-mf", place: "above", body: `
       ${was("Staging has a Dry run switch a user can turn off before seeing anything.")}
       ${did("The only button is Preview changes.")}` },
-    { kick: "Apply to a study", title: "Lead with one honest sentence", go: () => { goCard(); ST.sel = "Price architecture"; JUMP.study("preview"); }, sel: ".cpx-verdict", place: "below", body: `
-      ${did("One sentence that says whether it adds or replaces, in which study, and how many tags are added, changed or removed. If values would be lost, it says so in bold.")}
-      ${why("The real dry run on staging deleted 17 values the study had and the library didn't. Applying replaces the study's version of each attribute. The preview has to say so.")}` },
-    { kick: "Apply to a study", title: "Totals first, then the detail", sel: ".cpx-table", place: "left", body: `
+    { kick: "Apply to a study", title: "Totals first, then the detail", go: () => { goCard(); ST.sel = "Price architecture"; JUMP.study("preview"); }, sel: ".cpx-table", place: "left", body: `
       ${was("The live preview repeats “+ BW” 113 times with no summary. Roo: “am I supposed to do something here?”")}
       ${did("One line per change, “Slides → No value · 8 products”, in sections by outcome, removals first. The same view as Compare with a study. The answer to Roo's question is: no, read this, then confirm.")}` },
     { kick: "Apply to a study", title: "The button says what it does", sel: ".preview .o-mf .btn.primary", place: "above", body: `
