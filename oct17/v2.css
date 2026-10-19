@@ -70,7 +70,7 @@ kbd { font: 600 var(--fs-11) Inter, system-ui, sans-serif; padding: 1px 5px; bor
 .o-newmenu span { display: grid; gap: 1px; }
 .o-newmenu small { font-size: var(--fs-12); color: var(--muted); white-space: normal; max-width: 240px; }
 .o-msep { border: 0; border-top: 1px solid var(--border); margin: 3px 0; }
-.o-mgroup { padding: 4px 10px 2px; font-size: var(--fs-11); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.o-mgroup { padding: 4px 10px 2px; font-size: var(--fs-11); font-weight: 600; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 6px; letter-spacing: var(--ls-overline); }
 .o-mgroup svg.i { width: 11px; height: 11px; }
 .o-amrow { display: grid; gap: 1px; text-align: left; }
 .o-amrow small { font-size: var(--fs-12); color: var(--muted); white-space: normal; }
@@ -969,3 +969,18 @@ button.cpx-sv.on { border-color: var(--text); box-shadow: 0 0 0 1px var(--text) 
 .cpx-side > section { border-bottom: 0; padding: 12px 16px; }
 .cpx-side > section + section { padding-top: 6px; }
 .cpx-at { border-top: 0; padding: 4px 16px 12px; }
+/* Study name with its version on the right */
+.cpx-study-t { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; }
+.cpx-study-t b { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cpx-study-t .cpx-badge { margin-top: 0; }
+
+/* ---------- Style guide (Figma): the app's own icons, same places, same sizes ---------- */
+.nav li img.i, .st-nav button img.i { width: 16px; height: 16px; flex: none; }
+.fi { display: block; width: 16px; height: 16px; flex: none; }
+.bx-bb .fi { width: 14px; height: 14px; }
+.bx-bb.icon > .fi { width: 18px; height: 18px; }
+.bx-tools .fi[src$="tool-highlight.svg"] { width: 30px; height: 30px; } /* drawn on a 32px canvas */
+.bx-tools button.on .fi { filter: brightness(0) invert(1); }
+/* The attributes icon is drawn white for its red "on" state; darken it everywhere else */
+.bx-tools button:not(.on) .fi[src$="tool-attributes.svg"], .bx-ph .fi[src$="tool-attributes.svg"] { filter: brightness(0); }
+.cpx-k { letter-spacing: var(--ls-overline); }

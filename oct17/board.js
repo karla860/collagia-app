@@ -18,15 +18,18 @@ const MATRICES = {
 const mIcon = k => `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${MATRICES[k].icon}</svg>`;
 const L = d => `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 
+// The app's own icons, from the Figma style guide (assets/icons)
+const fi = n => `<img class="fi" src="assets/icons/${n}.svg" alt="">`;
+
 /* The app's tools, in its order, with its own tooltip copy */
 const TOOLS = {
-  select: { key: "V", name: "Select", tip: "Select images, frames and change position for them. Drag to pan, click an item to see its details.", icon: L('<path d="M4 3l7 17 2.5-7L21 10.5z" fill="currentColor" stroke="none"/>') },
-  swap: { key: "I", name: "Swap images", tip: "Change view: select a different angle to display for all items shown.", icon: L('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 16 5-5 4 4 3-3 6 6"/><circle cx="15.5" cy="9.5" r="1.3" fill="currentColor"/>'), flyout: true },
-  magnify: { key: "M", name: "Magnify", tip: "Use the magnifier to see image details without zooming in, while keeping the whole collection visible.", icon: L('<circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/>') },
-  highlight: { key: "H", name: "Highlight", tip: "The highlighter lets you visually focus on specific images of interest while de-emphasising others.", icon: L('<path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/>') },
-  stats: { key: "S", name: "Statistics", tip: "Stats panel: create calculations, adjust how stats appear, and control label visibility.", icon: L('<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/>') },
-  attr: { key: "F", name: "Create custom attribute", tip: "Group similar items together, then create a new attribute type and assign values to each group. Drag a frame or click items.", icon: L('<path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M12 8v8M8 12h8"/>') },
-  comment: { key: "C", name: "Comment", tip: "Add a comment to this board. Click anywhere to drop a pin.", icon: L('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/>') },
+  select: { key: "V", name: "Select", tip: "Select images, frames and change position for them. Drag to pan, click an item to see its details.", icon: fi("tool-select") },
+  swap: { key: "I", name: "Swap images", tip: "Change view: select a different angle to display for all items shown.", icon: fi("tool-swap"), flyout: true },
+  magnify: { key: "M", name: "Magnify", tip: "Use the magnifier to see image details without zooming in, while keeping the whole collection visible.", icon: fi("tool-magnify") },
+  highlight: { key: "H", name: "Highlight", tip: "The highlighter lets you visually focus on specific images of interest while de-emphasising others.", icon: fi("tool-highlight") },
+  stats: { key: "S", name: "Statistics", tip: "Stats panel: create calculations, adjust how stats appear, and control label visibility.", icon: fi("tool-stats") },
+  attr: { key: "F", name: "Create custom attribute", tip: "Group similar items together, then create a new attribute type and assign values to each group. Drag a frame or click items.", icon: fi("tool-attributes") },
+  comment: { key: "C", name: "Comment", tip: "Add a comment to this board. Click anywhere to drop a pin.", icon: fi("tool-notes") },
 };
 const VIEWS = { full: { name: "Side view", hint: "The product shot as supplied" }, close: { name: "Close-up", hint: "Cropped in on the upper and logo" }, mono: { name: "Silhouette", hint: "Shape only, colour removed" } };
 
@@ -133,7 +136,7 @@ const topBar = () => {
       ${dd("collage", `${esc(c.name)}${ic.chev}`, `<div class="bx-mnone">${esc(c.feeds.join(" · "))}</div>`, " plain", false, tipAttrs("Collage name", "The base collage providing the data for this study. Every filter and visualisation is built on it."))}
       <i class="bx-vsep"></i>
       ${dd("study", `${mIcon(BD.matrix)}<b>${esc(s.name)}</b>${ic.chev}`, STUDIES.map(x => `<button role="menuitemradio" aria-checked="${x === s}" class="${x === s ? "cur" : ""}" data-a="bdStudy" data-v="${esc(x.name)}"><span class="o-amrow"><b>${esc(x.name)}</b><small>${esc(COLLAGES[x.collage].name)} · ${x.published.length} attribute${x.published.length === 1 ? "" : "s"}</small></span></button>`).join(""), " plain", false, tipAttrs("Study", "Switch to another study"))}
-      <button class="bx-ib${BD.summary ? " on" : ""}" data-a="bdSummary" ${tipAttrs(BD.summary ? "Hide board summary" : "Show board summary")}>${ic.info}</button>
+      <button class="bx-ib${BD.summary ? " on" : ""}" data-a="bdSummary" ${tipAttrs(BD.summary ? "Hide board summary" : "Show board summary")}>${fi("top-info")}</button>
     </div>
     ${BD.summary ? `<div class="bx-summary">${esc(summaryText())} · ${bdShown().length} items in view</div>` : ""}
     <div class="bx-box">
@@ -141,8 +144,8 @@ const topBar = () => {
         <hr class="o-msep"><button role="menuitem" data-a="boardSave" ${s.published.length ? "" : "disabled"}>${ic.tag}<span class="o-amrow"><b>Save to a collection</b><small>Lift this study's attributes out so they can be shared and reused</small></span></button>
         <button role="menuitem" data-a="boardApply">${ic.importStudy}<span class="o-amrow"><b>Apply a collection</b><small>Bring a collection's attributes into this study</small></span></button>`, " plain", false, tipAttrs("Custom attributes", "Attributes published in this study"))}
       ${dd("res", `Resources${ic.chev}`, `<button role="menuitem" data-a="bdToast" data-v="Training videos">Training videos</button><button role="menuitem" data-a="bdToast" data-v="Help centre">Help centre</button>`, " plain", false)}
-      <button class="bx-ib" data-a="bdToast" data-v="Customisation" ${tipAttrs("Customise", "Board colours, labels and layout")}>${sv('<path d="M2 4.5h12M2 11.5h12"/><circle cx="6" cy="4.5" r="1.8" fill="#fff"/><circle cx="10" cy="11.5" r="1.8" fill="#fff"/>', 'stroke-width="1.4"')}</button>
-      <button class="bx-ib" data-a="bdToast" data-v="Report a bug" ${tipAttrs("Report a bug")}>${sv('<path d="M6 4.5a2 2 0 0 1 4 0M4 8h8M3 11.5h2M11 11.5h2M4.5 5l1 1M11.5 5l-1 1"/><rect x="5" y="5.5" width="6" height="8" rx="3"/>', 'stroke-width="1.3"')}</button>
+      <button class="bx-ib" data-a="bdToast" data-v="Customisation" ${tipAttrs("Customise", "Board colours, labels and layout")}>${fi("top-sliders")}</button>
+      <button class="bx-ib" data-a="bdToast" data-v="Report a bug" ${tipAttrs("Report a bug")}>${fi("top-bug")}</button>
       <i class="bx-vsep"></i>
       <button class="bx-ib avatar" data-a="nav" data-v="profile" ${tipAttrs(ME.name, "Account settings")}>${avatar2(ME, "s")}</button>
     </div>
@@ -188,19 +191,19 @@ const showBar = () => {
     <div class="bx-box">
       ${dd("matrix", `<span class="bx-cur">${mIcon(BD.matrix)}<span><small>Current board</small>${MATRICES[BD.matrix].label}</span></span>${ic.sortI}`, matrixMenu, " cur", true, tipAttrs("Change matrix", "Pareto, Rank, Group or Freestyle"))}
       <i class="bx-vsep"></i>
-      ${dd("filters", `${ic.filter}Filter${active.length ? `<em>${active.reduce((n, [, set]) => n + set.size, 0)}</em>` : ""}`, filterMenu, active.length ? " on" : " plain", true, tipAttrs("Filter", "Refine what's displayed: business data, custom attributes and image attributes can all be filtered."))}
+      ${dd("filters", `${fi("bot-filter")}Filter${active.length ? `<em>${active.reduce((n, [, set]) => n + set.size, 0)}</em>` : ""}`, filterMenu, active.length ? " on" : " plain", true, tipAttrs("Filter", "Refine what's displayed: business data, custom attributes and image attributes can all be filtered."))}
       <button class="bx-ib${BD.pct ? " on" : ""}" data-a="bdPct" ${tipAttrs("Toggle image percentage", "Show each item's percentage contribution on the image")}>${ic.info}</button>
       ${byMatrix[BD.matrix]}
       ${addGroup[BD.matrix] ? `<i class="bx-vsep"></i>${addGroup[BD.matrix]}` : ""}
-      ${dd("more", ic.more, more, " plain icon", true, tipAttrs("More"))}
+      ${dd("more", fi("bot-more"), more, " plain icon", true, tipAttrs("More"))}
     </div>
     <div class="bx-box">
       <button class="bx-ib" data-a="bdZoomStep" data-v="out" ${tipAttrs("Zoom out", "", "−")}>${ic.minus}</button>
       <span class="bx-zoomv">${Math.round(BD.zoom * 100)}%</span>
       <button class="bx-ib" data-a="bdZoomStep" data-v="in" ${tipAttrs("Zoom in", "", "+")}>${ic.plus}</button>
-      <button class="bx-ib" data-a="bdZoomFit" ${tipAttrs("Reset zoom", "", "0")}>${sv('<path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10"/>', 'stroke-width="1.4"')}</button>
+      <button class="bx-ib" data-a="bdZoomFit" ${tipAttrs("Reset zoom", "", "0")}>${fi("bot-fit")}</button>
       <i class="bx-vsep"></i>
-      <button class="bx-bb${BD.table ? " on" : " plain"}" data-a="bdTable" ${tipAttrs(BD.table ? "Hide data table" : "Show data table", "", "D")}>${ic.table}Data table</button>
+      <button class="bx-bb${BD.table ? " on" : " plain"}" data-a="bdTable" ${tipAttrs(BD.table ? "Hide data table" : "Show data table", "", "D")}>${fi("bot-table")}Data table</button>
     </div>
   </div>
   <div class="bx-stats"><span><b>${shown}</b><small>Items in view</small></span><span><b>1</b><small>Avg images per item</small></span><span><b>100%</b><small>Items with images</small></span>${BD.tool === "attr" ? (BD.sel.size ? `<span class="sel"><b>${BD.sel.size}</b><small>Selected</small><button class="o-clear" data-a="bdClearSel">Clear</button></span>` : `<span class="sel"><button class="o-clear" data-a="bdSelAll">Select all in view</button></span>`) : ""}${BD.hl.size ? `<span class="sel"><b>${BD.hl.size}</b><small>Highlighted</small><button class="o-clear" data-a="bdClearHl">Clear</button></span>` : ""}</div>`;

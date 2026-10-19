@@ -16,7 +16,7 @@ const ROLES = [
   { scope: "Collage", name: "Nike GB Men's Footwear", role: "Editor", note: "Create studies and publish attributes" },
   { scope: "Collage", name: "Christie's Antiquities", role: "Viewer", note: "Open studies shared with you" },
 ];
-const SET_TABS = { profile: ["Profile", ic.user], security: ["Security", ic.lock], access: ["Access & session", ic.people] };
+const SET_TABS = { profile: ["Profile", `<img class="i" src="assets/icons/set-profile.svg" alt="">`], security: ["Security", `<img class="i" src="assets/icons/set-security.svg" alt="">`], access: ["Access & session", `<img class="i" src="assets/icons/set-access.svg" alt="">`] }; // the app's icons (Figma)
 
 const qrSvg = () => { // a stand-in QR: deterministic squares, three finder patterns
   let cells = ""; const n = 25;

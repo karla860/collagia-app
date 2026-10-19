@@ -30,10 +30,15 @@
   --fs-13: 13px;  /* Body: buttons, inputs, rows */
   --fs-12: 12px;  /* Small: meta, chips, IDs */
   --fs-11: 11px;  /* Caption: badges, counts, overlines */
+  /* Line heights that pair with each size (Figma "Line height/NN") */
+  --lh-20: 28px; --lh-16: 24px; --lh-14: 20px; --lh-13: 18px; --lh-12: 16px; --lh-11: 14px;
+  --ls-tight: -0.2px;   /* Title 20 and Heading 16 */
+  --ls-overline: .06em; /* Caption 11 / Overline (6%) */
+  --board-section: #D9D9D9; /* Neutral / Board Section */
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; font: var(--fs-14)/1.4 "Inter", system-ui, -apple-system, sans-serif; color: var(--text); background: var(--hover); -webkit-font-smoothing: antialiased; }
+body { margin: 0; font: var(--fs-14)/var(--lh-14) "Inter", system-ui, -apple-system, sans-serif; color: var(--text); background: var(--hover); -webkit-font-smoothing: antialiased; }
 body.locked { overflow: hidden; }
 button { font: inherit; color: inherit; cursor: pointer; }
 input { font: inherit; color: inherit; }
@@ -113,7 +118,7 @@ svg.i { width: 16px; height: 16px; flex: none; }
 .divider { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
 
 /* Section labels */
-.flabel { font-size: var(--fs-11); font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-right: 4px; white-space: nowrap; }
+.flabel { font-size: var(--fs-11); font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: var(--ls-overline); margin-right: 4px; white-space: nowrap; }
 .hint { font-size: var(--fs-12); color: var(--faint); }
 
 
@@ -193,7 +198,7 @@ table.t { width: 100%; border-collapse: collapse; background: var(--surface); fo
 .home-proto { top: auto; bottom: 16px; z-index: 40; }
 .proto .seg button b { margin-right: 2px; }
 .h-title { display: grid; gap: 8px; margin-bottom: 20px; }
-.h-title h1 { margin: 0; font-size: var(--fs-20); font-weight: 600; letter-spacing: -0.3px; line-height: 1.2; }
+.h-title h1 { margin: 0; font-size: var(--fs-20); font-weight: 600; letter-spacing: var(--ls-tight); line-height: var(--lh-20); }
 .h-intro { margin: 0; max-width: 720px; font-size: var(--fs-14); }
 .h-toolbar { display: flex; align-items: center; gap: 8px; padding-bottom: 12px; margin-bottom: 24px; border-bottom: 1px solid rgba(35, 33, 33, .1); flex-wrap: wrap; }
 .h-count { font-size: var(--fs-14); }

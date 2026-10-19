@@ -167,8 +167,8 @@ const cpSide = (c, s, m, foot) => {
   const stat = (n, l, cls = "") => `<div class="cpx-stat ${cls}"><b>${n}</b><span>${l}</span></div>`;
   // Study first (which study, which version), then the numbers. No dividers: spacing alone separates the two.
   return `<aside class="cpx-side">
-    <section class="cpx-study"><span class="cpx-k">Study</span><b>${esc(s.name)}</b>
-      <span class="cpx-badge${has && has !== c.v ? " behind" : has ? " ok" : ""}">${has ? (has === c.v ? `Has ${c.v} · up to date` : `Has ${has} · this is ${c.v}`) : `Doesn't have it yet`}</span></section>
+    <section class="cpx-study"><span class="cpx-k">Study</span><div class="cpx-study-t"><b>${esc(s.name)}</b>
+      <span class="cpx-badge${has && has !== c.v ? " behind" : has ? " ok" : ""}">${has ? (has === c.v ? `Has ${c.v} · up to date` : `Has ${has} · this is ${c.v}`) : `Doesn't have it yet`}</span></div></section>
     <section class="cpx-glance"><span class="cpx-k">At a glance</span>
       ${stat(m.changed.length, `product${m.changed.length === 1 ? "" : "s"} change`)}
       ${m.lost ? stat(m.lost, `lose ${c.attrs.length === 1 ? `their ${lab}` : "a value"}`, "rm") : ""}
