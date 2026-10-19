@@ -283,6 +283,8 @@
   const firstStep = Math.min(STEPS.length, Math.max(1, +(location.href.match(/[?&#]tour=(\d+)/) || [])[1] || 1)) - 1; // ?tour=9 opens on step 9
   let seen = false; try { seen = !!localStorage.getItem(DONE_KEY); } catch {}
   // The app boots after the catalogue loads; start once it says it is ready
-  document.addEventListener("app:ready", () => { build(); if (wantsTour || (!seen && !new URLSearchParams(location.search).has("screen"))) setTimeout(() => start(wantsTour ? firstStep : 0), 300); });
+  document.addEventListener("app:ready", () => { build(); // A plain link always opens on step 1 of the tour; ?tour=N, ?screen= and #flow links still open where they point
+    const deepLink = new URLSearchParams(location.search).has("screen") || location.hash.length > 1;
+    if (wantsTour || !deepLink) setTimeout(() => start(wantsTour ? firstStep : 0), 300); });
   window.PrototypeTour = { start, stop, steps: STEPS };
 })();
