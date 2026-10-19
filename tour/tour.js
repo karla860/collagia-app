@@ -93,7 +93,7 @@
     { kick: "Open a collection", title: "Every product shows what it gets", go: () => { goCard(); render(); }, sel: ".o-selbar", place: "below", body: `
       ${was("Products showed only image, name and ID, so nothing said what applying the collection would actually do.")}
       ${did("One sentence up top: applying this adds Franchise to 312 products. Then every product carries a “+ Franchise: Phantom” chip, the same + language as the apply preview, tinted with that value's colour.")}` },
-    { kick: "Open a collection", title: "Pick an attribute and the grid sorts itself by colour", go: () => { goCard(); CD.sel = { k: "franchise", v: null }; render(); }, sel: ".o-vsec", place: "below", body: `
+    { kick: "Open a collection", title: "Pick an attribute and the grid sorts itself by colour", go: () => { goCard(); CD.sel = { k: "franchise", v: null }; render(); }, sel: ".o-vsec-h", place: "below", body: `
       ${did("Clicking an attribute splits the grid into one colour section per value, biggest first. Click a section header to see just that value. Find a product searches by name or style code.")}` },
 
     /* ---------- Collection edge states: empty, partial and missing data ---------- */
@@ -111,8 +111,8 @@
       ${did("Thumbnails that haven't arrived shimmer in place. Names, style codes and tags are already there, and a note says how many photos are still coming.")}
       ${why("You can start reading the collection straight away instead of waiting on the slowest photo.")}` },
     { kick: "Edge states", title: "A collection with no products", go: () => { setFlow("edge"); JUMP.edge("empty"); }, sel: ".v2card .o-e0-why", place: "left", body: `
-      ${did("Says plainly that the collection has no products, shows why (the sheet's lot numbers next to the product IDs Collagia matches) and the fix in three steps. Compare and Apply are switched off.")}
-      ${why("Seeing the mismatch makes the fix obvious. Switching off Apply stops you sending nothing to a study.")}` },
+      ${did("One plain message, one reason and one action: Update from a CSV. Compare and Apply are switched off.")}
+      ${why("An empty screen should say it's empty and how to fill it, nothing more. Switching off Apply stops you sending nothing to a study.")}` },
 
     /* ---------- Compare with a study (optional, right before applying) ---------- */
     { kick: "Compare with a study", title: "An optional look before you apply", go: () => { goCard(); render(); }, sel: ".v2card .o-mf .o-cmpbtn", place: "above", body: `
@@ -166,6 +166,7 @@
 
     /* ---------- Wrap ---------- */
     { kick: "Wrap up", title: "What this version fixes", go: () => goHome(), sel: null, body: `
+      <p class="tr-sub"><b>Earlier version (Jamie, Oct 19)</b></p>
       <ul>
         <li><b>A working board</b> on real Nike products: select, publish attributes, group, filter, then save or apply collections from it.</li>
         <li><b>No iframes.</b> Every screen is one app.</li>
@@ -175,6 +176,15 @@
         <li><b>Cards show what is inside</b>, where it came from and whether it is shared.</li>
         <li><b>The preview leads with a sentence</b>, puts removals first and names the risk.</li>
         <li><b>One + language everywhere.</b> Cards, the collection and the preview all show what gets added, colour-coded per value.</li>
+      </ul>
+      <p class="tr-sub"><b>This version (Karla)</b></p>
+      <ul>
+        <li><b>Compare with a study</b>, an optional read-only look before applying: what changes, what's removed, what stays, product by product.</li>
+        <li><b>Search any product</b> and see exactly what happens to it.</li>
+        <li><b>Built for many studies:</b> one searchable dropdown that opens on the study that's behind.</li>
+        <li><b>The Apply preview matches Compare</b>, so the second step confirms the first.</li>
+        <li><b>Edge states</b> for the collection: no search match, no value, one-product values, photos loading, no products.</li>
+        <li><b>Figma style guide applied:</b> the app's icons, text styles, alert colours and grey attribute tags.</li>
       </ul>
       <p class="tr-hint">Still to confirm with Giorgi: that applying really does replace same-named attributes, what a version means to a user, and whether Manage can become Share. Karla's original files are untouched in <code>oct15/</code>.</p>` },
   ];

@@ -1056,3 +1056,25 @@ button.cpx-sv.on { border-color: var(--text); box-shadow: 0 0 0 1px var(--text) 
 /* Stronger sheen, like the app's loading cards */
 .o-th.loading { background: linear-gradient(110deg, #E9E9EA 0%, #E9E9EA 35%, #FFFFFF 48%, #F4F4F4 55%, #E9E9EA 68%, #E9E9EA 100%); background-size: 260% 100%; }
 .o-th.loading { background: linear-gradient(110deg, #E4E4E4 0%, #E4E4E4 40%, #FBFBFB 50%, #E4E4E4 60%, #E4E4E4 100%); background-size: 300% 100%; }
+
+/* ---------- Attribute tags and value colour (style guide): grey surfaces, colour only in the value's dot ---------- */
+.o-addchip, .o-addchip.hue { gap: 4px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--sunken); color: var(--text); font-weight: 500; }
+.o-addchip.hue svg.i, .o-addchip svg.i { color: var(--text); }
+.o-addchip.hue small, .o-addchip small { color: var(--muted); font-weight: 400; }
+.o-addchip .o-vdot { background: hsl(var(--h) 62% 52%); }
+.o-addchip.nov { background: var(--surface); border-style: dashed; color: var(--muted); font-weight: 400; }
+.o-vsec-h { background: var(--sunken); color: var(--text); }
+.o-vsec-h span { color: var(--muted); }
+.o-vsec-h:hover { box-shadow: inset 0 0 0 1px var(--border); }
+.o-tval.on { background: var(--sunken); color: var(--text); box-shadow: inset 0 0 0 1px var(--border); }
+.o-tval.on .n { color: var(--muted); }
+.o-tval.on .o-vbar { background: var(--chip); }
+/* Photos loading: a still grey card with a soft diagonal sheen, like the app's Recent Boards */
+.o-th.loading { animation: none; background: linear-gradient(115deg, #ECECEC 0%, #ECECEC 30%, #F8F8F8 44%, #FFFFFF 50%, #F3F3F3 56%, #ECECEC 70%, #ECECEC 100%); background-size: 100% 100%; border-radius: 6px; }
+/* Compare table: light column dividers so Now | After | Products read as separate cells */
+.cpx-th > span:nth-child(3), .cpx-t > .cpx-after { border-left: 1px solid var(--border); padding-left: 12px; align-self: stretch; display: flex; align-items: center; }
+.cpx-th > span:nth-child(4), .cpx-t > .cpx-n { border-left: 1px solid var(--border); padding-left: 12px; align-self: stretch; display: flex; align-items: center; }
+.cpx-th > span:nth-child(2), .cpx-t > .cpx-arrow { display: none; }
+.cpx-th, .cpx-t { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) 220px; gap: 0; }
+.cpx-th > span:first-child, .cpx-t > .cpx-now { padding-right: 12px; }
+.cpx-after::before { content: ""; }

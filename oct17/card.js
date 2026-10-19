@@ -48,7 +48,8 @@ ACTIONS.cardFold = el => { const k = el.dataset.v; CD.closed.has(k) ? CD.closed.
 /* ---------- Products, each with what this collection adds to it ----------
    Git-diff language, shared with the apply preview: a "+ Attribute: value" chip per tag the collection brings,
    tinted with that value's colour so the grid reads at a glance. Picking an attribute groups the grid by value. */
-const addChip = (k, v, short = false) => `<span class="o-addchip hue" ${hue(k, v)} title="Applying this collection adds ${esc(attrLabel(k))} = ${esc(v)}">${ic.plus}${short ? "" : `<small>${esc(attrLabel(k))}:</small>`}${esc(v)}</span>`;
+// Attribute tag (style guide): grey chip, "+ Attribute:" in grey, the value in black, colour only in the value's dot
+const addChip = (k, v, short = false) => `<span class="o-addchip hue" ${hue(k, v)} title="Applying this collection adds ${esc(attrLabel(k))} = ${esc(v)}">${ic.plus}${short ? "" : `<small>${esc(attrLabel(k))}:</small>`}${v === "Other" ? "" : `<i class="o-vdot"></i>`}${esc(v)}</span>`;
 const pchips = p => {
   const c = curColl(), ks = CD.sel ? [CD.sel.k] : c.attrs;
   return `<div class="o-pchips">${ks.map(k => cValue(c, k, p.id) ? addChip(k, cValue(c, k, p.id)) : `<span class="o-addchip nov" title="This collection has no ${esc(attrLabel(k))} for this product">No ${esc(attrLabel(k))}</span>`).join("")}</div>`;
@@ -167,24 +168,12 @@ const notices = (c, total, list) => {
   }
   return "";
 };
-/* A collection with no products at all: say so plainly, show why (the IDs don't match), and show the fix as three steps */
-const emptyColl0 = c => {
-  const sheet = ["LOT-0412", "LOT-0413", "LOT-0414"], ids = STATUE_IDS.slice(0, 3);
-  return `<div class="o-empty0">
-    <div class="o-e0-h">${ic.box}<b>This collection has no products</b><span>None of the ${c.csvRows} rows in <b>${esc(c.source.name)}</b> matched a product, so there's nothing to show or apply yet.</span></div>
-    <div class="o-e0-why">
-      <div class="o-e0-col"><small>Your sheet uses</small>${sheet.map(x => `<code class="no">${x}${ic.close}</code>`).join("")}<span>Lot numbers</span></div>
-      <div class="o-e0-arrow">${ic.arrowR}</div>
-      <div class="o-e0-col"><small>Collagia matches</small>${ids.map(x => `<code class="ok">${esc(x)}${ic.check}</code>`).join("")}<span>Product IDs in ${esc(COLLAGES.christies.name)}</span></div>
-    </div>
-    <ol class="o-e0-steps">
-      <li><i>1</i><span><b>Download the ${c.csvRows} rows</b><small>They come with a column saying why each one didn't match.</small></span><button class="btn" data-a="cdDownloadRows">${ic.download}Download</button></li>
-      <li><i>2</i><span><b>Put the product ID in the first column</b><small>The style code or lot ID your collage uses, like ${esc(ids[0])}.</small></span></li>
-      <li><i>3</i><span><b>Upload the corrected sheet</b><small>Products appear here as soon as their IDs match.</small></span><button class="btn primary" data-a="cdFixCsv">${ic.upload}Update from a CSV</button></li>
-    </ol>
+/* A collection with no products at all: say so plainly, one line on why, one way forward */
+const emptyColl0 = c => `<div class="o-empty0">
+    <div class="o-e0-h">${ic.box}<b>This collection has no products</b><span>None of the rows in ${esc(c.source.name)} matched a product ID, so there's nothing to show or apply yet.</span></div>
+    <button class="btn primary" data-a="cdFixCsv">${ic.upload}Update from a CSV</button>
     <span class="o-sample">Sample collection</span>
   </div>`;
-};
 /* Nothing to show: say why, and offer the one way out */
 const emptyState = (c, total, selName) => !total ? emptyColl0(c) : CD.q
   ? `<div class="o-empty o-empty2">${ic.search}<b>No products match “${esc(CD.q)}”</b><span>Search looks at product names and style codes in this collection only (${total} products)${CD.sel ? `, within ${esc(selName)}` : ""}.</span><button class="btn" data-a="cardQClear">Clear search</button></div>`
