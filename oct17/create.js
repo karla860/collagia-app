@@ -56,8 +56,9 @@ const STEP_STUDY = () => `<div class="o-scroll grey"><div class="o-studies">${ST
 /* What a study already has: one grey tag per published attribute with its value count, the first four then "+N more" */
 const studyTags = (s, max = 4) => {
   if (!s.published.length) return `<span class="o-fit none">Nothing published yet</span>`;
-  const tags = s.published.map(k => `<span class="ctag" title="${esc(attrLabel(k))}: ${studyValueCounts(s, k).length} values">${esc(attrLabel(k))}<small>${studyValueCounts(s, k).length}</small></span>`);
-  return `<span class="o-stags-h">${s.published.length} attribute${s.published.length === 1 ? "" : "s"} in this study</span>
+  // Same tag as the attribute cards: the values' own colours, then the name and how many values
+  const tags = s.published.map(k => `<span class="ctag hued" title="${esc(attrLabel(k))}: ${studyValueCounts(s, k).length} values"><span class="cdots">${studyValueCounts(s, k).slice(0, 4).map(([v]) => `<i ${hue(k, v)}></i>`).join("")}</span>${esc(attrLabel(k))}<small>${studyValueCounts(s, k).length}</small></span>`);
+  return `<span class="o-stags-h">${s.published.length} attribute${s.published.length === 1 ? "" : "s"}</span>
     <span class="ctags o-stags">${tags.slice(0, max).join("")}${tags.length > max ? `<span class="ctag more" title="${esc(s.published.slice(max).map(attrLabel).join(", "))}">+${tags.length - max} more</span>` : ""}</span>`;
 };
 

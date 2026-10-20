@@ -1234,3 +1234,44 @@ body.locked .g-pill kbd { display: none; }
 /* Value marks: tiny squares with 0.5px corners, everywhere (cards, rail, chips, compare) */
 .o-vdot, .cdots i, .ccard.v4 .ctag .cdots i { border-radius: .5px; }
 .cdots i + i { margin-left: 1px; }
+
+/* ---------- Compare: one block per outcome ---------- */
+.cpx-blocks { display: grid; gap: 14px; border: 0; background: transparent; overflow: visible; }
+.cpx-block { border: .75px solid #E4E4E4; border-radius: 8px; background: var(--surface); overflow: hidden; }
+.cpx-sec.cpx-block + .cpx-sec.cpx-block { border-top: .75px solid #E4E4E4; }
+.cpx-block .cpx-th { border-top: 1px solid var(--border); }
+.cpx-block .cpx-sh { padding: 12px 16px; }
+.cpx-block.same .cpx-samerow { padding-top: 12px; }
+/* Side panel: values at a glance, then each attribute and whether it's already in the study */
+.cpx-attrs { display: grid; gap: 8px; }
+.cpx-attr { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 8px; font-size: var(--fs-13); }
+.cpx-attr b { font-weight: 500; }
+.cpx-attr small { grid-column: 1 / -1; font-size: var(--fs-12); color: var(--muted); }
+.cpx-astate { padding: 1px 8px; border: .75px solid #E4E4E4; border-radius: 999px; font-size: var(--fs-11); color: var(--muted); white-space: nowrap; }
+.cpx-astate.new { border-color: var(--text); color: var(--text); font-weight: 600; }
+.cpx-stat.rm b, .cpx-stat.rm span { color: inherit; }
+
+/* ---------- Product cards in a collection: everything stays inside the card ---------- */
+.o-pgrid > .o-pcard { min-width: 0; overflow: hidden; }
+.o-pcard .o-th.sq { width: 100%; max-width: 100%; }
+.o-pcard .nm, .o-pcard .o-id { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.o-pchips { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; max-width: 100%; }
+.o-addchip { max-width: 100%; min-width: 0; overflow: hidden; white-space: nowrap; }
+.o-addchip .v { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.o-addchip small { flex: none; }
+.o-addchip.more { color: var(--muted); font-weight: 500; background: var(--surface); }
+
+/* ---------- Study cards: room to breathe ---------- */
+.o-study { padding: 0; overflow: hidden; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 1px 3px rgba(0,0,0,.08); }
+.o-study .o-sprev.study { border-radius: 0; padding: 12px; gap: 6px; background: #F5F5F5; }
+.o-study .o-sbody { padding: 14px 16px 16px; }
+.o-study .o-sbody > div { gap: 4px; }
+.o-study .o-sbody b { font-size: var(--fs-14); line-height: var(--lh-14); }
+.o-study .o-sbody > div > span:not(.o-fit):not(.ctags):not(.o-stags-h) { font-size: var(--fs-12); line-height: var(--lh-12); }
+.o-study .o-fit { margin-top: 6px; }
+.o-study .o-stags-h { margin-top: 12px; }
+.o-study .o-stags { margin-top: 2px; gap: 5px; }
+.o-sbody .ctag.hued::before { display: none; }
+.o-sbody .ctag { height: 22px; padding: 3px 7px; gap: 5px; border-radius: 3px; background: var(--sunken); font: 400 var(--fs-12)/var(--lh-12) Inter, sans-serif; }
+.o-sbody .ctag .cdots { margin: 0; }
+.o-sbody .ctag .cdots i { width: 6px; height: 6px; border-radius: .5px; box-shadow: 0 0 0 1px var(--sunken); }

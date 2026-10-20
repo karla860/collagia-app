@@ -131,12 +131,14 @@ const cpGroups = (c, s, m) => {
   const all = c.attrs.flatMap(k => lines(m.rows, k, false));
   // Open the first line on arrival (removals come first), so the products that matter are already in view
   if (CP.open === null && !CP.touched && all.length) CP.open = all.sort((a, b) => CMP_RANK[a.kind] - CMP_RANK[b.kind])[0].key;
+  const thead = `<div class="cpx-th"><span>Now in ${esc(s.name)}</span><span></span><span>After applying ${esc(c.name)}</span><span></span></div>`;
   const sections = OUTCOMES.map(([kind, g, title]) => {
     const ts = all.filter(t => t.kind === kind).sort((a, b) => c.attrs.indexOf(a.k) - c.attrs.indexOf(b.k) || b.ps.length - a.ps.length);
     if (!ts.length) return "";
     const n = new Set(ts.flatMap(t => t.ps.map(p => p.id))).size, more = CP.more.has(kind) || CP.q, list = more ? ts : ts.slice(0, LINES_SHOWN);
-    return `<section class="cpx-sec ${kind}">
+    return `<section class="cpx-sec cpx-block ${kind}">
       <div class="cpx-sh"><span class="cpx-g">${g}</span><b>${title}</b><span>${outcomeLine(c, kind, n)}</span></div>
+      ${thead}
       ${list.map(t => cpLine(c, s, t, byId)).join("")}
       ${ts.length > list.length ? `<button class="cpx-more" data-a="cpMore" data-v="${kind}">Show ${ts.length - list.length} more</button>` : ""}
     </section>`;
@@ -152,27 +154,29 @@ const cpGroups = (c, s, m) => {
       ${vals.length > 8 ? `<button class="o-clear" data-a="cpSame" data-v="${k}">${open ? "Show fewer" : `+${vals.length - 8} more`}</button>` : ""}</div>
       ${openT ? (() => { const ps = [...openT.ps].sort((a, b) => a.name.localeCompare(b.name)), all = CP.all.has(openT.key); return `<div class="cpx-ps same">${(all ? ps : ps.slice(0, PRODUCTS_SHOWN)).map(p => cpProduct(c, openT, byId[p.id])).join("")}${ps.length > PRODUCTS_SHOWN ? `<button class="o-clear cpx-allbtn" data-a="cpAll" data-v="${esc(openT.key)}">${all ? "Show fewer" : `Show all ${ps.length}`}</button>` : ""}</div>`; })() : ""}`;
   }).join("");
-  const sameSec = stay && sameRows ? `<section class="cpx-sec same"><div class="cpx-sh"><span class="cpx-g">=</span><b>Stays the same</b><span>${plural(stay, "product")} keep${stay === 1 ? "s" : ""} ${c.attrs.length === 1 ? `their ${esc(attrLabel(c.attrs[0]))}` : "their values"}</span></div>${sameRows}</section>` : "";
+  const sameSec = stay && sameRows ? `<section class="cpx-sec cpx-block same"><div class="cpx-sh"><span class="cpx-g">=</span><b>Stays the same</b><span>${plural(stay, "product")} keep${stay === 1 ? "s" : ""} ${c.attrs.length === 1 ? `their ${esc(attrLabel(c.attrs[0]))}` : "their values"}</span></div>${sameRows}</section>` : "";
   const search = `<label class="o-searchbox cpx-q">${ic.search}<input id="cp-q" data-in="cpQ" value="${esc(CP.q)}" placeholder="Find any product to see what happens to it" aria-label="Find a product">${CP.q ? `<button class="icon-btn" data-a="cpQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label>`;
   if (CP.q.trim()) return `${search}${cpSearch(c, s, m)}`;
-  return `${search}<div class="cpx-table">
-      <div class="cpx-th"><span>Now in ${esc(s.name)}</span><span></span><span>After applying ${esc(c.name)}</span><span></span></div>
-      ${sections}${sameSec}
-    </div>`;
+  // Each outcome is its own block, so Removed, Changed, Added and Stays the same read as separate sections
+  return `${search}<div class="cpx-table cpx-blocks">${sections}${sameSec}</div>`;
 };
 
 /* The right-hand column: who is compared with what, the numbers, and the one rule that explains removals */
 const cpSide = (c, s, m, foot) => {
   const has = s.applied[c.id], lab = c.attrs.length === 1 ? esc(attrLabel(c.attrs[0])) : "attribute";
   const stat = (n, l, cls = "") => `<div class="cpx-stat ${cls}"><b>${n}</b><span>${l}</span></div>`;
+  // One unit throughout: values (cells). A product can lose one value and gain another, so products don't add up.
+  const vn = { remove: 0, change: 0, add: 0, same: 0 }; m.all.forEach(r => r.marks.forEach(x => vn[x.kind]++));
   // Study first (which study, which version), then the numbers. No dividers: spacing alone separates the two.
   return `<aside class="cpx-side">
     <section class="cpx-study"><span class="cpx-k">Study</span><div class="cpx-study-t"><b>${esc(s.name)}</b>
       <span class="cpx-badge${has && has !== c.v ? " behind" : has ? " ok" : ""}">${has ? (has === c.v ? `Has ${c.v} · up to date` : `Has ${has} · this is ${c.v}`) : `Doesn't have it yet`}</span></div></section>
-    <section class="cpx-glance"><span class="cpx-k">At a glance</span>
-      ${stat(m.changed.length, `product${m.changed.length === 1 ? "" : "s"} change`)}
-      ${m.lost ? stat(m.lost, `lose ${c.attrs.length === 1 ? `their ${lab}` : "a value"}`, "rm") : ""}
-      ${stat(m.same, "stay the same", "muted")}
+    <section class="cpx-glance"><span class="cpx-k">Values at a glance</span>
+      ${["remove", "change", "add", "same"].map(k => [k, vn[k]]).filter(([k, n]) => n || k === "same").map(([k, n]) => stat(n, `value${n === 1 ? "" : "s"} ${{ remove: "removed", change: "changed", add: "added", same: "stay the same" }[k]}`, k === "same" ? "muted" : "")).join("")}
+    </section>
+    <section class="cpx-attrs"><span class="cpx-k">Attributes</span>
+      ${c.attrs.map(k => { const inStudy = s.published.includes(k), n = m.all.reduce((t, r) => t + r.marks.filter(x => x.k === k && x.kind !== "same").length, 0);
+        return `<div class="cpx-attr"><b>${esc(attrLabel(k))}</b><span class="cpx-astate${inStudy ? "" : " new"}">${inStudy ? "In the study" : "New to the study"}</span><small>${n ? plural(n, "value") + " change" : "No change"}</small></div>`; }).join("")}
     </section>
     ${foot ? `<small class="cpx-at">${foot}</small>` : ""}
   </aside>`;

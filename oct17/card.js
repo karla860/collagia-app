@@ -49,10 +49,13 @@ ACTIONS.cardFold = el => { const k = el.dataset.v; CD.closed.has(k) ? CD.closed.
    Git-diff language, shared with the apply preview: a "+ Attribute: value" chip per tag the collection brings,
    tinted with that value's colour so the grid reads at a glance. Picking an attribute groups the grid by value. */
 // Attribute tag (style guide): grey chip, "+ Attribute:" in grey, the value in black, colour only in the value's dot
-const addChip = (k, v, short = false) => `<span class="o-addchip hue" ${hue(k, v)} title="Applying this collection adds ${esc(attrLabel(k))} = ${esc(v)}">${ic.plus}${short ? "" : `<small>${esc(attrLabel(k))}:</small>`}${v === "Other" ? "" : `<i class="o-vdot"></i>`}${esc(v)}</span>`;
+const addChip = (k, v, short = false) => `<span class="o-addchip hue" ${hue(k, v)} title="Applying this collection adds ${esc(attrLabel(k))} = ${esc(v)}">${ic.plus}${short ? "" : `<small>${esc(attrLabel(k))}:</small>`}${v === "Other" ? "" : `<i class="o-vdot"></i>`}<span class="v">${esc(v)}</span></span>`;
+// At most two attributes per product card (the selected one when an attribute is picked); the rest fold into "+N more"
+const PCHIPS_MAX = 2;
 const pchips = p => {
-  const c = curColl(), ks = CD.sel ? [CD.sel.k] : c.attrs;
-  return `<div class="o-pchips">${ks.map(k => cValue(c, k, p.id) ? addChip(k, cValue(c, k, p.id)) : `<span class="o-addchip nov" title="This collection has no ${esc(attrLabel(k))} for this product">No ${esc(attrLabel(k))}</span>`).join("")}</div>`;
+  const c = curColl(), ks = CD.sel ? [CD.sel.k] : c.attrs, shown = ks.slice(0, PCHIPS_MAX), rest = ks.slice(PCHIPS_MAX);
+  const chip = k => cValue(c, k, p.id) ? addChip(k, cValue(c, k, p.id)) : `<span class="o-addchip nov" title="This collection has no ${esc(attrLabel(k))} for this product">No ${esc(attrLabel(k))}</span>`;
+  return `<div class="o-pchips">${shown.map(chip).join("")}${rest.length ? `<span class="o-addchip more" title="${esc(rest.map(k => `${attrLabel(k)}: ${cValue(c, k, p.id) || "no value"}`).join(" · "))}">+${rest.length} more</span>` : ""}</div>`;
 };
 /* Edge state: photos still loading. The product is already there (name, code, tag); its thumbnail shimmers until the photo arrives. */
 const photoLoading = p => CD.demo === "nophotos" && cProducts(curColl()).findIndex(x => x.id === p.id) % 4 === 1;
