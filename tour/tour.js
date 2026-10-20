@@ -118,9 +118,6 @@
     { kick: "Compare with a study", title: "Ask about any product", go: () => { goCompare("nike calm"); render(); }, sel: ".cpx-sr", place: "below", body: `
       ${did("Search covers every product in the study and the collection. Each match says what happens to it (Removed, Changed, Added, Stays the same, Not affected or Not in this study) with its value before and after.")}
       ${why("The question people actually have is about their own product. This answers it directly, with no scrolling and no marks to decode.")}` },
-    { kick: "Compare with a study", title: "Then apply, already set to that study", go: () => { goCompare(); render(); }, sel: ".cpx .o-mf .btn.primary", place: "above", body: `
-      ${did("Apply to Price architecture goes straight to the preview with the study already chosen, so there is no second pick. The preview shows the same view, so it confirms what you just read, and Back returns to Compare.")}
-      ${why("Compare is optional but never a detour: it hands you to the next step right where you were.")}` },
 
     /* ---------- Apply ---------- */
     { kick: "Apply to a study", title: "The collage decides whether anything happens", go: () => { goCard(); setFlow("study"); JUMP.study("pick"); }, sel: ".o-studies .o-study:nth-child(2)", place: "left", body: `
@@ -182,7 +179,6 @@
     "An optional look before you apply": { at: "[data-a=\"cpOpen\"]", ask: "Click <b>Compare with a study</b>.", done: () => App.modal === "compare", ok: "Compare opened on Price architecture, the study that's behind." },
     "Grouped by what happens, riskiest first": { at: ".cpx-t[data-v*=\"Vomero\"]", ask: "Open the <b>Running → Vomero</b> line to see its 22 products.", done: () => CP.open && CP.open.includes("Vomero"), ok: "Each product shows its own before and after." },
     "Ask about any product": { at: "#cp-q", ask: "Search for <b>Pegasus</b>.", done: () => /pegasus/i.test(CP.q), ok: "Every match says what happens to it." },
-    "Then apply, already set to that study": { at: "[data-a=\"cpApply\"]", ask: "Click <b>Apply to Price architecture</b>.", done: () => App.modal === "preview", ok: "Straight to the preview, with the study already chosen." },
     "The collage decides whether anything happens": { at: ".o-study[data-v=\"Price architecture\"]", ask: "Choose <b>Price architecture</b>.", done: () => ST.sel === "Price architecture", ok: "Selected. Preview changes is now available." },
   };
   STEPS.forEach(s => { if (TASKS[s.title]) s.task = TASKS[s.title]; });
