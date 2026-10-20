@@ -38,9 +38,6 @@
     { kick: "Study board", title: "Frame what your eye groups together", go: () => goBoardSel(), sel: ".bx-tile.on", place: "below", body: `
       <p>Selecting is its own tool, Create custom attribute (<b>F</b>), as in the app. With it on, drag a frame around a group or click tiles. Four shoes are selected now. With the Select tool (<b>V</b>), dragging pans and clicking shows a product card instead.</p>
       ${why("This is the framing tool already in the app. It's the one thing a spreadsheet can never do: pick products by what they look like.")}` },
-    { kick: "Study board", title: "Name what you saw: attribute and value", sel: ".bx-panel", place: "left", body: `
-      <p>An attribute is what you are judging (Upper material), a value is what you see (Knit). Publish, and every selected product gets that value. Then select the next group and publish Mesh, then Leather. Existing names and values are offered as you type, so spellings stay consistent.</p>
-` },
     { kick: "Study board", title: "Four board types, one chip", go: () => { goBoard(); App.menu = "matrix"; render(); }, sel: ".bx-show .o-menu", place: "right", body: `
       <p>Pareto cuts the products into tiers by a metric. Rank sorts them. Group makes a frame per value. Freestyle frames whatever you published and leaves the rest loose. Changing type never moves anything by hand, exactly like the app's Change matrix.</p>
       ${why("Save to a collection and Apply a collection live in the attributes menu, top right, where the published list is. That is the board end of the two-way road.")}` },
@@ -166,7 +163,6 @@
      The card asks for one small action on the highlighted part. The tour watches the app's state and,
      once it's done, confirms what happened. Next is always there as "Skip", so nobody gets stuck. */
   const TASKS = {
-    "Name what you saw: attribute and value": { at: ".bx-pub", ask: "Press <b>Publish</b> to tag the four selected shoes “Upper material: Knit”.", done: () => bdStudy().published.some(k => attrLabel(k).toLowerCase() === "upper material"), ok: "Published. The four shoes now carry Upper material: Knit, and it's a filter and a group on this board." },
     "Four board types, one chip": { at: ".bx-show .o-menu [data-v=\"group\"]", ask: "Pick <b>Group</b> in the menu.", done: () => BD.matrix === "group", ok: "The board is now one frame per product type." },
     "Two things up top, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b> to see what else you can do with this collection.", done: () => App.menu === "more", ok: "Download, update from a study or a CSV, version history and rename, each with a line saying what it does." },
     "Two attributes in one go": { at: ".preview .o-mf .btn.primary", ask: "Click <b>Add 2 attributes in Antiquities sale 2026</b>.", done: () => App.modal === "success", ok: "Both attributes are in the study: 30 products, 56 values added." },

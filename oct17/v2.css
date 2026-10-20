@@ -1151,3 +1151,12 @@ button.cpx-sv.on { border-color: var(--text); box-shadow: 0 0 0 1px var(--text) 
 .ccard.v4 .ctag.more { font-weight: 500; }
 .ccard.v4 .cfoot { padding-top: 4px; }
 .ccard.v4 .when { font-size: var(--fs-14); }
+/* Attribute card, matched to the Figma card: no outline and no dividers; a rounded grey cover; a 24px grey round ⋮ */
+.ccard.v4 { border: 0; border-radius: 12px; background: var(--surface); box-shadow: none; }
+.ccard.v4:hover, .ccard.v4:focus-visible { border: 0; box-shadow: 0 6px 20px rgba(0,0,0,.08); }
+.ccard.v4 .ccanvas { border: 0; border-radius: 12px 12px 0 0; }
+.ccard.v4 .cbody { padding: 14px 12px 14px; }
+.ccard.v4 .cfoot, .ccard.v4 .ctitle { border: 0; }
+.ccard.v4 .more-btn { width: 24px; height: 24px; border-radius: 50%; background: var(--chip); }
+.ccard.v4 .more-btn svg { width: 18px; height: 18px; fill: var(--text); }
+.ccard.v4 .ctitle h3 { font-size: var(--fs-16); font-weight: 600; }
