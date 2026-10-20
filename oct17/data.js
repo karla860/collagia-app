@@ -170,3 +170,7 @@ const buildStudies = () => {
   COLLECTIONS.push({ id: "statues", name: "Statue backgrounds", desc: "Background colour and material for each lot, from the photo studio's spreadsheet.",
     attrs: ["bg", "stone"], ...statues, source: { type: "csv", name: "statue_backgrounds.csv" }, owner: PEOPLE.leyla, shared: [ME], v: "v1", created: "Sep 2, 2026", edited: "Sep 30, 2026" });
 };
+
+/* Product card attributes, compact: one coloured square per attribute (the value's colour), details on hover */
+const swatches = (pairs) => `<span class="o-sws" tabindex="0">${pairs.map(([k, v]) => `<i class="o-sw${!v ? " none" : v === "Other" ? " other" : ""}" ${v && v !== "Other" ? hue(k, v) : ""}></i>`).join("")}
+  <span class="o-swtip" role="tooltip">${pairs.map(([k, v]) => `<span><i class="o-sw${!v ? " none" : v === "Other" ? " other" : ""}" ${v && v !== "Other" ? hue(k, v) : ""}></i><small>${esc(attrLabel(k))}</small><b>${v ? esc(v) : "No value"}</b></span>`).join("")}</span></span>`;

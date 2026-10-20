@@ -55,6 +55,7 @@ const PCHIPS_MAX = 2;
 const pchips = p => {
   const c = curColl(), ks = CD.sel ? [CD.sel.k] : c.attrs, shown = ks.slice(0, PCHIPS_MAX), rest = ks.slice(PCHIPS_MAX);
   const chip = k => cValue(c, k, p.id) ? addChip(k, cValue(c, k, p.id)) : `<span class="o-addchip nov" title="This collection has no ${esc(attrLabel(k))} for this product">No ${esc(attrLabel(k))}</span>`;
+  if (!CD.sel) return `<div class="o-pchips">${swatches(ks.map(k => [k, cValue(c, k, p.id)]))}</div>`;
   return `<div class="o-pchips">${shown.map(chip).join("")}${rest.length ? `<span class="o-addchip more" title="${esc(rest.map(k => `${attrLabel(k)}: ${cValue(c, k, p.id) || "no value"}`).join(" · "))}">+${rest.length} more</span>` : ""}</div>`;
 };
 /* Edge state: photos still loading. The product is already there (name, code, tag); its thumbnail shimmers until the photo arrives. */
@@ -99,7 +100,7 @@ const histPanel = () => {
       <button class="o-vr-main" data-a="verView" data-v="${h.v}" aria-current="${cur}">
         <span class="o-vr-av" title="${esc(h.by)}">${ini(h.by)}</span>
         <span class="o-vr-txt"><b>${esc(h.note)}</b><small>${esc(h.by)} · ${h.date}</small>
-          ${u.length ? `<span class="o-vr-used">${ic.studies}Applied in ${esc(u.join(", "))}</span>` : ""}</span>
+          ${u.length ? `<span class="o-vr-used" title="Applied in ${esc(u.join(", "))}">${ic.studies}<span class="t">Applied in ${esc(u.join(", "))}</span></span>` : ""}</span>
         <span class="o-vr-v">${h.v}</span>
       </button>
       <div class="o-dd o-vr-more"><button class="icon-btn${App.menu === mid ? " open" : ""}" data-a="menu" data-v="${mid}" aria-label="More for ${h.v}" title="More">${ic.more}</button>

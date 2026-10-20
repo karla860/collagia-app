@@ -35,10 +35,10 @@ const STEP_SOURCE = () => `
   <div class="o-src">
     <div class="o-choose">
       <button class="o-opt" data-a="crSrc" data-v="study">
-        <span class="o-optimg">${ic.studies}</span>
+        <span class="o-optimg"><span class="o-optart"><img src="assets/icons/src-study.svg" alt=""><img class="b" src="assets/icons/src-study-badge.svg" alt=""></span></span>
         <b>In a study</b><span>You framed products on a board and published attributes. Save them here so they can be shared and used in other studies.</span></button>
       <button class="o-opt" data-a="crSrc" data-v="csv">
-        <span class="o-optimg">${ic.upload}</span>
+        <span class="o-optimg"><span class="o-optart"><img src="assets/icons/src-csv.svg" alt=""><img class="b" src="assets/icons/src-csv-badge.svg" alt=""></span></span>
         <b>In a spreadsheet</b><span>A CSV with a product ID per row and a column per attribute. Seasonal flags, planning data, anything that enriches the products.</span></button>
     </div>
   </div>`;
@@ -76,7 +76,7 @@ const STEP_PICK = () => {
       <div class="o-selbar">${CR.peek ? `<span>Previewing <b>${esc(attrLabel(CR.peek.k))} · ${esc(CR.peek.v)}</b> · ${list.length} of ${crProducts().length} products</span><button class="o-clear" data-a="crPeekClear">Show all</button>`
         : `<span>${crProducts().length} products in this study. Every value of a ticked attribute comes with it; previewing a value changes nothing.</span>`}</div>
       <div class="o-pgrid">${list.map(p => `<div class="o-pcard">${thumb(p, "sq")}<div class="nm">${esc(p.name)}</div><div class="o-id">${p.id}</div>
-        <div class="o-pchips">${[...CR.included].filter(k => crTag(k, p)).map(k => `<span class="o-pchip" title="${esc(attrLabel(k))}"><small>${esc(attrLabel(k))}</small>${esc(crTag(k, p))}</span>`).join("") || `<span class="o-none">${CR.included.size ? "Not tagged" : "No attributes ticked"}</span>`}</div></div>`).join("")}</div>
+        <div class="o-pchips">${CR.included.size ? swatches([...CR.included].map(k => [k, crTag(k, p)])) : `<span class="o-none">No attributes ticked</span>`}</div></div>`).join("")}</div>
     </div>
   </div>`;
 };

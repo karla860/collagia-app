@@ -1300,3 +1300,29 @@ body.locked .g-pill kbd { display: none; }
 .cpx-tabs button:hover { color: var(--text); }
 .cpx-tabs button.on { color: var(--text); border-bottom-color: var(--text); font-weight: 600; }
 .cpx-tabs .n { padding: 0 6px; border-radius: 999px; background: var(--sunken); font-size: var(--fs-11); line-height: 18px; color: var(--muted); }
+/* Source cards: the Figma illustrations (dashed 72px tile, 54px art, 20px badge) */
+.o-optart { position: relative; display: grid; place-items: center; width: 72px; height: 72px; border: 1.125px dashed #BABBBC; border-radius: 9px; }
+.o-optart img { width: 54px; height: 54px; }
+.o-optart img.b { position: absolute; right: -10px; bottom: -10px; width: 20px; height: 20px; }
+.o-opt .o-optimg { background: #F5F5F5; }
+/* Colour squares for a product's attributes; hover or focus shows the specifics */
+.o-sws { position: relative; display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px 0; outline: 0; cursor: default; }
+.o-sw { display: inline-block; width: 12px; height: 12px; border-radius: .5px; background: hsl(var(--h) 62% 52%); flex: none; }
+.o-sw.other { background: var(--slider-handle); }
+.o-sw.none { background: transparent; border: 1px dashed var(--slider-handle); }
+.o-swtip { position: absolute; left: 0; bottom: calc(100% + 6px); z-index: 30; display: none; gap: 6px; min-width: 200px; max-width: 280px; padding: 10px 12px; border-radius: 6px; background: var(--text); color: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+.o-sws:hover .o-swtip, .o-sws:focus .o-swtip { display: grid; }
+.o-swtip > span { display: grid; grid-template-columns: 12px auto 1fr; align-items: center; gap: 8px; font-size: var(--fs-12); }
+.o-swtip small { color: rgba(255,255,255,.65); white-space: nowrap; }
+.o-swtip b { font-weight: 500; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.o-pcard { overflow: visible; }
+.o-pgrid > .o-pcard { overflow: visible; }
+/* Version history: the "Applied in" tag stays on one line */
+.o-vr-used { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 2px 10px; line-height: 18px; }
+.o-vr-used > * { flex: none; }
+/* No value meters in the rails */
+.o-tval .o-vbar, .o-rail .o-vbar, .cpx-side .o-vbar { display: none !important; }
+/* Selected study card: the stroke sits outside the content, so it reads as one clean line */
+.o-study.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.o-study { overflow: hidden; }
+.o-vr-used .t { flex: 1 1 auto !important; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
