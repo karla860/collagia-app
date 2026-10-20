@@ -165,8 +165,8 @@ const showBar = () => {
   const matrixMenu = Object.entries(MATRICES).map(([k, m]) => `<button role="menuitemradio" aria-checked="${BD.matrix === k}" class="${BD.matrix === k ? "cur" : ""}" data-a="bdMatrix" data-v="${k}">${mIcon(k)}<span class="o-amrow"><b>${m.label}</b><small>${m.hint}</small></span></button>`).join("");
   const dimMenu = (act, cur, skip) => `<div class="o-mgroup">Catalogue</div>${Object.entries(COLS).filter(([k]) => k !== skip).map(([k, l]) => `<button role="menuitemradio" aria-checked="${cur === k}" class="${cur === k ? "cur" : ""}" data-a="${act}" data-v="${k}">${l}</button>`).join("")}<div class="o-mgroup">Attributes</div>${s.published.filter(k => k !== skip).length ? s.published.filter(k => k !== skip).map(k => `<button role="menuitemradio" aria-checked="${cur === k}" class="${cur === k ? "cur" : ""}" data-a="${act}" data-v="${k}">${ic.tag}${esc(attrLabel(k))}</button>`).join("") : `<span class="bx-mnone">Publish an attribute to use it here</span>`}`;
   const filterMenu = dims().map(([k, l, kind]) => `<div class="bx-fsec"><div class="o-mgroup">${kind === "attr" ? ic.tag : ""}${esc(l)}${BD.filters[k] && BD.filters[k].size ? `<button class="o-clear" data-a="bdFilterClear" data-v="${esc(k)}">Clear</button>` : ""}</div>${valuesOf(k).slice(0, 8).map(([v, n]) => { const on = BD.filters[k] && BD.filters[k].has(v); return `<button role="menuitemcheckbox" aria-checked="${!!on}" data-a="bdFilter" data-v="${esc(k)}|${esc(v)}"><span class="o-cb ${on ? "on" : ""}">${on ? ic.check : ""}</span>${esc(v === "—" ? "No value" : v)}<span class="n">${n}</span></button>`; }).join("")}${valuesOf(k).length > 8 ? `<span class="bx-mnone">+${valuesOf(k).length - 8} more</span>` : ""}</div>`).join("") + (active.length ? `<button class="bx-mclear" data-a="bdClearFilters">Clear all filters</button>` : "");
-  const metricDD = `${dd("agg", `${AGGS[BD.agg]}${ic.chev}`, Object.entries(AGGS).map(([k, l]) => `<button role="menuitemradio" aria-checked="${BD.agg === k}" class="${BD.agg === k ? "cur" : ""}" data-a="bdAgg" data-v="${k}">${l}</button>`).join(""), " pill", true, tipAttrs("Aggregation"))}
-      ${dd("metric", `<code>${METRICS[BD.metric]}</code>${ic.chev}`, Object.entries(METRICS).map(([k, l]) => `<button role="menuitemradio" aria-checked="${BD.metric === k}" class="${BD.metric === k ? "cur" : ""}" data-a="bdMetric" data-v="${k}"><code>${l}</code>${k !== "price" ? `<span class="n">simulated</span>` : ""}</button>`).join(""), " plain", true, tipAttrs("Metric", "The business data column the board is built on"))}`;
+  const metricDD = `<span class="bx-metric">${dd("agg", `${AGGS[BD.agg]}${ic.chev}`, Object.entries(AGGS).map(([k, l]) => `<button role="menuitemradio" aria-checked="${BD.agg === k}" class="${BD.agg === k ? "cur" : ""}" data-a="bdAgg" data-v="${k}">${l}</button>`).join(""), " pill", true, tipAttrs("Aggregation"))}
+      ${dd("metric", `<code>${METRICS[BD.metric]}</code>${ic.chev}`, Object.entries(METRICS).map(([k, l]) => `<button role="menuitemradio" aria-checked="${BD.metric === k}" class="${BD.metric === k ? "cur" : ""}" data-a="bdMetric" data-v="${k}"><code>${l}</code>${k !== "price" ? `<span class="n">simulated</span>` : ""}</button>`).join(""), " plain", true, tipAttrs("Metric", "The business data column the board is built on"))}</span>`;
   const byMatrix = {
     pareto: `${metricDD}<span class="bx-by">by</span>${bucketSlider()}
       <button class="bx-ib" data-a="bdCount" ${tipAttrs("# / %", "Toggle between absolute count (#) and percentage (%) of items per partition")}><b class="bx-cm">${BD.countMode}</b></button>
@@ -187,23 +187,19 @@ const showBar = () => {
     freestyle: `<button class="bx-bb plain" data-a="bdAddGroup" ${tipAttrs("Add group", "Frame products together and name them as a new attribute value", "F")}>${ic.plus}Add group</button>`,
   };
   const more = `<button role="menuitem" data-a="bdSummary">${ic.info}${BD.summary ? "Hide" : "Show"} board summary</button><button role="menuitem" data-a="bdPct">${sv('<path d="M3 13 13 3"/><circle cx="4.5" cy="4.5" r="1.5"/><circle cx="11.5" cy="11.5" r="1.5"/>', 'stroke-width="1.4"')}${BD.pct ? "Hide" : "Show"} image percentages</button>${BD.matrix === "group" ? `<button role="menuitem" data-a="bdWrap">Wrap ${BD.wrap === "row" ? "top-to-bottom" : "left-to-right"}</button>` : ""}<hr class="o-msep"><button role="menuitem" data-a="bdShortcuts">${ic.info}Keyboard shortcuts</button>`;
-  return `<div class="bx-show">
-    <div class="bx-box">
-      ${dd("matrix", `<span class="bx-cur">${mIcon(BD.matrix)}<span><small>Current board</small>${MATRICES[BD.matrix].label}</span></span>${ic.sortI}`, matrixMenu, " cur", true, tipAttrs("Change matrix", "Pareto, Rank, Group or Freestyle"))}
-      <i class="bx-vsep"></i>
-      ${dd("filters", `${fi("bot-filter")}Filter${active.length ? `<em>${active.reduce((n, [, set]) => n + set.size, 0)}</em>` : ""}`, filterMenu, active.length ? " on" : " plain", true, tipAttrs("Filter", "Refine what's displayed: business data, custom attributes and image attributes can all be filtered."))}
-      <button class="bx-ib${BD.pct ? " on" : ""}" data-a="bdPct" ${tipAttrs("Toggle image percentage", "Show each item's percentage contribution on the image")}>${ic.info}</button>
-      ${byMatrix[BD.matrix]}
-      ${addGroup[BD.matrix] ? `<i class="bx-vsep"></i>${addGroup[BD.matrix]}` : ""}
-      ${dd("more", fi("bot-more"), more, " plain icon", true, tipAttrs("More"))}
+  // Layout follows the app's bottom nav (Figma 4342:1295): sections split by full-height lines, ⋮ in a grey end cap
+  return `<div class="bx-show bx-nav">
+    <div class="bx-box bx-navl">
+      <div class="bx-sec">${dd("matrix", `<span class="bx-cur">${mIcon(BD.matrix)}<span><small>Current board</small>${MATRICES[BD.matrix].label}</span></span>${ic.sortI}`, matrixMenu, " cur", true, tipAttrs("Change matrix", "Pareto, Rank, Group or Freestyle"))}</div>
+      <div class="bx-sec pad">${dd("filters", `${fi("bot-filter")}Filter${active.length ? `<em>${active.reduce((n, [, set]) => n + set.size, 0)}</em>` : ""}`, filterMenu, active.length ? " on" : " plain", true, tipAttrs("Filter", "Refine what's displayed: business data, custom attributes and image attributes can all be filtered."))}
+        <button class="bx-ib${BD.pct ? " on" : ""}" data-a="bdPct" ${tipAttrs("Toggle image percentage", "Show each item's percentage contribution on the image")}>${ic.info}</button></div>
+      <div class="bx-sec grow">${byMatrix[BD.matrix]}${addGroup[BD.matrix] || ""}</div>
+      <div class="bx-sec cap">${dd("more", fi("bot-more"), more, " plain icon", true, tipAttrs("More"))}</div>
     </div>
-    <div class="bx-box">
-      <button class="bx-ib" data-a="bdZoomStep" data-v="out" ${tipAttrs("Zoom out", "", "−")}>${ic.minus}</button>
-      <span class="bx-zoomv">${Math.round(BD.zoom * 100)}%</span>
-      <button class="bx-ib" data-a="bdZoomStep" data-v="in" ${tipAttrs("Zoom in", "", "+")}>${ic.plus}</button>
-      <button class="bx-ib" data-a="bdZoomFit" ${tipAttrs("Reset zoom", "", "0")}>${fi("bot-fit")}</button>
-      <i class="bx-vsep"></i>
-      <button class="bx-bb${BD.table ? " on" : " plain"}" data-a="bdTable" ${tipAttrs(BD.table ? "Hide data table" : "Show data table", "", "D")}>${fi("bot-table")}Data table</button>
+    <div class="bx-box bx-navr">
+      <div class="bx-sec"><span class="bx-zoom"><button class="bx-ib" data-a="bdZoomStep" data-v="out" ${tipAttrs("Zoom out", "", "−")}>${ic.minus}</button><span class="bx-zoomv">${Math.round(BD.zoom * 100)}%</span><button class="bx-ib" data-a="bdZoomStep" data-v="in" ${tipAttrs("Zoom in", "", "+")}>${ic.plus}</button></span>
+        <button class="bx-sq" data-a="bdZoomFit" ${tipAttrs("Fit to screen", "", "0")}>${fi("bot-fit")}</button></div>
+      <div class="bx-sec"><button class="bx-bb${BD.table ? " on" : ""}" data-a="bdTable" ${tipAttrs(BD.table ? "Hide data table" : "Show data table", "", "D")}>${fi("bot-table")}Data table</button></div>
     </div>
   </div>
   <div class="bx-stats"><span><b>${shown}</b><small>Items in view</small></span><span><b>1</b><small>Avg images per item</small></span><span><b>100%</b><small>Items with images</small></span>${BD.tool === "attr" ? (BD.sel.size ? `<span class="sel"><b>${BD.sel.size}</b><small>Selected</small><button class="o-clear" data-a="bdClearSel">Clear</button></span>` : `<span class="sel"><button class="o-clear" data-a="bdSelAll">Select all in view</button></span>`) : ""}${BD.hl.size ? `<span class="sel"><b>${BD.hl.size}</b><small>Highlighted</small><button class="o-clear" data-a="bdClearHl">Clear</button></span>` : ""}</div>`;
