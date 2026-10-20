@@ -1354,3 +1354,66 @@ body.locked .g-pill kbd { display: none; }
 .bx-tools { gap: 4px; padding: 4px; }
 .bx-tools button { width: 32px; height: 32px; padding: 0; border-radius: 6px; display: grid; place-items: center; }
 .bx-tools .fi, .bx-tools .fi[src$="tool-highlight.svg"] { width: 18px; height: 18px; margin: 0; }
+
+/* ---------- Board chrome, styled like the app (Figma "UI") — same buttons and contents, new look ---------- */
+.bx-top, .bx-show { left: 10px; right: 10px; }
+.bx-top { top: 10px; }
+/* Top bars: 40px white strips, soft shadow, every item its own full-height section */
+.bx-top .bx-box { height: 40px; padding: 0; gap: 0; border: 0; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,.12); overflow: visible; }
+.bx-top .bx-vsep { display: none; }
+.bx-top .bx-box > * { height: 40px; display: flex; align-items: center; }
+.bx-top .bx-box > * + * { border-left: 1px solid #E4E4E4; }
+.bx-top .bx-logo { padding: 0 14px 0 16px; }
+.bx-top .bx-bb { height: 40px; padding: 0 16px; border: 0; border-radius: 0; gap: 8px; background: none; font: 500 var(--fs-12)/16px Inter, sans-serif; letter-spacing: 0; }
+.bx-top .bx-bb:hover, .bx-top .bx-bb.open { background: #F9FAFB; }
+.bx-top .bx-ib { width: auto; height: 40px; padding: 0 14px; border-radius: 0; }
+.bx-top .bx-ib:hover { background: #F9FAFB; }
+.bx-top .bx-ib.avatar { padding: 0 12px; }
+/* Tool rail */
+.bx-tools { left: 10px; border: 0; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+/* Bottom bar: one full-width strip of sections on the left, view controls on the right */
+.bx-show { bottom: 22px; gap: 16px; align-items: stretch; }
+.bx-show .bx-box { min-height: 47px; padding: 0; gap: 0; border: 0; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,.12); flex-wrap: nowrap; }
+.bx-show .bx-box:first-child { flex: 1; min-width: 0; }
+.bx-show .bx-vsep { display: none; }
+.bx-show .bx-box > * { align-self: stretch; display: flex; align-items: center; gap: 8px; padding: 0 8px; }
+.bx-show .bx-box > * + * { border-left: 1px solid #E4E4E4; }
+.bx-show .bx-box:first-child > .o-dd:last-child { margin-left: auto; padding: 0 4px; background: #ECECED; border-radius: 0 6px 6px 0; }
+.bx-show .bx-bb { height: 34px; padding: 0 10px; border-radius: 4px; font: 500 var(--fs-12)/16px Inter, sans-serif; letter-spacing: 0; }
+.bx-show .bx-bb.plain { border: 1px solid #E4E4E4; }
+.bx-show .bx-bb.cur { height: 34px; padding: 0 10px; border: 1px solid rgba(232,56,50,.2); background: #FDEFEF; }
+.bx-show .bx-bb.cur small { font-size: 7px; letter-spacing: .56px; color: rgba(86,1,7,.6); }
+.bx-show .bx-cur > span { color: #560107; font-size: var(--fs-12); }
+.bx-show .bx-bb.pill { border-radius: 2px; background: #F1F1F1; font-family: var(--mono); }
+.bx-show .bx-ib { width: 34px; height: 34px; border: 1px solid #E4E4E4; border-radius: 4px; }
+.bx-show .bx-zoomv { padding: 0 4px; }
+.bx-stats { bottom: 2px; left: 16px; }
+/* Frames: label as a tab above the top-left corner (white name + black count), light frame, corner brackets */
+.bx-frame { margin-top: 26px; padding: 14px; background: rgba(245,245,245,.9); border: 1px solid #E4E4E4; border-radius: 0; }
+.bx-fh { position: absolute; left: -1px; top: -26px; margin: 0; gap: 0; height: 22px; }
+.bx-fname { height: 22px; display: inline-flex; align-items: center; padding: 0 8px; background: #fff; border: 1px solid #E4E4E4; font: 500 var(--fs-12)/1 Inter, sans-serif; letter-spacing: 0; }
+.bx-fh code { height: 22px; display: inline-flex; align-items: center; padding: 0 8px; border-radius: 0; font: 400 var(--fs-12)/1 var(--mono); }
+.bx-fh .bx-fstat { margin-left: 10px; font-size: var(--fs-11); color: var(--muted); white-space: nowrap; }
+.bx-frame .c { display: block; width: 12px; height: 12px; border-width: 2px; border-color: var(--text); }
+.bx-frame .c.tl { left: -4px; top: -4px; } .bx-frame .c.tr { right: -4px; top: -4px; }
+.bx-frame .c.bl { left: -4px; bottom: -4px; } .bx-frame .c.br { right: -4px; bottom: -4px; }
+.bx-frame.none .c { display: none; }
+.bx-show .bx-box > .bx-vsep, .bx-top .bx-box > .bx-vsep { display: none !important; }
+.bx-show { bottom: 12px; }
+.bx-stats { left: 10px; bottom: 70px; padding: 6px 12px; gap: 20px; border-radius: 4px; background: var(--surface); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+
+/* ---------- Polish, after Linear's principles: visible focus, calm motion, aligned numbers, sticky context ---------- */
+/* 1. Keyboard focus is always visible (and only for keyboard, not mouse clicks) */
+:where(button, a, input, [tabindex], select):focus-visible { outline: 2px solid rgba(35,33,33,.55); outline-offset: 2px; border-radius: 4px; }
+/* 2. One short, consistent transition for hover and pressed states */
+:where(.btn, .icon-btn, .o-tr, .o-tval, .o-tname, .cpx-t, .cpx-tabs button, .o-menu button, .ccard, .o-study, .bx-bb, .bx-ib, .bx-tools button) { transition: background-color .12s ease, border-color .12s ease, color .12s ease, box-shadow .12s ease; }
+:where(.btn, .icon-btn):active:not(:disabled) { transform: translateY(.5px); }
+/* 3. Numbers line up in columns and counters */
+.n, .cpx-ac, .cpx-tabs .n, .o-tval .n, .o-tname .n, .o-tr .n, .ctag small, .o-id, .bx-fh code, .bx-zoomv { font-variant-numeric: tabular-nums; }
+/* 4. Context stays visible while scrolling: Compare's tabs and search stick to the top */
+.cpx-main > .cpx-bar2 { position: sticky; top: 0; z-index: 3; background: var(--sunken); margin: 0 -2px; padding: 0 2px; }
+/* 5. Quiet scrollbars */
+* { scrollbar-width: thin; scrollbar-color: #CACACA transparent; }
+::-webkit-scrollbar { width: 8px; height: 8px; } ::-webkit-scrollbar-thumb { background: #CACACA; border-radius: 8px; } ::-webkit-scrollbar-track { background: transparent; }
+/* 6. Respect reduced motion */
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; } }

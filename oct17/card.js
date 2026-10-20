@@ -220,7 +220,7 @@ const MODAL_CARD = () => {
     ${old ? oldBar() : ""}
     <div class="o-mb with-rail">${rail()}
       <div class="o-scroll grey">
-        <div class="o-selbar"${total ? "" : " hidden"}>${CD.sel ? `${selMsg(c, list, total, selName)}<button class="o-clear" data-a="cardAll">Show all</button>` : `<span class="o-adds">${ic.plus}Applying this adds <b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) to <b>${total} products</b>. Each product shows the value it gets.</span>`}<span class="sp"></span><label class="o-searchbox o-cdsearch">${ic.search}<input id="cd-q" data-in="cardQ" value="${esc(CD.q)}" placeholder="Find a product" aria-label="Find a product">${CD.q ? `<button class="icon-btn" data-a="cardQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label>${seg}</div>
+        <div class="o-selbar"${total ? "" : " hidden"}>${CD.sel ? `${selMsg(c, list, total, selName)}<button class="o-clear" data-a="cardAll">Show all</button>` : `<span class="o-adds">${ic.plus}Applying this adds <b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) to <b>${total} products</b>. Each product shows the value it gets.</span>`}<span class="sp"></span><label class="o-searchbox o-cdsearch">${ic.search}<input id="cd-q" data-in="cardQ" value="${esc(CD.q)}" placeholder="Find a product  /" aria-label="Find a product (press /)">${CD.q ? `<button class="icon-btn" data-a="cardQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label>${seg}</div>
         ${notices(c, total, list)}
         ${list.length ? (CD.view === "grid" ? gridView(list) : listView(list)) : emptyState(c, total, selName)}
       </div>

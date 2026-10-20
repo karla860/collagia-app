@@ -163,3 +163,9 @@ document.addEventListener("keydown", e => {
   }
 });
 ACTIONS.undo = () => { const fn = toastUndo; toastUndo = null; $("#toast").hidden = true; if (fn) fn(); };
+// "/" jumps to the search box on the current screen (collection, compare, studies), like keyboard-first apps
+document.addEventListener("keydown", e => {
+  if (e.key !== "/" || e.metaKey || e.ctrlKey || /INPUT|TEXTAREA/.test(document.activeElement && document.activeElement.tagName)) return;
+  const box = [...document.querySelectorAll("#o-ov .o-searchbox input, .page .o-searchbox input")].find(i => i.offsetParent);
+  if (box) { e.preventDefault(); box.focus(); }
+});
