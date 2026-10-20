@@ -176,7 +176,7 @@ const cpSide = (c, s, m, foot) => {
     </section>
     <section class="cpx-attrs"><span class="cpx-k">Attributes</span>
       ${c.attrs.map(k => { const inStudy = s.published.includes(k), n = m.all.reduce((t, r) => t + r.marks.filter(x => x.k === k && x.kind !== "same").length, 0);
-        return `<div class="cpx-attr"><b>${esc(attrLabel(k))}</b><span class="cpx-astate${inStudy ? "" : " new"}">${inStudy ? "In the study" : "New to the study"}</span><small>${n ? plural(n, "value") + " change" : "No change"}</small></div>`; }).join("")}
+        return `<div class="cpx-attr"><b>${esc(attrLabel(k))}</b>${inStudy ? "" : `<span class="cpx-astate new">New to the study</span>`}<small>${n ? plural(n, "value") + " change" : "No change"}</small></div>`; }).join("")}
     </section>
     ${foot ? `<small class="cpx-at">${foot}</small>` : ""}
   </aside>`;

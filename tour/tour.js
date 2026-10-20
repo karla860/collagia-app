@@ -127,11 +127,8 @@
       ${did("The result names the attributes, counts the changes, and says the study now has this version. Open the study board is the primary action, grouped by the new attribute.")}` },
 
     /* ---------- Applying a collection with more than one attribute ---------- */
-    { kick: "Apply to a study", title: "Two attributes in one go", go: () => { setFlow("study"); JUMP.study("multi"); }, sel: ".cpx-table", place: "left", body: `
-      ${did("Statue backgrounds carries two attributes, Background color and Material. One preview covers both: every line names its attribute, and the headline counts 30 products and 56 values.")}
-      ${why("A collection is a set of columns, not one attribute. Seeing every column in one view means one decision, not one per attribute.")}` },
-    { kick: "Apply to a study", title: "Both attributes on the board", go: () => { JUMP.study("multiboard"); }, sel: ".bx-world", place: "right", body: `
-      ${did("The board opens grouped by Background color, then split by Material inside each frame. Both attributes are now filters and group-by options in Antiquities sale 2026.")}
+    { kick: "Apply to a study", title: "Both attributes on the board", go: () => { JUMP.study("multiboard"); }, sel: ".bx-world .bx-frame", place: "right", body: `
+      ${did("Statue backgrounds carries two attributes, Background color and Material, and has just been applied to Antiquities sale 2026. The board opens grouped by Background color, then split by Material inside each frame. Both attributes are now filters and group-by options in Antiquities sale 2026.")}
       ${why("You see every attribute that landed straight away, and how they combine, instead of checking them one at a time.")}` },
 
     /* ---------- Share ---------- */
@@ -170,7 +167,6 @@
   const TASKS = {
     "Four board types, one chip": { at: ".bx-show .o-menu [data-v=\"group\"]", ask: "Pick <b>Group</b> in the menu.", done: () => BD.matrix === "group", ok: "The board is now one frame per product type." },
     "Two things up top, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b> to see what else you can do with this collection.", done: () => App.menu === "more", ok: "Download, update from a study or a CSV, version history and rename: everything that isn't the main job." },
-    "Two attributes in one go": { at: ".preview .o-mf .btn.primary", ask: "Click <b>Add 2 attributes in Antiquities sale 2026</b>.", done: () => App.modal === "success", ok: "Both attributes are in the study: 30 products, 56 values added." },
     "The core fix: a checkbox means one thing": { at: '.o-rrow.attr[data-v="franchise"]', ask: "Untick <b>Franchise</b> and watch the products lose their Franchise value.", done: () => !CR.included.has("franchise"), ok: "Franchise is out of the collection, so the products no longer carry it. Tick it again to bring it back." },
     "Choosing which study to compare with": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Compare with</b> dropdown to see every study.", done: () => App.menu === "cpstudy", ok: "Studies with an older version come first, each with its version and how many products it shares." },
     "A card shows what is inside": { at: ".h-grid .ccard", ask: "Open the <b>FA26 line review</b> collection.", done: () => App.modal === "card", ok: "This is the collection screen. Next, a look around it." },
