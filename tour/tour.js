@@ -43,12 +43,9 @@
     { kick: "Study board", title: "A study is products on a board", go: () => goBoard(), sel: ".bx-top .bx-box:first-child", place: "below", body: `
       <p>This is the FA26 footwear review, a study on the Nike GB Men's Footwear collage. Switch study from its name; the collage it sits on is to the left. Like the app, nothing here moves by hand: the board type and the show bar decide the formation.</p>
       ${did("The board is a working tool now: select, add attributes, group, filter. The top right tells you how many attributes this study has published and gives the two ways out: save them to a collection, or bring a collection in.")}` },
-    { kick: "Study board", title: "Frame what your eye groups together", go: () => goBoardSel(), sel: ".bx-tile.on", place: "below", body: `
+    { kick: "Study board", title: "Frame what your eye groups together", go: () => goBoardSel(), sel: ".bx-tools button[data-v=\"attr\"]", place: "right", body: `
       <p>Selecting is its own tool, Create custom attribute (<b>F</b>), as in the app. With it on, drag a frame around a group or click tiles. Four shoes are selected now. With the Select tool (<b>V</b>), dragging pans and clicking shows a product card instead.</p>
       ${why("This is the framing tool already in the app. It's the one thing a spreadsheet can never do: pick products by what they look like.")}` },
-    { kick: "Study board", title: "Four board types, one chip", go: () => { goBoard(); App.menu = "matrix"; render(); }, sel: ".bx-show .o-menu", place: "right", body: `
-      <p>Pareto cuts the products into tiers by a metric. Rank sorts them. Group makes a frame per value. Freestyle frames whatever you published and leaves the rest loose. Changing type never moves anything by hand, exactly like the app's Change matrix.</p>
-      ${why("Save to a collection and Apply a collection live in the attributes menu, top right, where the published list is. That is the board end of the two-way road.")}` },
 
     /* ---------- Homepage ---------- */
     { kick: "Attributes page", title: "A card shows what is inside", go: () => goHome(), sel: ".h-grid .ccard", place: "right", body: `
@@ -127,9 +124,6 @@
       ${did("The result names the attributes, counts the changes, and says the study now has this version. Open the study board is the primary action, grouped by the new attribute.")}` },
 
     /* ---------- Applying a collection with more than one attribute ---------- */
-    { kick: "Apply to a study", title: "Both attributes on the board", go: () => { JUMP.study("multiboard"); }, sel: ".bx-world .bx-frame", place: "right", body: `
-      ${did("Statue backgrounds carries two attributes, Background color and Material, and has just been applied to Antiquities sale 2026. The board opens grouped by Background color, then split by Material inside each frame. Both attributes are now filters and group-by options in Antiquities sale 2026.")}
-      ${why("You see every attribute that landed straight away, and how they combine, instead of checking them one at a time.")}` },
 
     /* ---------- Share ---------- */
     { kick: "Share", title: "Sharing is a dialog, reached from the collection", go: () => { goAccess(); render(); }, sel: ".o-invite", place: "left", body: `
@@ -165,7 +159,6 @@
      The card asks for one small action on the highlighted part. The tour watches the app's state and,
      once it's done, confirms what happened. Next is always there as "Skip", so nobody gets stuck. */
   const TASKS = {
-    "Four board types, one chip": { at: ".bx-show .o-menu [data-v=\"group\"]", ask: "Pick <b>Group</b> in the menu.", done: () => BD.matrix === "group", ok: "The board is now one frame per product type." },
     "Two things up top, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b> to see what else you can do with this collection.", done: () => App.menu === "more", ok: "Download, update from a study or a CSV, version history and rename: everything that isn't the main job." },
     "The core fix: a checkbox means one thing": { at: '.o-rrow.attr[data-v="franchise"]', ask: "Untick <b>Franchise</b> and watch the products lose their Franchise value.", done: () => !CR.included.has("franchise"), ok: "Franchise is out of the collection, so the products no longer carry it. Tick it again to bring it back." },
     "Choosing which study to compare with": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Compare with</b> dropdown to see every study.", done: () => App.menu === "cpstudy", ok: "Studies with an older version come first, each with its version and how many products it shares." },
@@ -182,13 +175,13 @@
   /* ---------- Chapters: the steps grouped like an interactive demo, each opening with its goal ---------- */
   const CHAPTERS = {
     "Start here": { goal: "Know what Collagia is and what an attribute collection adds.", what: "Two short reads and a look at what's already in this account. Nothing to click yet." },
-    "Study board": { goal: "See where attributes come from.", what: "You'll frame a group of shoes on a study board and switch the board type yourself." },
+    "Study board": { goal: "See where attributes come from.", what: "You'll see a study board and how a group of shoes is framed to make an attribute." },
     "Attributes page": { goal: "Find your collections and tell them apart at a glance.", what: "One stop on the Attributes page; you'll open a collection from its card." },
     "New collection": { goal: "Save a study's attributes as a collection.", what: "Pick a study, choose which attributes go in (you'll untick one), then name it." },
     "Open a collection": { goal: "Read a collection: what it holds, who has it, which version.", what: "You'll open the ⋯ menu, look at version history and filter the grid by a value." },
     "Edge states": { goal: "See how the collection screen handles awkward data.", what: "No search match, missing values, a one-product value, slow photos and an empty collection, each saying what's wrong and what to do." },
     "Compare with a study": { goal: "Know exactly what applying would change, before you apply.", what: "You'll open Compare, switch study, open a change line, search a product and go on to apply." },
-    "Apply to a study": { goal: "Apply a collection safely, and see a two-attribute one land on a board.", what: "Choose a study, check the preview, apply (with a confirmation if anything would be lost, and Undo after)." },
+    "Apply to a study": { goal: "Apply a collection safely.", what: "Choose a study, see what changes, apply (with a confirmation if anything would be lost, and Undo after)." },
     "Share": { goal: "Share a collection with the right people.", what: "One look at the share dialog: who has access and with which role." },
     "Wrap up": { goal: "Recap what changed.", what: "A summary of the earlier version and this one." },
   };

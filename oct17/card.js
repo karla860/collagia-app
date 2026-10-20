@@ -69,11 +69,15 @@ const gridView = list => {
     <button class="o-vsec-h" data-a="cardSel" data-v="${k}|${esc(v)}"><i class="o-vdot"></i><b>${esc(v)}</b><span>${ps.length} product${ps.length === 1 ? "" : "s"}</span>${ic.chevR}</button>
     <div class="o-pgrid">${ps.map(pcard).join("")}</div></section>` : ""; }).join("");
 };
+// List: one row per product, every attribute in a single wrapping cell (not one column each), so it scales to any number of attributes
+const LIST_MAX = 3;
 const listView = list => {
   const c = curColl(), ks = CD.sel ? [CD.sel.k] : c.attrs;
-  return `<div class="o-ltable" style="--cols:${ks.length}">
-    <div class="o-lhd"><span>Product</span><span>ID</span>${ks.map(k => `<span>${esc(attrLabel(k))}</span>`).join("")}</div>
-    ${list.map(p => `<div class="o-lrow">${pthumb(p, "s36")}<span class="nm">${esc(p.name)}</span><span class="o-id">${p.id}</span>${ks.map(k => `<span>${cValue(c, k, p.id) ? addChip(k, cValue(c, k, p.id), true) : `<span class="o-none">—</span>`}</span>`).join("")}</div>`).join("")}
+  const cell = p => { const shown = ks.slice(0, LIST_MAX), rest = ks.slice(LIST_MAX);
+    return `<span class="o-lattrs">${shown.map(k => cValue(c, k, p.id) ? addChip(k, cValue(c, k, p.id)) : `<span class="o-addchip nov">No ${esc(attrLabel(k))}</span>`).join("")}${rest.length ? `<span class="o-addchip more" title="${esc(rest.map(k => `${attrLabel(k)}: ${cValue(c, k, p.id) || "no value"}`).join(" · "))}">+${rest.length} more</span>` : ""}</span>`; };
+  return `<div class="o-ltable o-list2">
+    <div class="o-lhd"><span></span><span>Product</span><span>${ks.length === 1 ? esc(attrLabel(ks[0])) : `Attributes · ${ks.length}`}</span></div>
+    ${list.map(p => `<div class="o-lrow">${pthumb(p, "s36")}<span class="o-lp"><span class="nm">${esc(p.name)}</span><span class="o-id">${p.id}</span></span>${cell(p)}</div>`).join("")}
   </div>`;
 };
 
@@ -172,7 +176,6 @@ const notices = (c, total, list) => {
 const emptyColl0 = c => `<div class="o-empty0">
     <div class="o-e0-h">${ic.box}<b>This collection has no products</b><span>None of the rows in ${esc(c.source.name)} matched a product ID, so there's nothing to show or apply yet.</span></div>
     <button class="btn primary" data-a="cdFixCsv">${ic.upload}Update from a CSV</button>
-    <span class="o-sample">Sample collection</span>
   </div>`;
 /* Nothing to show: say why, and offer the one way out */
 const emptyState = (c, total, selName) => !total ? emptyColl0(c) : CD.q
@@ -248,7 +251,7 @@ JUMP.card = () => { App.page = "home"; openCard(CD.id); render(); };
 
 ACTIONS.cdRetryPhotos = () => { CD.demo = null; toast("Photos reloaded"); };
 ACTIONS.cdRows = () => { CD.showRows = !CD.showRows; };
-ACTIONS.cdFixCsv = () => { toast("Sample collection: this opens Update from a CSV with a corrected sheet"); return false; };
+ACTIONS.cdFixCsv = () => { toast("This opens Update from a CSV with a corrected sheet"); return false; };
 ACTIONS.cdDownloadRows = () => { const c = curColl(); toast(`Downloaded ${c.csvRows} rows with a “reason” column`); return false; };
 
 /* Guide entries: the collection screen's edge states (#edge/novalue|single|nomatch|nophotos|unmatched|empty) */

@@ -1275,3 +1275,28 @@ body.locked .g-pill kbd { display: none; }
 .o-sbody .ctag { height: 22px; padding: 3px 7px; gap: 5px; border-radius: 3px; background: var(--sunken); font: 400 var(--fs-12)/var(--lh-12) Inter, sans-serif; }
 .o-sbody .ctag .cdots { margin: 0; }
 .o-sbody .ctag .cdots i { width: 6px; height: 6px; border-radius: .5px; box-shadow: 0 0 0 1px var(--sunken); }
+
+/* Share dialog: no divider under the header */
+.o-modal.share .o-mh.small { border-bottom: 0; }
+/* Create stepper: clean single line, aligned numbers, quiet connectors */
+.o-steps { padding: 12px 24px; background: var(--surface); }
+.o-steps ol { gap: 10px; }
+.o-steps li { gap: 8px; font-size: var(--fs-13); line-height: var(--lh-13); color: var(--muted); }
+.o-steps li + li::before { width: 32px; height: 1px; margin: 0 2px 0 0; background: var(--border); }
+.o-stepn { width: 22px; height: 22px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); font: 600 var(--fs-12)/1 Inter, sans-serif; }
+.o-steps li.now { color: var(--text); font-weight: 600; }
+.o-steps li.now .o-stepn { background: var(--text); border-color: var(--text); color: #fff; }
+.o-steps li.done { color: var(--text); }
+.o-steps li.done .o-stepn { background: var(--sunken); border-color: var(--sunken); color: var(--text); }
+/* List view: product | one attributes cell */
+.o-list2 .o-lhd, .o-list2 .o-lrow { grid-template-columns: 36px minmax(200px, 1fr) minmax(0, 2fr); }
+.o-list2 .o-lrow { height: auto; min-height: 56px; padding-top: 8px; padding-bottom: 8px; }
+.o-lp { display: grid; gap: 2px; min-width: 0; }
+.o-lp .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.o-lattrs { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
+/* Compare tabs */
+.cpx-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); }
+.cpx-tabs button { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; background: none; font-size: var(--fs-13); font-weight: 500; color: var(--muted); }
+.cpx-tabs button:hover { color: var(--text); }
+.cpx-tabs button.on { color: var(--text); border-bottom-color: var(--text); font-weight: 600; }
+.cpx-tabs .n { padding: 0 6px; border-radius: 999px; background: var(--sunken); font-size: var(--fs-11); line-height: 18px; color: var(--muted); }

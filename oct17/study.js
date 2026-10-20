@@ -97,13 +97,14 @@ RENDER.escape = () => {
   if (App.modal === "studyPick") App.modal = ST.fromBoard ? null : "card";
   else if (App.modal === "preview") App.modal = ST.fromCompare ? "compare" : ST.fromBoard ? "collPick" : "studyPick";
   else if (App.modal === "compare") { App.modal = "card"; setFlow("card"); }
-  else if (App.modal === "confirmApply") App.modal = "preview";
+  else if (App.modal === "confirmApply") App.modal = "compare";
+  else if (App.modal === "access") ACTIONS.accessBack();
   else App.modal = null;
   return true;
 };
 let pressedBackdrop = false;
 document.addEventListener("mousedown", e => { pressedBackdrop = e.target.id === "o-ov"; });
-document.addEventListener("click", e => { if (e.target.id === "o-ov" && pressedBackdrop && App.modal) { App.modal = null; render(); } });
+document.addEventListener("click", e => { if (e.target.id === "o-ov" && pressedBackdrop && App.modal) { if (App.modal === "access") ACTIONS.accessBack(); else App.modal = null; render(); } });
 
 /* ---------- Actions ---------- */
 ACTIONS.toStudyPick = () => { setFlow("study"); ST.q = ""; ST.sel = null; ST.open = null; ST.fromBoard = false; ST.fromCompare = false; App.modal = "studyPick"; };
@@ -111,8 +112,9 @@ ACTIONS.applyFromMenu = el => { openCard(el.dataset.v); ACTIONS.toStudyPick(); }
 ACTIONS.pickBack = () => { App.modal = "card"; setFlow("card"); };
 ACTIONS.pickStudy = el => { ST.sel = el.dataset.v; };
 INPUTS.stQ = el => { ST.q = el.value; };
-ACTIONS.toPreview = () => { ST.open = null; CP.open = null; CP.touched = false; CP.q = ""; App.modal = "preview"; };
-ACTIONS.pickColl = el => { CD.id = el.dataset.v; ST.sel = ST.target; ST.open = null; ST.fromBoard = true; ST.fromCompare = false; App.modal = "preview"; };
+// There is no separate preview screen: choosing a study opens the comparison, which is the preview
+ACTIONS.toPreview = () => { openCompare(ST.sel); };
+ACTIONS.pickColl = el => { CD.id = el.dataset.v; ST.sel = ST.target; ST.fromBoard = true; openCompare(ST.target); };
 ACTIONS.pvBack = () => { if (ST.fromCompare) { App.modal = "compare"; setFlow("compare"); return; } App.modal = ST.fromBoard ? "collPick" : "studyPick"; };
 // Applying can remove values, so: confirm when it would, and keep a copy of the study's attributes so it can be undone
 const MODAL_CONFIRM_APPLY = () => {
@@ -120,8 +122,8 @@ const MODAL_CONFIRM_APPLY = () => {
   return `<div class="o-modal confirm" role="alertdialog" aria-modal="true" aria-labelledby="ca-h" aria-describedby="ca-p">
     <div class="o-confirm"><span class="o-confirm-icon">${ic.warn}</span>
       <div><h2 id="ca-h" class="o-h16">${m.lost} product${m.lost === 1 ? "" : "s"} will lose ${c.attrs.length === 1 ? `their ${esc(lab)}` : "a value"}</h2>
-      <p id="ca-p">Applying ${esc(c.name)} ${c.v} replaces the ${esc(c.attrs.map(attrLabel).join(" and "))} column${c.attrs.length === 1 ? "" : "s"} in ${esc(s.name)}. ${m.changed.length - m.lost} other products change too. You can undo this straight after.</p></div></div>
-    <footer class="o-mf flat"><span class="sp"></span><button class="btn" data-a="caCancel">Back to preview</button><button class="btn danger" data-a="pvApplyNow" id="ca-ok">Apply anyway</button></footer>
+      <p id="ca-p">Applying ${esc(c.name)} ${c.v} replaces the ${esc(c.attrs.length > 1 ? c.attrs.slice(0, -1).map(attrLabel).join(", ") + " and " + attrLabel(c.attrs[c.attrs.length - 1]) : attrLabel(c.attrs[0]))} column${c.attrs.length === 1 ? "" : "s"} in ${esc(s.name)}. ${m.changed.length - m.lost} other products change too. You can undo this straight after.</p></div></div>
+    <footer class="o-mf flat"><span class="sp"></span><button class="btn" data-a="caCancel">Back to compare</button><button class="btn danger" data-a="pvApplyNow" id="ca-ok">Apply anyway</button></footer>
   </div>`;
 };
 ACTIONS.pvApply = () => {
@@ -129,7 +131,7 @@ ACTIONS.pvApply = () => {
   if (cpModel(c, s).lost) { App.modal = "confirmApply"; setTimeout(() => { const b = document.getElementById("ca-ok"); if (b) b.focus(); }); return; }
   ACTIONS.pvApplyNow();
 };
-ACTIONS.caCancel = () => { App.modal = "preview"; };
+ACTIONS.caCancel = () => { App.modal = "compare"; };
 ACTIONS.pvApplyNow = () => {
   const c = stColl(), s = stStudy(), t = diffTotals(diffFor(c, s));
   ST.undo = { study: s.name, coll: c.id, tags: JSON.parse(JSON.stringify(s.tags)), published: [...s.published], applied: { ...s.applied } };
@@ -140,7 +142,7 @@ ACTIONS.pvApplyNow = () => {
 ACTIONS.undoApply = () => {
   const u = ST.undo, s = u && studyByName(u.study); if (!s) return false;
   s.tags = u.tags; s.published = u.published; s.applied = u.applied; ST.undo = null;
-  App.modal = "preview"; toast(`Undone. ${s.name} is back to how it was.`);
+  openCompare(s.name); toast(`Undone. ${s.name} is back to how it was.`);
 };
 // Opens the board grouped by the collection's first attribute, then split by its second, so every attribute that landed is visible
 ACTIONS.openStudyBoard = () => { App.modal = null; setFlow("board"); const s = stStudy(), at = stColl().attrs; if (s) { BD.matrix = "group"; BD.groupBy = at[0]; BD.group2 = at[1] || null; BD.show = BD.groupBy; BD.filters = {}; } JUMP.board(ST.sel); toast(`Opened ${ST.sel || "the study"}`); return false; };
@@ -157,7 +159,7 @@ JUMP.study = v => {
     resetAntiquities(); CD.id = "statues"; ST.sel = "Antiquities sale 2026"; ST.fromCompare = false; CP.open = null; CP.touched = false; CP.q = ""; App.modal = "preview";
     if (v !== "multi") { ACTIONS.pvApply(); if (v === "multiboard") { ACTIONS.openStudyBoard(); return; } }
   }
-  else if (v === "preview") { ST.sel = ST.sel || "Price architecture"; ST.open = null; App.modal = "preview"; }
+  else if (v === "preview") { ST.sel = ST.sel || "Price architecture"; openCompare(ST.sel); }
   else if (v === "done") { ST.sel = ST.sel || "Price architecture"; ST.result = ST.result || diffTotals(diffFor(curColl(), stStudy())); App.modal = "success"; }
   else { ST.q = ""; ST.sel = null; App.modal = "studyPick"; }
   render();

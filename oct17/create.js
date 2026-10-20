@@ -33,7 +33,6 @@ const crTitle = () => CR.mode === "update" ? `Update <b>${esc(collById(CR.target
 /* ---------- Step 1 · Source ---------- */
 const STEP_SOURCE = () => `
   <div class="o-src">
-    <p class="o-src-lead">Attributes start life in two places. Where are yours right now?</p>
     <div class="o-choose">
       <button class="o-opt" data-a="crSrc" data-v="study">
         <span class="o-optimg">${ic.studies}</span>

@@ -20,7 +20,7 @@ const syncShared = () => { const c = collById(AC.id); c.shared = AC.people.filte
 const who = p => p.you ? "You" : (p.name || p.email);
 const avatarP = p => p.invite ? `<span class="o-av dashed">${ic.send}</span>` : avatar2(p, p.type === "owner" ? "grey" : "");
 const permMenu = i => `<div class="o-menu right o-permmenu" role="menu">${Object.entries(PERMS).map(([k, l]) =>
-  `<button role="menuitemradio" aria-checked="${AC.people[i].perm === k}" class="${AC.people[i].perm === k ? "cur" : ""}" data-a="setPerm" data-v="${i}:${k}"><span><b>${l}</b><small>${PERM_HELP[k]}</small></span>${AC.people[i].perm === k ? ic.check : ""}</button>`).join("")}
+  `<button role="menuitemradio" aria-checked="${AC.people[i].perm === k}" class="${AC.people[i].perm === k ? "cur" : ""}" data-a="setPerm" data-v="${i}:${k}"><span><b>${l}</b></span>${AC.people[i].perm === k ? ic.check : ""}</button>`).join("")}
   <button role="menuitem" class="danger" data-a="removePerson" data-v="${i}">Remove access</button></div>`;
 const roleDD = (p, i) => p.type === "owner" ? `<span class="o-owner">Owner</span>`
   : `<div class="o-dd"><button class="o-select w100${App.menu === "perm:" + i ? " open" : ""}" data-a="menu" data-v="perm:${i}">${PERMS[p.perm]}${ic.chev}</button>${App.menu === "perm:" + i ? permMenu(i) : ""}</div>`;
@@ -29,7 +29,7 @@ const personRow = (p, i) => `<div class="o-prow">${avatarP(p)}<div class="o-pwho
 const inviteRow = () => `<div class="o-invite">
     <div class="o-dd o-grow"><input id="ac-q" class="o-input${AC.err ? " bad" : ""}" data-in="acQ" data-enter="acInvite" placeholder="Add people by email" value="${esc(AC.q)}" autocomplete="off" aria-label="Add people by email"></div>
     <div class="o-dd"><button class="o-select w100${App.menu === "inv-role" ? " open" : ""}" data-a="menu" data-v="inv-role" aria-label="Role for new people">${PERMS[AC.role]}${ic.chev}</button>
-      ${App.menu === "inv-role" ? `<div class="o-menu right o-permmenu" role="menu">${["viewer", "editor", "admin"].map(k => `<button role="menuitemradio" aria-checked="${AC.role === k}" class="${AC.role === k ? "cur" : ""}" data-a="acRole" data-v="${k}"><span><b>${PERMS[k]}</b><small>${PERM_HELP[k]}</small></span></button>`).join("")}</div>` : ""}</div>
+      ${App.menu === "inv-role" ? `<div class="o-menu right o-permmenu" role="menu">${["viewer", "editor", "admin"].map(k => `<button role="menuitemradio" aria-checked="${AC.role === k}" class="${AC.role === k ? "cur" : ""}" data-a="acRole" data-v="${k}"><span><b>${PERMS[k]}</b></span></button>`).join("")}</div>` : ""}</div>
     <button class="btn primary" data-a="acInvite">Invite</button></div>
   ${AC.err ? `<p class="o-err">${AC.err}</p>` : ""}`;
 
@@ -56,7 +56,7 @@ const MODAL_ACCESS = () => {
       return `<li><span class="o-act-ic ${cls}">${ic[icon]}</span><div><p><b>${esc(x.who)}</b> ${esc(x.what)}</p><time>${x.when}</time></div></li>`; }).join("")}</ol>`,
   };
   return `<div class="o-modal share tabs6" role="dialog" aria-modal="true" aria-label="Share ${esc(c.name)}">
-  <header class="o-mh small"><button class="icon-btn" data-a="accessBack" aria-label="Back">${ic.back}</button><h2 class="o-h16">Share “${esc(c.name)}”</h2><span class="sp"></span>${visChip(c)}</header>
+  <header class="o-mh small"><button class="icon-btn" data-a="accessBack" aria-label="Back">${ic.back}</button><h2 class="o-h16">Share “${esc(c.name)}”</h2></header>
   <div class="o-atabs" role="tablist">${tab("people", "People", members.length)}${tab("requests", "Requests", AC.requests.length, true)}${tab("activity", "Activity")}</div>
   <div class="o-share-body o-tabbody">${body[AC.tab]()}</div>
 </div>`;

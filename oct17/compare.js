@@ -54,7 +54,7 @@ const openCompare = (study = null) => {
 };
 // The comparison is instant here; a short "Comparing…" beat stands in for the real request
 const cpLoad = name => {
-  Object.assign(CP, { study: name, open: null, all: new Set(), more: new Set(), same: new Set(), q: "", touched: false, loading: true, at: new Date() });
+  Object.assign(CP, { study: name, tab: "all", open: null, all: new Set(), more: new Set(), same: new Set(), q: "", touched: false, loading: true, at: new Date() });
   setTimeout(() => { if (CP.study === name && CP.demo !== "loading") { CP.loading = false; render(); } }, 450);
 };
 const cpColl = () => CP.demo === "noattrs" ? { ...curColl(), name: "Untitled collection", attrs: [], values: {} } : curColl();
@@ -157,8 +157,14 @@ const cpGroups = (c, s, m) => {
   const sameSec = stay && sameRows ? `<section class="cpx-sec cpx-block same"><div class="cpx-sh"><span class="cpx-g">=</span><b>Stays the same</b><span>${plural(stay, "product")} keep${stay === 1 ? "s" : ""} ${c.attrs.length === 1 ? `their ${esc(attrLabel(c.attrs[0]))}` : "their values"}</span></div>${sameRows}</section>` : "";
   const search = `<label class="o-searchbox cpx-q">${ic.search}<input id="cp-q" data-in="cpQ" value="${esc(CP.q)}" placeholder="Find any product to see what happens to it" aria-label="Find a product">${CP.q ? `<button class="icon-btn" data-a="cpQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label>`;
   if (CP.q.trim()) return `${search}${cpSearch(c, s, m)}`;
-  // Each outcome is its own block, so Removed, Changed, Added and Stays the same read as separate sections
-  return `${search}<div class="cpx-table cpx-blocks">${sections}${sameSec}</div>`;
+  // Tabs to jump between outcomes; each outcome is its own block
+  const vn = { remove: 0, change: 0, add: 0, same: 0 }; m.all.forEach(r => r.marks.forEach(x => vn[x.kind]++));
+  const TABS = [["all", "All", 0], ["remove", "Removed", vn.remove], ["change", "Changed", vn.change], ["add", "Added", vn.add], ["same", "Stays the same", vn.same]].filter(([k, , n]) => k === "all" || n);
+  const tab = TABS.some(([k]) => k === CP.tab) ? CP.tab : "all";
+  const tabs = `<div class="cpx-tabs" role="tablist">${TABS.map(([k, l, n]) => `<button role="tab" aria-selected="${tab === k}" class="${tab === k ? "on" : ""}" data-a="cpTab" data-v="${k}">${l}${k === "all" ? "" : `<span class="n">${n}</span>`}</button>`).join("")}</div>`;
+  const pick = (cls, html) => tab === "all" || tab === cls ? html : "";
+  const secs = OUTCOMES.map(([kind]) => pick(kind, (sections.match(new RegExp(`<section class="cpx-sec cpx-block ${kind}">[\\s\\S]*?</section>`)) || [""])[0])).join("");
+  return `${search}${tabs}<div class="cpx-table cpx-blocks">${secs}${pick("same", sameSec)}</div>`;
 };
 
 /* The right-hand column: who is compared with what, the numbers, and the one rule that explains removals */
@@ -276,6 +282,7 @@ ACTIONS.cpOpen = () => openCompare();
 ACTIONS.cpPick = el => { CP.sq = ""; if (CP.study !== el.dataset.v) { CP.demo = ["noattrs", "many"].includes(CP.demo) ? CP.demo : null; cpLoad(el.dataset.v); } };
 INPUTS.cpSQ = el => { CP.sq = el.value; };
 ACTIONS.cpOffToggle = () => { CP.showOff = !CP.showOff; };
+ACTIONS.cpTab = el => { CP.tab = el.dataset.v; };
 ACTIONS.cpOpenT = el => { if (CP.q) return false; CP.touched = true; CP.open = CP.open === el.dataset.v ? null : el.dataset.v; };
 ACTIONS.cpAll = el => { flip(CP.all, el.dataset.v); };
 ACTIONS.cpMore = el => { flip(CP.more, el.dataset.v); };
@@ -285,7 +292,7 @@ ACTIONS.cpQClear = () => { CP.q = ""; };
 ACTIONS.cpRetry = () => { CP.demo = null; cpLoad(CP.study); };
 ACTIONS.cpBack = () => { App.modal = "card"; setFlow("card"); };
 // Carry the chosen study into the existing Apply flow: straight to its preview, no second pick
-ACTIONS.cpApply = () => { if (cpFind(CP.study).sample) { toast("Sample study: applying isn't part of this demo"); return false; } ST.sel = CP.study; ST.q = ""; ST.open = null; ST.fromBoard = false; ST.fromCompare = true; CP.q = ""; setFlow("study"); App.modal = "preview"; };
+ACTIONS.cpApply = () => { if (cpFind(CP.study).sample) { toast("Sample study: applying isn't part of this demo"); return false; } ST.sel = CP.study; ST.q = ""; ST.open = null; ST.fromBoard = false; ST.fromCompare = true; CP.q = ""; setFlow("study"); ACTIONS.pvApply(); }; // straight to the confirmation, or applied if nothing is lost
 
 /* Guide: #compare opens the picker; sub-entries show each state (sample states are labelled as such on screen) */
 JUMP.compare = v => {
