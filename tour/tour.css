@@ -52,3 +52,11 @@
 @media (max-width: 720px) { .tr-card, .tr-card.centre { width: calc(100vw - 32px); } }
 .tr-tag.try { background: #FDEFEF; color: #8B0000; }
 .tr-card .tr-sub { margin: 12px 18px 0; font-size: var(--fs-13); }
+/* Your turn: one small action on the highlighted part */
+.tr-task { margin: 8px 0 6px; padding: 10px 12px; border: 1px solid #F3C9C7; border-radius: 8px; background: #FDEFEF; }
+.tr-task p { margin: 4px 0 0 !important; color: #232121; }
+.tr-task-k { font-size: var(--fs-11); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #E83832; }
+.tr-task.done { border-color: #E4E4E4; background: #F1F1F1; }
+.tr-task.done .tr-task-k { color: #232121; }
+.tr-spot.task { animation: tr-pulse 1.4s ease-in-out infinite; }
+@keyframes tr-pulse { 50% { box-shadow: 0 0 0 100vmax rgba(14, 16, 22, .66), 0 0 0 2px rgba(255,255,255,.9), 0 0 0 9px rgba(232,56,50,.35); } }

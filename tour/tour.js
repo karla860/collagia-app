@@ -28,6 +28,7 @@
       <p>Published tags only live in the study that made them. An <b>attribute collection</b> (today "Label Library") lifts a set of them out so they can be kept, versioned, shared and applied to other studies.</p>
       <div class="tr-diagram"><span>Study</span><em>⇄</em><span class="lib">Collection</span><em>⇄</em><span>CSV</span></div>
       <p>Every button in the feature is one arrow in that picture. This tour follows the loop once: tag on a board, save a collection, open it, compare it with a study, apply it, share it.</p>
+      <p class="tr-hint">Some steps say <b>Your turn</b>: do the one thing it asks on the highlighted part and the tour confirms it. Skip is always there.</p>
       <p class="tr-hint">Next and Back move between screens. The prototype stays live underneath, so click around whenever you like. Esc stops the tour; the guide (⌘K, bottom right) restarts it.</p>` },
 
     /* ---------- Board ---------- */
@@ -42,7 +43,7 @@
       ${why("This is Giorgi's framing tool from the app. It is the one thing a spreadsheet can never do: pick products by what they look like.")}` },
     { kick: "Study board", title: "Name what you saw: attribute and value", sel: ".bx-panel", place: "left", body: `
       <p>An attribute is what you are judging (Upper material), a value is what you see (Knit). Publish, and every selected product gets that value. Then select the next group and publish Mesh, then Leather. Existing names and values are offered as you type, so spellings stay consistent.</p>
-      ${tryit("Press Publish. In Freestyle the four shoes get their own frame, “Upper material: Knit”, and the rest stay loose.")}` },
+` },
     { kick: "Study board", title: "Published attributes become filters and groups", go: () => { goBoard(); App.menu = "attrs"; render(); }, sel: ".bx-top .o-menu", place: "left", body: `
       <p>Everything this study has published, with its values and counts, and shortcuts to group or show each one. Franchise was read off the product names to give the study a starting point; everything else is yours.</p>
       ${did("On staging the only trace of a published attribute is a row in the filter box. Here the study shows what it holds and what to do with it.")}` },
@@ -186,8 +187,25 @@
       <p class="tr-hint">Still to confirm with Giorgi: that applying really does replace same-named attributes, what a version means to a user, and whether Manage can become Share. Karla's original files are untouched in <code>oct15/</code>.</p>` },
   ];
 
+  /* ---------- Your turn: steps where the person does the thing instead of reading about it ----------
+     The card asks for one small action on the highlighted part. The tour watches the app's state and,
+     once it's done, confirms what happened. Next is always there as "Skip", so nobody gets stuck. */
+  const TASKS = {
+    "Name what you saw: attribute and value": { ask: "Press <b>Publish</b> to tag the four selected shoes “Upper material: Knit”.", done: () => bdStudy().published.some(k => attrLabel(k).toLowerCase() === "upper material"), ok: "Published. The four shoes now carry Upper material: Knit, and it's a filter and a group on this board." },
+    "Four board types, one chip": { ask: "Pick <b>Group</b> in the menu.", done: () => BD.matrix === "group", ok: "The board is now one frame per product type." },
+    "A card shows what is inside": { ask: "Open the <b>Franchise</b> collection.", done: () => App.modal === "card", ok: "This is the collection screen. Next, a look around it." },
+    "Pick an attribute and the grid sorts itself by colour": { ask: "Click the <b>Phantom</b> section header to see only those shoes.", done: () => CD.sel && CD.sel.v, ok: "Just one value now. “Show all” in the bar goes back." },
+    "When search finds nothing": { ask: "Press <b>Clear search</b>.", done: () => !CD.q, ok: "All 312 products are back." },
+    "An optional look before you apply": { ask: "Click <b>Compare with a study</b>.", done: () => App.modal === "compare", ok: "Compare opened on Price architecture, the study that's behind." },
+    "Grouped by what happens, riskiest first": { ask: "Open the <b>Running → Vomero</b> line to see its 22 products.", done: () => CP.open && CP.open.includes("Vomero"), ok: "Each product shows its own before and after." },
+    "Ask about any product": { ask: "Search for <b>Pegasus</b>.", done: () => /pegasus/i.test(CP.q), ok: "Every match says what happens to it." },
+    "Then apply, already set to that study": { ask: "Click <b>Apply to Price architecture</b>.", done: () => App.modal === "preview", ok: "Straight to the preview, with the study already chosen." },
+    "The collage decides whether anything happens": { ask: "Choose <b>Price architecture</b>.", done: () => ST.sel === "Price architecture", ok: "Selected. Preview changes is now available." },
+  };
+  STEPS.forEach(s => { if (TASKS[s.title]) s.task = TASKS[s.title]; });
+
   /* ---------- State and DOM ---------- */
-  let i = -1, raf = 0, els = null;
+  let i = -1, raf = 0, els = null, taskDone = false;
   const build = () => {
     if (els) return els;
     const spot = document.createElement("div"); spot.className = "tr-spot"; spot.hidden = true;
@@ -240,14 +258,15 @@
       <button class="tr-x" data-tr="close" aria-label="Close tour">×</button>
       <div class="tr-kick"><span class="tr-flow">${s.kick}</span><span class="tr-n">${i + 1} / ${STEPS.length}</span></div>
       <h3>${s.title}</h3>
-      <div class="tr-body">${s.body}</div>
+      <div class="tr-body">${s.body}${s.task ? `<div class="tr-task${taskDone ? " done" : ""}"><span class="tr-task-k">${taskDone ? "✓ Done" : "Your turn"}</span><p>${taskDone ? s.task.ok : s.task.ask}</p></div>` : ""}</div>
       <div class="tr-foot">
         <button class="tr-btn" data-tr="back" ${i === 0 ? "disabled" : ""}>Back</button>
         <span class="sp"></span>
-        <button class="tr-btn pri" data-tr="next">${i === STEPS.length - 1 ? "Finish" : "Next"}</button>
+        <button class="tr-btn${s.task && !taskDone ? "" : " pri"}" data-tr="next">${s.task && !taskDone ? "Skip" : i === STEPS.length - 1 ? "Finish" : "Next"}</button>
       </div>`;
     card.hidden = false;
-    card.querySelector('[data-tr="next"]').focus({ preventScroll: true });
+    els.spot.classList.toggle("task", !!s.task && !taskDone);
+    if (!s.task || taskDone) card.querySelector('[data-tr="next"]').focus({ preventScroll: true });
   };
 
   const show = k => {
@@ -257,12 +276,18 @@
     // A step without its own `go` reuses the nearest earlier one, so Back and jumping both land on the right screen
     let g = i; while (g >= 0 && !STEPS[g].go) g--;
     if (g >= 0) { try { STEPS[g].go(); } catch (e) { console.warn("tour: step failed", s.title, e); } }
+    taskDone = false;
     renderCard();
     place(); setTimeout(place, 60); setTimeout(place, 300);
     const el = target(s); if (el && el.scrollIntoView) el.scrollIntoView({ block: "nearest", inline: "nearest" });
   };
   const stop = () => { if (!els) return; els.spot.hidden = true; els.card.hidden = true; i = -1; cancelAnimationFrame(raf); try { localStorage.setItem(DONE_KEY, "1"); } catch {} if (typeof G !== "undefined") { G.open = true; store.set("guideOpen", true); render(); } };
-  const loop = () => { if (i >= 0) place(); raf = requestAnimationFrame(loop); };
+  // Watch for a "Your turn" step being done, then confirm it on the card
+  const check = () => { const s = STEPS[i]; if (!s || !s.task || taskDone) return; let ok = false; try { ok = !!s.task.done(); } catch {} if (ok) { taskDone = true; renderCard(); } };
+  const loop = () => { if (i >= 0) { check(); place(); } raf = requestAnimationFrame(loop); };
+  // Also check right after the person clicks or types, and on a slow timer, in case animation frames are paused
+  ["click", "input", "change"].forEach(t => document.addEventListener(t, () => setTimeout(check, 30)));
+  setInterval(() => { if (i >= 0) check(); }, 400);
   const start = k => { build(); show(k || 0); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); };
 
   document.addEventListener("click", e => {
