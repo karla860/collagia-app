@@ -73,13 +73,13 @@ const MODAL_SUCCESS = () => {
         <li>${ic.history}<span>The study remembers it has <b>${c.v}</b>; re-apply after an update to catch up</span></li>
       </ul>
     </div>
-    <footer class="o-mf flat"><button class="btn" data-a="successHome">Back to Attributes</button><span class="sp"></span>
+    <footer class="o-mf flat"><button class="btn" data-a="successHome">Back to Attributes</button>${ST.undo && ST.undo.study === s.name ? `<button class="btn ghost" data-a="undoApply">${ic.history}Undo</button>` : ""}<span class="sp"></span>
       <button class="btn primary" data-a="openStudyBoard" id="ok-go">Open the study board${ic.arrowR}</button></footer>
   </div>`;
 };
 
 /* ---------- Modal shell: one overlay, the open modal decides its content. No iframes. ---------- */
-const MODALS = { success: () => MODAL_SUCCESS(), card: () => MODAL_CARD(), confirmDelete: () => MODAL_DELETE(), access: () => MODAL_ACCESS(), create: () => MODAL_CREATE(), studyPick: () => MODAL_PICK(), collPick: () => MODAL_COLLPICK(), preview: () => MODAL_PREVIEW(), compare: () => MODAL_COMPARE() };
+const MODALS = { success: () => MODAL_SUCCESS(), card: () => MODAL_CARD(), confirmDelete: () => MODAL_DELETE(), access: () => MODAL_ACCESS(), create: () => MODAL_CREATE(), studyPick: () => MODAL_PICK(), collPick: () => MODAL_COLLPICK(), preview: () => MODAL_PREVIEW(), compare: () => MODAL_COMPARE(), confirmApply: () => MODAL_CONFIRM_APPLY() };
 RENDER.modal = () => {
   const ov = $("#o-ov");
   document.body.classList.toggle("locked", !!App.modal);
@@ -97,6 +97,7 @@ RENDER.escape = () => {
   if (App.modal === "studyPick") App.modal = ST.fromBoard ? null : "card";
   else if (App.modal === "preview") App.modal = ST.fromCompare ? "compare" : ST.fromBoard ? "collPick" : "studyPick";
   else if (App.modal === "compare") { App.modal = "card"; setFlow("card"); }
+  else if (App.modal === "confirmApply") App.modal = "preview";
   else App.modal = null;
   return true;
 };
@@ -113,11 +114,33 @@ INPUTS.stQ = el => { ST.q = el.value; };
 ACTIONS.toPreview = () => { ST.open = null; CP.open = null; CP.touched = false; CP.q = ""; App.modal = "preview"; };
 ACTIONS.pickColl = el => { CD.id = el.dataset.v; ST.sel = ST.target; ST.open = null; ST.fromBoard = true; ST.fromCompare = false; App.modal = "preview"; };
 ACTIONS.pvBack = () => { if (ST.fromCompare) { App.modal = "compare"; setFlow("compare"); return; } App.modal = ST.fromBoard ? "collPick" : "studyPick"; };
+// Applying can remove values, so: confirm when it would, and keep a copy of the study's attributes so it can be undone
+const MODAL_CONFIRM_APPLY = () => {
+  const c = stColl(), s = stStudy(), m = cpModel(c, s), lab = c.attrs.length === 1 ? attrLabel(c.attrs[0]) : "a value";
+  return `<div class="o-modal confirm" role="alertdialog" aria-modal="true" aria-labelledby="ca-h" aria-describedby="ca-p">
+    <div class="o-confirm"><span class="o-confirm-icon">${ic.warn}</span>
+      <div><h2 id="ca-h" class="o-h16">${m.lost} product${m.lost === 1 ? "" : "s"} will lose ${c.attrs.length === 1 ? `their ${esc(lab)}` : "a value"}</h2>
+      <p id="ca-p">Applying ${esc(c.name)} ${c.v} replaces the ${esc(c.attrs.map(attrLabel).join(" and "))} column${c.attrs.length === 1 ? "" : "s"} in ${esc(s.name)}. ${m.changed.length - m.lost} other products change too. You can undo this straight after.</p></div></div>
+    <footer class="o-mf flat"><span class="sp"></span><button class="btn" data-a="caCancel">Back to preview</button><button class="btn danger" data-a="pvApplyNow" id="ca-ok">Apply anyway</button></footer>
+  </div>`;
+};
 ACTIONS.pvApply = () => {
+  const c = stColl(), s = stStudy();
+  if (cpModel(c, s).lost) { App.modal = "confirmApply"; setTimeout(() => { const b = document.getElementById("ca-ok"); if (b) b.focus(); }); return; }
+  ACTIONS.pvApplyNow();
+};
+ACTIONS.caCancel = () => { App.modal = "preview"; };
+ACTIONS.pvApplyNow = () => {
   const c = stColl(), s = stStudy(), t = diffTotals(diffFor(c, s));
+  ST.undo = { study: s.name, coll: c.id, tags: JSON.parse(JSON.stringify(s.tags)), published: [...s.published], applied: { ...s.applied } };
   applyCollection(c, s);
   ST.result = t; App.modal = "success";
   setTimeout(() => { const b = document.getElementById("ok-go"); if (b) b.focus(); });
+};
+ACTIONS.undoApply = () => {
+  const u = ST.undo, s = u && studyByName(u.study); if (!s) return false;
+  s.tags = u.tags; s.published = u.published; s.applied = u.applied; ST.undo = null;
+  App.modal = "preview"; toast(`Undone. ${s.name} is back to how it was.`);
 };
 // Opens the board grouped by the collection's first attribute, then split by its second, so every attribute that landed is visible
 ACTIONS.openStudyBoard = () => { App.modal = null; setFlow("board"); const s = stStudy(), at = stColl().attrs; if (s) { BD.matrix = "group"; BD.groupBy = at[0]; BD.group2 = at[1] || null; BD.show = BD.groupBy; BD.filters = {}; } JUMP.board(ST.sel); toast(`Opened ${ST.sel || "the study"}`); return false; };

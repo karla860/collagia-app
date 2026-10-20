@@ -37,7 +37,7 @@ const STEP_SOURCE = () => `
     <div class="o-choose">
       <button class="o-opt" data-a="crSrc" data-v="study">
         <span class="o-optimg">${ic.studies}</span>
-        <b>In a study</b><span>You tagged products on a board and published the attributes. Save them here so they can be shared and used in other studies.</span></button>
+        <b>In a study</b><span>You framed products on a board and published attributes. Save them here so they can be shared and used in other studies.</span></button>
       <button class="o-opt" data-a="crSrc" data-v="csv">
         <span class="o-optimg">${ic.upload}</span>
         <b>In a spreadsheet</b><span>A CSV with a product ID per row and a column per attribute. Seasonal flags, planning data, anything that enriches the products.</span></button>

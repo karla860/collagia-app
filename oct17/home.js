@@ -25,7 +25,7 @@ const explainStrip = (compact = false) => `
   <section class="o-explain${compact ? " compact" : ""}" aria-label="How attributes work">
     <div class="o-ex-node"><span class="o-ex-ic">${ic.studies}</span><b>Study</b><span>Select products on a board and publish a tag: an attribute name and a value, like Upper material = Knit.</span></div>
     <div class="o-ex-arrow"><i>${ic.swap}</i><small>Apply to a study<br>Update from a study</small></div>
-    <div class="o-ex-node lib"><span class="o-ex-ic">${ic.tag}</span><b>Attribute collection</b><span>The same tags, lifted out of the study so they can be kept, versioned, shared and used in other studies.</span></div>
+    <div class="o-ex-node lib"><span class="o-ex-ic">${ic.tag}</span><b>Attribute collection</b><span>The same attributes, lifted out of the study so they can be kept, versioned, shared and used in other studies.</span></div>
     <div class="o-ex-arrow"><i>${ic.swap}</i><small>Download CSV<br>Update from a CSV</small></div>
     <div class="o-ex-node"><span class="o-ex-ic">${ic.csv}</span><b>Spreadsheet</b><span>A CSV of product IDs and values, from the collection or from anywhere else.</span></div>
     ${compact ? "" : `<button class="icon-btn o-ex-x" data-a="hideExplain" aria-label="Hide" title="Hide">${ic.close}</button>`}
@@ -99,7 +99,7 @@ RENDER.float = () => {
   const m = App.menu && App.menu.match(/^card:(.+)$/);
   if (!m || App.modal) { f.innerHTML = ""; return; }
   const c = collById(m[1]), r = App.menuAt;
-  const left = Math.max(8, Math.min(r.right - 220, innerWidth - 228));
+  const left = Math.max(8, Math.min(r.right - 220, innerWidth / uz() - 228));
   f.innerHTML = `<div class="o-menu o-cardmenu" role="menu" style="top:${r.bottom + 6}px;left:${left}px">
     <button role="menuitem" data-a="openCard" data-v="${c.id}">${ic.open}Open</button>
     <button role="menuitem" data-a="applyFromMenu" data-v="${c.id}">${ic.importStudy}Apply to a study</button>
@@ -142,7 +142,7 @@ RENDER.studies = () => {
     <div class="h-toolbar"><span class="h-count">${q ? `${list.length} of ${STUDIES.length}` : STUDIES.length} studies</span><span class="sp"></span>
       <label class="h-search">${ic.search}<input id="sq" data-in="studySearch" placeholder="Search studies…" value="${esc(S_PAGE.q)}"></label>
       <button class="btn primary" data-a="bdToast" data-v="New study">${ic.plus}New study</button></div>
-    ${list.length ? `<div class="o-studies page">${list.map(s => `
+    ${list.length ? `<div class="o-studies in-page">${list.map(s => `
       <div class="o-study" data-a="openStudy" data-v="${esc(s.name)}" tabindex="0" role="link">
         <div class="o-sprev study">${studyProducts(s).slice(0, 12).map(p => thumb(p, "s56")).join("")}</div>
         <div class="o-sbody"><div><b>${esc(s.name)}</b><span>${esc(COLLAGES[s.collage].name)} · ${s.edited}</span><span class="o-fit">${studyProducts(s).length} products · ${s.published.length} attribute${s.published.length === 1 ? "" : "s"} published</span></div></div>
@@ -167,4 +167,4 @@ document.addEventListener("keydown", e => {
   if ((e.key === "Enter" || e.key === " ") && e.target.matches("article[data-a=openCard]")) { e.preventDefault(); e.target.click(); }
 });
 
-JUMP.home = () => { App.page = "home"; App.modal = null; App.menu = null; H.q = ""; render(); };
+JUMP.home = v => { App.page = v === "studies" ? "studies" : "home"; App.modal = null; App.menu = null; H.q = ""; S_PAGE.q = ""; render(); };

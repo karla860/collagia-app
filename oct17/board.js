@@ -49,7 +49,7 @@ const valuesOf = k => { const m = new Map(); bdProducts().forEach(p => { const v
 const dimLabel = k => k in COLS ? COLS[k] : attrLabel(k);
 const colsFor = (n, max = 14) => Math.max(1, Math.min(max, Math.ceil(Math.sqrt(n * 2.2))));
 const tipAttrs = (name, detail = "", key = "") => `data-tip="${esc(name)}"${detail ? ` data-tipd="${esc(detail)}"` : ""}${key ? ` data-tipk="${esc(key)}"` : ""}`;
-const fullW = () => Math.max(4, Math.floor((innerWidth - 220) / (TILE() + GAP)));
+const fullW = () => Math.max(4, Math.floor((innerWidth / uz() - 220) / (TILE() + GAP)));
 
 /* ---------- Tiles ---------- */
 const tile = (p, t, share) => {
@@ -215,7 +215,7 @@ const toolRail = () => `<div class="bx-tools">${Object.entries(TOOLS).map(([k, t
 const ensureKey = label => Object.keys(ATTRS).find(x => attrLabel(x).toLowerCase() === label.trim().toLowerCase()) || slug(label.trim());
 const attrPanel = () => {
   const s = bdStudy(), n = BD.sel.size, sel = [...BD.sel].map(id => PRODUCTS[id]);
-  const head = `<div class="bx-ph">${TOOLS.attr.icon}<b>${n ? `Tag ${n} product${n === 1 ? "" : "s"}` : "Create custom attribute"}</b><span class="sp"></span><button class="icon-btn" data-a="bdTool" data-v="select" ${tipAttrs("Done", "", "Esc")}>${ic.close}</button></div>`;
+  const head = `<div class="bx-ph">${TOOLS.attr.icon}<b>${n ? `Add an attribute to ${n} product${n === 1 ? "" : "s"}` : "Create custom attribute"}</b><span class="sp"></span><button class="icon-btn" data-a="bdTool" data-v="select" ${tipAttrs("Done", "", "Esc")}>${ic.close}</button></div>`;
   if (!n) return `<aside class="bx-panel idle">${head}
     <p>Drag a frame around the products that belong together, or click them one by one. The frame button on a group selects all of it.</p>
     <p class="o-muted">Then name the attribute (what you're judging, e.g. <b>Upper material</b>) and the value (what you see, e.g. <b>Knit</b>). Publish, then frame the next group and publish another value.</p>
@@ -250,7 +250,7 @@ const statsPanel = () => {
 const peekCard = () => {
   if (!BD.peek || !BD.peekAt) return "";
   const p = PRODUCTS[BD.peek], s = bdStudy(), tags = s.published.filter(k => (s.tags[k] || {})[p.id]);
-  const left = Math.min(BD.peekAt.x, innerWidth - 300), top = Math.min(BD.peekAt.y, innerHeight - 340);
+  const left = Math.min(BD.peekAt.x, innerWidth / uz() - 300), top = Math.min(BD.peekAt.y, innerHeight / uz() - 340);
   return `<div class="bx-peek" style="left:${left}px;top:${top}px">
     <img src="${p.img}" alt="">
     <div class="bx-peekb"><b>${esc(p.name)}</b><span class="o-id">${p.id}</span>
@@ -294,7 +294,7 @@ ACTIONS.bdTile = (el, e) => {
   if (BD.tool === "highlight") { BD.hl.has(id) ? BD.hl.delete(id) : BD.hl.add(id); return; }
   if (BD.tool === "comment") return false;   // handled on mousedown
   if (BD.tool === "magnify") return false;
-  const r = el.getBoundingClientRect(); BD.peek = BD.peek === id ? null : id; BD.peekAt = { x: r.right + 10, y: r.top };
+  const r = el.getBoundingClientRect(); BD.peek = BD.peek === id ? null : id; BD.peekAt = { x: r.right / uz() + 10, y: r.top / uz() };
 };
 ACTIONS.bdPeekClose = () => { BD.peek = null; };
 const frameProducts = gid => {
@@ -347,7 +347,7 @@ ACTIONS.bdShortcuts = () => { BD.shortcuts = !BD.shortcuts; };
 const setZoom = (z, anchor) => {
   const cv = $("#bd-canvas"), old = BD.zoom; BD.zoom = Math.min(3, Math.max(0.4, +z.toFixed(2)));
   if (!cv || old === BD.zoom) return;
-  const r = cv.getBoundingClientRect(), ax = anchor ? anchor.x - r.left : r.width / 2, ay = anchor ? anchor.y - r.top : r.height / 2;
+  const r = cv.getBoundingClientRect(), uzz = uz(), ax = (anchor ? anchor.x - r.left : r.width / 2) / uzz, ay = (anchor ? anchor.y - r.top : r.height / 2) / uzz;
   const fx = (cv.scrollLeft + ax) / old, fy = (cv.scrollTop + ay) / old;
   render(); const nc = $("#bd-canvas"); nc.scrollLeft = fx * BD.zoom - ax; nc.scrollTop = fy * BD.zoom - ay;
 };
@@ -389,7 +389,7 @@ let drag = null;
 document.addEventListener("mousedown", e => {
   if (App.page !== "board" || App.modal || e.button !== 0) return;
   const cv = e.target.closest("#bd-canvas"); if (!cv || e.target.closest("button, input, a, .bx-pin, .bx-fh")) return;
-  const r = cv.getBoundingClientRect(), x = e.clientX - r.left + cv.scrollLeft, y = e.clientY - r.top + cv.scrollTop;
+  const r = cv.getBoundingClientRect(), z = uz(), x = (e.clientX - r.left) / z + cv.scrollLeft, y = (e.clientY - r.top) / z + cv.scrollTop;
   if (BD.tool === "comment") { BD.draft = { x, y, text: "" }; BD.openPin = null; render(); e.preventDefault(); return; }
   if (BD.tool === "attr") { if (e.target.closest(".bx-tile")) return; drag = { kind: "marq", x0: x, y0: y, add: e.shiftKey, moved: false, cv }; e.preventDefault(); return; }
   if (BD.tool === "select" || BD.tool === "stats" || BD.tool === "highlight") { drag = { kind: "pan", sx: e.clientX, sy: e.clientY, l: cv.scrollLeft, t: cv.scrollTop, moved: false, cv }; cv.classList.add("panning"); e.preventDefault(); }
@@ -398,14 +398,14 @@ document.addEventListener("mousemove", e => {
   if (BD.tool === "magnify" && App.page === "board") lens(e);
   if (!drag) return;
   const { cv } = drag;
-  if (drag.kind === "pan") { const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy; if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true; cv.scrollLeft = drag.l - dx; cv.scrollTop = drag.t - dy; return; }
-  const r = cv.getBoundingClientRect(), x = e.clientX - r.left + cv.scrollLeft, y = e.clientY - r.top + cv.scrollTop;
+  if (drag.kind === "pan") { const dx = (e.clientX - drag.sx) / uz(), dy = (e.clientY - drag.sy) / uz(); if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true; cv.scrollLeft = drag.l - dx; cv.scrollTop = drag.t - dy; return; }
+  const r = cv.getBoundingClientRect(), z = uz(), x = (e.clientX - r.left) / z + cv.scrollLeft, y = (e.clientY - r.top) / z + cv.scrollTop;
   if (Math.abs(x - drag.x0) + Math.abs(y - drag.y0) < 5 && !drag.moved) return;
   drag.moved = true;
   const left = Math.min(x, drag.x0), top = Math.min(y, drag.y0), w = Math.abs(x - drag.x0), h = Math.abs(y - drag.y0);
   let m = cv.querySelector(".bx-marq"); if (!m) { m = document.createElement("div"); m.className = "bx-marq"; cv.appendChild(m); }
   Object.assign(m.style, { left: left + "px", top: top + "px", width: w + "px", height: h + "px" });
-  const box = { l: left - cv.scrollLeft + r.left, t: top - cv.scrollTop + r.top, r: left - cv.scrollLeft + r.left + w, b: top - cv.scrollTop + r.top + h };
+  const box = { l: (left - cv.scrollLeft) * z + r.left, t: (top - cv.scrollTop) * z + r.top, r: (left - cv.scrollLeft + w) * z + r.left, b: (top - cv.scrollTop + h) * z + r.top };
   cv.querySelectorAll(".bx-tile").forEach(t => { const tr = t.getBoundingClientRect(); t.classList.toggle("hit", tr.left < box.r && tr.right > box.l && tr.top < box.b && tr.bottom > box.t); });
 });
 document.addEventListener("mouseup", () => {
@@ -447,7 +447,7 @@ document.addEventListener("mouseover", e => {
   const r = el.getBoundingClientRect(), tr = tipEl.getBoundingClientRect(), side = el.closest(".bx-tools");
   let x = side ? r.right + 10 : r.left + r.width / 2 - tr.width / 2, y = side ? r.top + r.height / 2 - tr.height / 2 : (r.top > innerHeight / 2 ? r.top - tr.height - 8 : r.bottom + 8);
   x = Math.max(8, Math.min(x, innerWidth - tr.width - 8)); y = Math.max(8, Math.min(y, innerHeight - tr.height - 8));
-  tipEl.style.left = x + "px"; tipEl.style.top = y + "px";
+  tipEl.style.left = x / uz() + "px"; tipEl.style.top = y / uz() + "px";
 });
 document.addEventListener("mousedown", () => { if (tipEl) tipEl.style.display = "none"; tipFor = null; }, true);
 

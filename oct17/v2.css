@@ -9,13 +9,13 @@
 kbd { font: 600 var(--fs-11) Inter, system-ui, sans-serif; padding: 1px 5px; border-radius: 4px; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); }
 
 /* App shell: full height, sidebar pinned, page scrolls */
-.app { height: 100vh; }
-.sidebar { position: sticky; top: 0; height: 100vh; padding: 18px 12px 16px; }
-.page { overflow: auto; height: 100vh; padding: 28px 32px 40px; }
+.app { height: var(--vh100); }
+.sidebar { position: sticky; top: 0; height: var(--vh100); padding: 18px 12px 16px; }
+.page { overflow: auto; height: var(--vh100); padding: 28px 32px 40px; }
 .logo { display: block; margin: 2px 8px 26px; height: 24px; }
 .logo img { height: 24px; width: auto; display: block; }
 .o-ov { inset: 0; padding: 16px; }
-.o-modal.xl { height: calc(100vh - 32px); width: min(1440px, 100%); }
+.o-modal.xl { height: calc(var(--vh100) - 32px); width: min(1440px, 100%); }
 
 /* Explainer strip */
 .o-explain { position: relative; display: grid; grid-template-columns: 1fr auto 1.15fr auto 1fr; align-items: stretch; gap: 12px; padding: 18px 44px 18px 18px; margin: 0 0 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
@@ -320,12 +320,12 @@ kbd { font: 600 var(--fs-11) Inter, system-ui, sans-serif; padding: 1px 5px; bor
 .g-note { font-size: var(--fs-12); color: rgba(255,255,255,.55); text-align: center; }
 
 body.on-board #o-guide { bottom: 96px; }
-body.on-board .g-card { max-height: calc(100vh - 160px); overflow: auto; }
+body.on-board .g-card { max-height: calc(var(--vh100) - 160px); overflow: auto; }
 
 /* ---------- Shell: grey app background, see-through sidebar, white content panel with margin ---------- */
 body { background: #ECECED; }
-.app { height: 100vh; padding: 12px 12px 12px 0; gap: 0; background: #ECECED; }
-.sidebar { position: sticky; top: 0; height: calc(100vh - 24px); width: 236px; padding: 14px 10px 10px 14px; border: 0; background: transparent; display: flex; flex-direction: column; }
+.app { height: var(--vh100); padding: 12px 12px 12px 0; gap: 0; background: #ECECED; }
+.sidebar { position: sticky; top: 0; height: calc(var(--vh100) - 24px); width: 236px; padding: 14px 10px 10px 14px; border: 0; background: transparent; display: flex; flex-direction: column; }
 .logo { display: block; margin: 8px 10px 26px; height: 22px; }
 .logo img { height: 22px; }
 .nav li { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: var(--nav-text); font: 500 var(--fs-13)/1 Inter, system-ui, sans-serif; letter-spacing: -.2px; cursor: pointer; transition: background .12s, color .12s; }
@@ -341,7 +341,7 @@ body { background: #ECECED; }
 .profile-t { display: grid; gap: 1px; min-width: 0; }
 .profile-t b { font-size: var(--fs-13); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .profile-t small { font-size: var(--fs-12); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.page { height: calc(100vh - 24px); overflow: auto; padding: 28px 32px 40px; background: var(--surface); border: 1px solid rgba(0,0,0,.07); border-radius: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05); }
+.page { height: calc(var(--vh100) - 24px); overflow: auto; padding: 28px 32px 40px; background: var(--surface); border: 1px solid rgba(0,0,0,.07); border-radius: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05); }
 .o-explain { background: var(--hover); }
 
 /* ---------- Type scale from the Figma file (Inter 500 at 12 and 14, 11 for captions, mono 12 for codes) ---------- */
@@ -509,7 +509,7 @@ body { background: #ECECED; }
 .bx-table tr.on td { background: #FDEFEF; }
 .bx-tabfoot { padding: 4px 12px; font: var(--b2); color: var(--faint); border-top: 1px solid var(--border); }
 .bx-top .bx-box { flex-wrap: nowrap; }
-.bx-world.bx-free, .bx-world.bx-groups { min-width: 0; width: calc(100vw - 112px); }
+.bx-world.bx-free, .bx-world.bx-groups { min-width: 0; width: calc(var(--vw100) - 112px); }
 .bx-world.bx-free .bx-framed, .bx-world.bx-groups { max-width: 100%; }
 
 /* ---------- Tools, tooltips, comments, magnifier ---------- */
@@ -1114,7 +1114,7 @@ button.cpx-sv.on { border-color: var(--text); box-shadow: 0 0 0 1px var(--text) 
 .ccard.v4 .when svg.i { width: 16px; height: 16px; }
 .ccard.v4 .ctag::before { width: 6px; height: 6px; border-radius: 0; }
 /* Study cards: equal height per row, hugging their content (the grid no longer stretches to fill the dialog) */
-.o-studies { align-content: start; align-items: stretch; }
+.o-studies { align-content: start; align-items: start; } /* each card hugs its own height */
 .o-study { display: flex; flex-direction: column; }
 .o-study .o-sbody { flex: none; }
 /* "All products" rail row (Figma): 14px box icon, Body 13 Semi Bold, count Small 12 Regular, black when selected */
@@ -1160,3 +1160,19 @@ button.cpx-sv.on { border-color: var(--text); box-shadow: 0 0 0 1px var(--text) 
 .ccard.v4 .more-btn { width: 24px; height: 24px; border-radius: 50%; background: var(--chip); }
 .ccard.v4 .more-btn svg { width: 18px; height: 18px; fill: var(--text); }
 .ccard.v4 .ctitle h3 { font-size: var(--fs-16); font-weight: 600; }
+
+/* ---------- Smaller screens (down to ~1024px) ---------- */
+.o-applied-btn { white-space: nowrap; max-width: 320px; overflow: hidden; text-overflow: ellipsis; }
+.o-selbar { flex-wrap: wrap; row-gap: 8px; }
+.o-selbar .o-adds { min-width: 0; }
+@media (max-width: 1280px) {
+  .v2card .o-mf .o-desc, .v2card .o-mf .o-fsep { display: none; }
+  .cpx-cols { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 1100px) {
+  .o-rail.tree { width: 220px; }
+  .o-applied-btn { max-width: 220px; }
+}
+/* While a dialog is open the Guide pill shrinks to its icon, so it doesn't sit on top of the content */
+body.locked .g-pill { width: 36px; padding: 0; justify-content: center; font-size: 0; gap: 0; }
+body.locked .g-pill kbd { display: none; }

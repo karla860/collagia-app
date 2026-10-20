@@ -29,7 +29,7 @@ const usedBy = c => STUDIES.filter(s => s.applied[c.id]);
 const rail = () => {
   const c = curColl(), all = !CD.sel, ps = cProducts(c), nv = c.attrs.reduce((n, k) => n + valueCounts(c, k).length, 0);
   return `<aside class="o-rail tree" aria-label="Show products by attribute">
-    <div class="o-rail-h"><span>Tags in this collection</span><small>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"} · ${nv} value${nv === 1 ? "" : "s"}</small></div>
+    <div class="o-rail-h"><span>Attributes in this collection</span><small>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"} · ${nv} value${nv === 1 ? "" : "s"}</small></div>
     <button class="o-tr all${all ? " on" : ""}" data-a="cardAll" role="radio" aria-checked="${all}">${ic.allProducts}<b>All products</b><span class="n">${ps.length}</span></button>
     ${c.attrs.map(k => {
       const onA = CD.sel && CD.sel.k === k && !CD.sel.v, n = Object.keys(c.values[k] || {}).length, vals = valueCounts(c, k), closed = CD.closed.has(k);
@@ -203,7 +203,7 @@ const MODAL_CARD = () => {
         ${App.menu === "more" ? `<div class="o-menu o-newmenu right" role="menu">
           <button role="menuitem" data-a="exportCsv">${ic.download}<span><b>Download CSV</b><small>Style code, then one column per attribute</small></span></button>
           <hr class="o-msep"><div class="o-mgroup">Update this collection</div>
-          <button role="menuitem" data-a="updateFromStudy" data-v="${c.id}">${ic.studies}<span><b>From a study</b><small>Pull a study's current tags in as ${nextV(c)}</small></span></button>
+          <button role="menuitem" data-a="updateFromStudy" data-v="${c.id}">${ic.studies}<span><b>From a study</b><small>Pull a study's current attributes in as ${nextV(c)}</small></span></button>
           <button role="menuitem" data-a="updateFromCsv" data-v="${c.id}">${ic.upload}<span><b>From a CSV</b><small>Replace the contents from a spreadsheet as ${nextV(c)}</small></span></button>
           <hr class="o-msep">
           <button role="menuitem" data-a="histToggle">${ic.history}Version history</button>
@@ -213,7 +213,7 @@ const MODAL_CARD = () => {
     ${old ? oldBar() : ""}
     <div class="o-mb with-rail">${rail()}
       <div class="o-scroll grey">
-        <div class="o-selbar"${total ? "" : " hidden"}>${CD.sel ? `${selMsg(c, list, total, selName)}<button class="o-clear" data-a="cardAll">Show all</button>` : `<span class="o-adds">${ic.plus}Applying this adds <b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) to <b>${total} products</b>. Each product shows the tag it gets.</span>`}<span class="sp"></span><label class="o-searchbox o-cdsearch">${ic.search}<input id="cd-q" data-in="cardQ" value="${esc(CD.q)}" placeholder="Find a product" aria-label="Find a product">${CD.q ? `<button class="icon-btn" data-a="cardQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label>${seg}</div>
+        <div class="o-selbar"${total ? "" : " hidden"}>${CD.sel ? `${selMsg(c, list, total, selName)}<button class="o-clear" data-a="cardAll">Show all</button>` : `<span class="o-adds">${ic.plus}Applying this adds <b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) to <b>${total} products</b>. Each product shows the value it gets.</span>`}<span class="sp"></span><label class="o-searchbox o-cdsearch">${ic.search}<input id="cd-q" data-in="cardQ" value="${esc(CD.q)}" placeholder="Find a product" aria-label="Find a product">${CD.q ? `<button class="icon-btn" data-a="cardQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label>${seg}</div>
         ${notices(c, total, list)}
         ${list.length ? (CD.view === "grid" ? gridView(list) : listView(list)) : emptyState(c, total, selName)}
       </div>

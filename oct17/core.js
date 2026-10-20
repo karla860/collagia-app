@@ -73,7 +73,7 @@ const toast = (msg, undo) => {
 const FLOWS = [
   { id: "board", label: "Study board", hint: "Where attributes are made" },
   { id: "home", label: "Attributes", hint: "The page being redesigned" },
-  { id: "create", label: "New collection", hint: "Save a study's tags" },
+  { id: "create", label: "New collection", hint: "Save a study's attributes" },
   { id: "card", label: "Inside a collection", hint: "What it holds, who has it" },
   { id: "compare", label: "Compare with a study", hint: "Optional, before applying", subs: [["changes", "Changes + removals"], ["uptodate", "Up to date"], ["statues", "Only additions"], ["noshared", "No shared products"], ["loading", "Loading"], ["error", "Error"], ["noattrs", "No attributes"], ["many", "Many studies"], ["search", "Search a product"]] },
   { id: "edge", label: "Collection edge states", hint: "Empty, partial and missing data", subs: [["nomatch", "No match"], ["novalue", "No value"], ["single", "One product"], ["nophotos", "Photos loading"], ["empty", "No products"]] },
@@ -82,7 +82,17 @@ const FLOWS = [
   { id: "settings", label: "Settings", hint: "Profile, security, access" },
 ];
 const flowById = id => FLOWS.find(f => f.id === id);
-const App = { flow: "board", page: "board", modal: null, menu: null, menuAt: null };
+const App = { flow: "board", page: "board", modal: null, menu: null, menuAt: null, zoom: 1 };
+/* Screen sizes: the layout is designed at 1440px. Above 1600px the whole interface scales up with the screen
+   (up to 4×) so it keeps its proportions. Viewport units and anything positioned from a measurement go through
+   --vh100 / --vw100 and uz(), because CSS zoom multiplies them too. */
+const uz = () => App.zoom || 1;
+const fitUI = () => {
+  const z = Math.min(4, Math.max(1, innerWidth / 1600)), root = document.documentElement;
+  App.zoom = z; root.style.zoom = z === 1 ? "" : String(z);
+  root.style.setProperty("--vh100", innerHeight / z + "px"); root.style.setProperty("--vw100", innerWidth / z + "px");
+};
+fitUI(); addEventListener("resize", fitUI);
 const setFlow = id => { App.flow = id; };
 const G = { open: store.get("guideOpen", false) };
 
@@ -122,8 +132,8 @@ ACTIONS.flow = el => { setFlow(el.dataset.v); JUMP[el.dataset.v](null); };
 ACTIONS.menu = el => {
   const id = el.dataset.v;
   App.menu = App.menu === id ? null : id;
-  const r = el.getBoundingClientRect();
-  App.menuAt = { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+  const r = el.getBoundingClientRect(), z = uz();
+  App.menuAt = { left: r.left / z, right: r.right / z, top: r.top / z, bottom: r.bottom / z };
 };
 document.addEventListener("click", e => {
   const el = e.target.closest("[data-a]");

@@ -21,8 +21,8 @@
 .o-pills button { height: 26px; padding: 0 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font-size: var(--fs-12); white-space: nowrap; }
 .o-pills button:hover { background: var(--hover); }
 .o-pills button.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
-.app { min-height: calc(100vh - var(--bars)); }
-.sidebar { position: sticky; top: var(--bars); height: calc(100vh - var(--bars)); }
+.app { min-height: calc(var(--vh100) - var(--bars)); }
+.sidebar { position: sticky; top: var(--bars); height: calc(var(--vh100) - var(--bars)); }
 
 /* ---------- Overlay and modals ---------- */
 .o-ov { position: fixed; inset: var(--bars) 0 0; z-index: 50; background: var(--scrim); display: flex; align-items: center; justify-content: center; padding: 24px; animation: fade .15s ease-out; }
@@ -51,7 +51,7 @@
 .icon-btn.o-titleedit { width: 28px; height: 28px; color: var(--sub); }
 .icon-btn.o-titleedit:hover { background: var(--sunken); color: var(--text); }
 .icon-btn.o-titleedit svg.i { width: 16px; height: 16px; }
-.o-namein.o-titlein { font-size: var(--fs-20); height: 32px; width: min(360px, 40vw); }
+.o-namein.o-titlein { font-size: var(--fs-20); height: 32px; width: min(360px, calc(var(--vw100) * .4)); }
 .o-crumb span { color: var(--sub); font-weight: 400; }
 .o-h14 { font-size: var(--fs-14); font-weight: 600; }
 .o-h16 { font-size: var(--fs-16); }
@@ -757,8 +757,8 @@
 .h-toolbar .o-dd .o-menu button { justify-content: flex-start; }
 .h-toolbar .o-dd .o-menu button svg { margin-left: auto; }
 /* Studies page: study cards in a grid, same as Import to a Study */
-.o-studies.page { padding: 0; }
-.o-studies.page .o-study { cursor: pointer; }
+.o-studies.in-page { padding: 0; }
+.o-studies.in-page .o-study { cursor: pointer; }
 /* Flow 2 rail with checkboxes */
 .o-rail.checks .o-rail-h { display: flex; align-items: center; justify-content: space-between; }
 .o-rail.checks .o-rail-h .o-clear { font-size: var(--fs-12); font-weight: 500; padding: 0; }

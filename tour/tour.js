@@ -22,19 +22,27 @@
 
   const STEPS = [
     { kick: "Start here", title: "Collagia in one paragraph", sel: null, body: `
-      <p>Collagia joins a company's product images with its business data into a <b>collage</b>, and people explore the collage in a <b>study</b>, a private workspace with boards. On a board you select a group of products and publish a tag: an <b>attribute name + value</b>, like Upper material = Knit. The tag joins the study's filters next to the real data, so something only an eye could spot becomes a column you can group and filter by.</p>
+      <p>Collagia joins a company's product images with its business data into a <b>collage</b>, and people explore the collage in a <b>study</b>, a private workspace with boards. On a board you select a group of products and publish a tag: an <b>attribute name + value</b>, like Upper material = Knit. The attribute joins the study's filters next to the real data, so something only an eye could spot becomes a column you can group and filter by.</p>
       <p class="tr-hint">The products here are real: 320 men's shoes scraped from nike.com/gb, with their names, style codes, prices and photos. The sales figures are simulated and say so.</p>` },
     { kick: "Start here", title: "What an attribute collection is", sel: null, body: `
-      <p>Published tags only live in the study that made them. An <b>attribute collection</b> (today "Label Library") lifts a set of them out so they can be kept, versioned, shared and applied to other studies.</p>
+      <p>Published attributes only live in the study that made them. An <b>attribute collection</b> lifts a set of them out so they can be kept, versioned, shared and applied to other studies.</p>
       <div class="tr-diagram"><span>Study</span><em>⇄</em><span class="lib">Collection</span><em>⇄</em><span>CSV</span></div>
-      <p>Every button in the feature is one arrow in that picture. This tour follows the loop once: tag on a board, save a collection, open it, compare it with a study, apply it, share it.</p>
+      <p>Every button in the feature is one arrow in that picture. This tour follows the loop once: add attributes on a board, save a collection, open it, compare it with a study, apply it, share it.</p>
       <p class="tr-hint">At some steps the tour steps aside and a <b>red point</b> shows you something to try in the app. Do it and the tour picks up again. Skip is always there.</p>
       <p class="tr-hint">Next and Back move between screens. The prototype stays live underneath, so click around whenever you like. Esc stops the tour; the guide (⌘K, bottom right) restarts it.</p>` },
+    { kick: "Start here", title: "What's already in this account", go: () => goHome(), sel: ".h-grid .ccard", place: "right", body: `
+      <p>You're signed in as <b>Roo</b>, and the account isn't empty. It already has:</p>
+      <ul>
+        <li><b>4 studies:</b> FA26 footwear review, Price architecture, SS27 merchandising (all on 320 Nike shoes) and Antiquities sale 2026 (on 30 Christie's lots).</li>
+        <li><b>2 collections:</b> Franchise, made from FA26 footwear review and now on v2, and Statue backgrounds, from a CSV.</li>
+        <li><b>One study is behind:</b> Price architecture still has the older Franchise v1. That's why it shows up in Compare and Apply.</li>
+      </ul>
+      <p class="tr-hint">Nothing here was created by the tour. It's the starting point, so the later steps have something real to work with.</p>` },
 
     /* ---------- Board ---------- */
     { kick: "Study board", title: "A study is products on a board", go: () => goBoard(), sel: ".bx-top .bx-box:first-child", place: "below", body: `
       <p>This is the FA26 footwear review, a study on the Nike GB Men's Footwear collage. Switch study from its name; the collage it sits on is to the left. Like the app, nothing here moves by hand: the board type and the show bar decide the formation.</p>
-      ${did("The board is a working tool now: select, tag, group, filter. The top right tells you how many attributes this study has published and gives the two ways out: save them to a collection, or bring a collection in.")}` },
+      ${did("The board is a working tool now: select, add attributes, group, filter. The top right tells you how many attributes this study has published and gives the two ways out: save them to a collection, or bring a collection in.")}` },
     { kick: "Study board", title: "Frame what your eye groups together", go: () => goBoardSel(), sel: ".bx-tile.on", place: "below", body: `
       <p>Selecting is its own tool, Create custom attribute (<b>F</b>), as in the app. With it on, drag a frame around a group or click tiles. Four shoes are selected now. With the Select tool (<b>V</b>), dragging pans and clicking shows a product card instead.</p>
       ${why("This is the framing tool already in the app. It's the one thing a spreadsheet can never do: pick products by what they look like.")}` },
@@ -44,7 +52,7 @@
 
     /* ---------- Homepage ---------- */
     { kick: "Attributes page", title: "A card shows what is inside", go: () => goHome(), sel: ".h-grid .ccard", place: "right", body: `
-      ${was("On staging, a Label Library card shows a title, “version 1” and two dates, and every card looks the same.")}
+      ${was("On staging, an Attributes card shows a title, “version 1” and two dates, and every card looks the same.")}
       ${did("The cover is the collection's products on a board. Then one tag per attribute with its number of values, where it came from, who has it, and when it last changed.")}` },
 
     /* ---------- Create ---------- */
@@ -55,14 +63,14 @@
       ${why("You pick a study for what's already in it. Tags make that readable at a glance, however many attributes a study has.")}` },
     { kick: "New collection", title: "The core fix: a checkbox means one thing", go: () => { goPick(); render(); }, sel: ".o-rail.picks", place: "right", body: `
       ${was("On staging every attribute pill is a checkbox and a tab, and a dropdown filters the list. That is why it reads as a filter.")}
-      ${did("A checkbox means only “this attribute goes into the collection”. The values under it are read-only, with real counts. Each product on the right shows the tag it will carry for every ticked attribute.")}` },
+      ${did("A checkbox means only “this attribute goes into the collection”. The values under it are read-only, with real counts. Each product on the right shows the value it will carry for every ticked attribute.")}` },
     { kick: "New collection", title: "Name it, and know it is private", go: () => { goPick(); CR.step = "name"; CR.name = ""; render(); }, sel: ".o-nameform", place: "right", body: `
       ${did("A name pre-filled from the attributes, an optional description, a preview of the card it will make, and a plain line: private until you share it.")}
       ${why("Sharing is a separate, deliberate step, so it helps to say so at the moment you make something.")}` },
 
     /* ---------- Open a collection ---------- */
     { kick: "Open a collection", title: "Two things up top, the rest behind ⋯", go: () => { goCard(); render(); }, sel: ".v2h .o-dd", place: "left", body: `
-      ${was("On staging, four identical buttons sit bottom-right: Import Library to Study, Update Library From Study, Update Library from CSV and Export CSV.")}
+      ${was("On staging, four identical buttons sit bottom-right: Import Attributes to Study, Update Attributes From Study, Update Attributes from CSV and Export CSV.")}
       ${did("Share sits in the header because it is the deliberate step everyone has to take. Download CSV, the two update moves and version history live behind ⋯, each with a line saying what it does.")}` },
     { kick: "Open a collection", title: "The one big action, and where it has been used", go: () => { goCard(); App.menu = "applied"; render(); }, sel: ".v2card .o-mf", place: "above", body: `
       ${did("Apply to a study is the single red button. Next to it, “Used in” lists the studies that already have this collection and which version each has. Franchise was made from FA26 footwear review, and an older v1 already sits in Price architecture, so both are listed. Applying it somewhere new adds that study here.")}
@@ -73,7 +81,7 @@
       ${why("Collections change over time. Knowing which version a study has, and what's different, is what makes updating it safe.")}` },
     { kick: "Open a collection", title: "The rail is a view selector, never a checkbox", go: () => { goCard(); render(); }, sel: ".o-rail.tree", place: "right", body: `
       ${was("On staging, attributes are tabs and values are a single dropdown, so you only ever see one value's products and never the whole collection.")}
-      ${did("“Tags in this collection”: a tree of attribute → values, each value with its colour, a bar for its share and a count. One thing selected at a time, the grid follows.")}` },
+      ${did("“Attributes in this collection”: a tree of attribute → values, each value with its colour, a bar for its share and a count. One thing selected at a time, the grid follows.")}` },
     { kick: "Open a collection", title: "Pick an attribute and the grid sorts itself by colour", go: () => { goCard(); CD.sel = { k: "franchise", v: null }; render(); }, sel: ".o-vsec-h", place: "below", body: `
       ${did("Clicking an attribute splits the grid into one colour section per value, biggest first. Click a section header to see just that value. Find a product searches by name or style code.")}` },
 
@@ -89,7 +97,7 @@
       ${did("Its count turns orange, and a quiet note under the toolbar says a one-product value is often a typo.")}
       ${why("Singletons are usually mistakes. Catching one here is cheaper than fixing it in every study later.")}` },
     { kick: "Edge states", title: "Photos still loading", go: () => { setFlow("edge"); JUMP.edge("nophotos"); }, sel: ".v2card .o-pcard:has(.o-th.loading)", place: "right", body: `
-      ${did("Photos that haven't arrived show a grey card with a light sweeping across it. Names, style codes and tags are already there. No banner: the cards say it themselves.")}
+      ${did("Photos that haven't arrived show a grey card with a light sweeping across it. Names, style codes and values are already there. No banner: the cards say it themselves.")}
       ${why("You can start reading the collection straight away instead of waiting on the slowest photo.")}` },
     { kick: "Edge states", title: "A collection with no products", go: () => { setFlow("edge"); JUMP.edge("empty"); }, sel: ".v2card .o-e0-h", place: "left", body: `
       ${did("One plain message, one reason and one action: Update from a CSV. Compare and Apply are switched off.")}
@@ -97,7 +105,7 @@
 
     /* ---------- Compare with a study (optional, right before applying) ---------- */
     { kick: "Compare with a study", title: "An optional look before you apply", go: () => { goCard(); render(); }, sel: ".v2card .o-mf .o-cmpbtn", place: "above", body: `
-      ${was("On staging, the only way to see what a library would do is to start the import: pick a study, then read a dry-run list with “+1” on every row.")}
+      ${was("On staging, the only way to see what a collection would do is to start the import: pick a study, then read a dry-run list with “+1” on every row.")}
       ${did("<b>Compare with a study</b> sits right before Apply as an outlined button. It is read-only and optional: Apply to a study stays the one red button, and you can skip Compare entirely.")}
       ${why("People want to know what a collection will do to their study before they commit. Now they can find out without starting anything.")}` },
     { kick: "Compare with a study", title: "Choosing which study to compare with", go: () => { goCompare(); render(); }, sel: ".cpx-pick", place: "below", body: `
@@ -124,7 +132,7 @@
     /* ---------- Applying a collection with more than one attribute ---------- */
     { kick: "Apply to a study", title: "Two attributes in one go", go: () => { setFlow("study"); JUMP.study("multi"); }, sel: ".cpx-table", place: "left", body: `
       ${did("Statue backgrounds carries two attributes, Background color and Material. One preview covers both: every line names its attribute, and the headline counts 30 products and 56 values.")}
-      ${why("A collection is a set of columns, not one tag. Seeing every column in one view means one decision, not one per attribute.")}` },
+      ${why("A collection is a set of columns, not one attribute. Seeing every column in one view means one decision, not one per attribute.")}` },
     { kick: "Apply to a study", title: "Both attributes on the board", go: () => { JUMP.study("multiboard"); }, sel: ".bx-world", place: "right", body: `
       ${did("The board opens grouped by Background color, then split by Material inside each frame. Both attributes are now filters and group-by options in Antiquities sale 2026.")}
       ${why("You see every attribute that landed straight away, and how they combine, instead of checking them one at a time.")}` },
@@ -140,7 +148,7 @@
       <ul>
         <li><b>A working board</b> on real Nike products: select, publish attributes, group, filter, then save or apply collections from it.</li>
         <li><b>No iframes.</b> Every screen is one app.</li>
-        <li><b>Correct data model.</b> Attribute = column, value = cell, one per product, tags held per study.</li>
+        <li><b>Correct data model.</b> Attribute = column, value = cell, one per product, values held per study.</li>
         <li><b>Checkboxes mean one thing</b>, only on the create screen.</li>
         <li><b>The collection screen is read-first</b>, all four moves visible and ranked, plus Share.</li>
         <li><b>Cards show what is inside</b>, where it came from and whether it is shared.</li>
@@ -166,7 +174,7 @@
     "Four board types, one chip": { at: ".bx-show .o-menu [data-v=\"group\"]", ask: "Pick <b>Group</b> in the menu.", done: () => BD.matrix === "group", ok: "The board is now one frame per product type." },
     "Two things up top, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b> to see what else you can do with this collection.", done: () => App.menu === "more", ok: "Download, update from a study or a CSV, version history and rename, each with a line saying what it does." },
     "Two attributes in one go": { at: ".preview .o-mf .btn.primary", ask: "Click <b>Add 2 attributes in Antiquities sale 2026</b>.", done: () => App.modal === "success", ok: "Both attributes are in the study: 30 products, 56 values added." },
-    "The core fix: a checkbox means one thing": { at: '.o-rrow.attr[data-v="franchise"]', ask: "Untick <b>Franchise</b> and watch the tags on the products.", done: () => !CR.included.has("franchise"), ok: "Franchise is out of the collection, so the products no longer carry it. Tick it again to bring it back." },
+    "The core fix: a checkbox means one thing": { at: '.o-rrow.attr[data-v="franchise"]', ask: "Untick <b>Franchise</b> and watch the products lose their Franchise value.", done: () => !CR.included.has("franchise"), ok: "Franchise is out of the collection, so the products no longer carry it. Tick it again to bring it back." },
     "Choosing which study to compare with": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Compare with</b> dropdown to see every study.", done: () => App.menu === "cpstudy", ok: "Studies with an older version come first, each with its version and how many products it shares." },
     "A card shows what is inside": { at: ".h-grid .ccard", ask: "Open the <b>Franchise</b> collection.", done: () => App.modal === "card", ok: "This is the collection screen. Next, a look around it." },
     "Pick an attribute and the grid sorts itself by colour": { at: ".o-vsec-h", ask: "Click the <b>Phantom</b> section header to see only those shoes.", done: () => CD.sel && CD.sel.v, ok: "Just one value now. “Show all” in the bar goes back." },
@@ -178,6 +186,25 @@
     "The collage decides whether anything happens": { at: ".o-study[data-v=\"Price architecture\"]", ask: "Choose <b>Price architecture</b>.", done: () => ST.sel === "Price architecture", ok: "Selected. Preview changes is now available." },
   };
   STEPS.forEach(s => { if (TASKS[s.title]) s.task = TASKS[s.title]; });
+
+  /* ---------- Chapters: the steps grouped like an interactive demo, each opening with its goal ---------- */
+  const CHAPTERS = {
+    "Start here": { goal: "Know what Collagia is and what an attribute collection adds.", what: "Two short reads and a look at what's already in this account. Nothing to click yet." },
+    "Study board": { goal: "See where attributes come from.", what: "You'll frame a group of shoes on a study board and switch the board type yourself." },
+    "Attributes page": { goal: "Find your collections and tell them apart at a glance.", what: "One stop on the Attributes page; you'll open a collection from its card." },
+    "New collection": { goal: "Save a study's attributes as a collection.", what: "Pick a study, choose which attributes go in (you'll untick one), then name it." },
+    "Open a collection": { goal: "Read a collection: what it holds, who has it, which version.", what: "You'll open the ⋯ menu, look at version history and filter the grid by a value." },
+    "Edge states": { goal: "See how the collection screen handles awkward data.", what: "No search match, missing values, a one-product value, slow photos and an empty collection, each saying what's wrong and what to do." },
+    "Compare with a study": { goal: "Know exactly what applying would change, before you apply.", what: "You'll open Compare, switch study, open a change line, search a product and go on to apply." },
+    "Apply to a study": { goal: "Apply a collection safely, and see a two-attribute one land on a board.", what: "Choose a study, check the preview, apply (with a confirmation if anything would be lost, and Undo after)." },
+    "Share": { goal: "Share a collection with the right people.", what: "One look at the share dialog: who has access and with which role." },
+    "Wrap up": { goal: "Recap what changed.", what: "A summary of the earlier version and this one." },
+  };
+  const KICKS = [...new Set(STEPS.map(s => s.kick))];
+  const chapterOf = k => { const kick = STEPS[k].kick, all = STEPS.map((s, j) => j).filter(j => STEPS[j].kick === kick); return { n: KICKS.indexOf(kick) + 1, of: KICKS.length, at: all.indexOf(k) + 1, len: all.length }; };
+  let showToc = false;
+  const toc = () => `<ol class="tr-toc">${KICKS.map((k, n) => { const first = STEPS.findIndex(s => s.kick === k), len = STEPS.filter(s => s.kick === k).length, cur = STEPS[i].kick === k;
+    return `<li><button data-tr="jump" data-v="${first}" class="${cur ? "cur" : ""}"><span class="tr-toc-n">${n + 1}</span><span><b>${k}</b><small>${CHAPTERS[k] ? CHAPTERS[k].goal : ""}</small></span><span class="tr-toc-c">${len}</span></button></li>`; }).join("")}</ol>`;
 
   /* ---------- State and DOM ---------- */
   let i = -1, raf = 0, els = null, taskDone = false;
@@ -195,15 +222,18 @@
   // Once a task is done the card anchors to what it opened (a menu, a panel) and sits beside it, not on top
   const target = s => (s.task && taskDone && s.task.selDone && q(s.task.selDone)) || (s.sel ? q(s.sel) : null);
 
+  // Measurements in CSS pixels, so the tour lines up when the interface is zoomed on large screens (core.js fitUI)
+  const Z = () => (typeof App !== "undefined" && App.zoom) || 1;
+  const R = e => { const r = e.getBoundingClientRect(), z = Z(); return { top: r.top / z, left: r.left / z, right: r.right / z, bottom: r.bottom / z, width: r.width / z, height: r.height / z }; };
   const guided = () => { const s = STEPS[i]; return !!(s && s.task && !taskDone); };
   // Guided mode: no shroud, no card. The point sits on the target's corner, the hint below it (or above if there's no room).
   const placeGuide = () => {
     const s = STEPS[i], { dot, hint } = els, el = (s.task.at && q(s.task.at)) || target(s);
     if (!el) { dot.hidden = true; hint.hidden = true; return; }
-    const t = el.getBoundingClientRect(), vw = innerWidth, vh = innerHeight;
+    const t = R(el), vw = innerWidth / Z(), vh = innerHeight / Z();
     const x = Math.min(vw - 14, Math.max(14, t.right - 10)), y = Math.min(vh - 14, Math.max(14, t.top + 10));
     dot.hidden = false; dot.style.left = x + "px"; dot.style.top = y + "px";
-    hint.hidden = false; const r = hint.getBoundingClientRect();
+    hint.hidden = false; const r = R(hint);
     const below = y + 18 + r.height < vh - 16;
     hint.classList.toggle("up", !below);
     hint.style.top = (below ? y + 18 : y - 18 - r.height) + "px";
@@ -213,32 +243,32 @@
     const s = STEPS[i]; if (!s || !els) return;
     if (guided()) return placeGuide();
     els.bar.hidden = true; els.dot.hidden = true; els.hint.hidden = true;
-    const { spot, card } = els, el = target(s), vw = innerWidth, vh = innerHeight, pad = 8, gap = 16;
+    const { spot, card } = els, el = target(s), vw = innerWidth / Z(), vh = innerHeight / Z(), pad = 8, gap = 16;
     card.classList.toggle("centre", !el);
     if (!el) {
       spot.classList.add("none"); spot.hidden = false; spot.style.cssText = "top:50%;left:50%;width:0;height:0;border-radius:0";
       card.style.maxHeight = ""; card.style.width = "";
-      const r = card.getBoundingClientRect();
+      const r = R(card);
       card.style.top = Math.max(16, (vh - r.height) / 2) + "px"; card.style.left = Math.max(16, (vw - r.width) / 2) + "px";
       return;
     }
     spot.classList.remove("none"); spot.hidden = false;
-    const t = el.getBoundingClientRect();
+    const t = R(el);
     const top = Math.max(0, t.top - pad), left = Math.max(0, t.left - pad);
     const w = Math.min(vw - left, t.width + pad * 2), h = Math.min(vh - top, t.height + pad * 2);
     spot.style.top = top + "px"; spot.style.left = left + "px"; spot.style.width = w + "px"; spot.style.height = h + "px";
     spot.style.borderRadius = getComputedStyle(el).borderRadius || "10px";
     card.style.maxHeight = ""; card.style.width = "";
-    let r = card.getBoundingClientRect(), cw = r.width, ch = r.height;
+    let r = R(card), cw = r.width, ch = r.height;
     let pref = (s.task && taskDone && s.task.placeDone) || s.place || "right", x, y;
     const room = { right: vw - (left + w + gap) - 16, left: left - gap - 16, below: vh - (top + h + gap) - 16, above: top - gap - 16 };
     const fits = { right: room.right >= cw, left: room.left >= cw, below: room.below >= ch, above: room.above >= ch };
     if (!fits[pref]) pref = ["right", "left", "below", "above"].find(k => fits[k]) || null;
     if (!pref && Math.max(room.left, room.right) >= 280) {
       pref = room.right >= room.left ? "right" : "left";
-      card.style.width = Math.min(400, room[pref]) + "px"; r = card.getBoundingClientRect(); cw = r.width; ch = r.height;
+      card.style.width = Math.min(400, room[pref]) + "px"; r = R(card); cw = r.width; ch = r.height;
     }
-    if (!pref) { pref = room.below >= room.above ? "below" : "above"; card.style.maxHeight = Math.max(200, room[pref]) + "px"; r = card.getBoundingClientRect(); ch = r.height; }
+    if (!pref) { pref = room.below >= room.above ? "below" : "above"; card.style.maxHeight = Math.max(200, room[pref]) + "px"; r = R(card); ch = r.height; }
     if (pref === "right") { x = left + w + gap; y = top; }
     else if (pref === "left") { x = left - gap - cw; y = top; }
     else if (pref === "below") { x = left; y = top + h + gap; }
@@ -248,11 +278,11 @@
   };
 
   const renderCard = () => {
-    const s = STEPS[i], { card, spot, dot, hint, bar } = els, pct = Math.round(((i + 1) / STEPS.length) * 100);
+    const s = STEPS[i], { card, spot, dot, hint, bar } = els, pct = Math.round(((i + 1) / STEPS.length) * 100), ch = chapterOf(i);
     if (guided()) {
       // Only the point and its hint: no bar over the app. Back / Skip / close live in the hint itself.
       card.hidden = true; spot.hidden = true; bar.hidden = true;
-      hint.innerHTML = `<span class="tr-hint-k">Your turn · ${i + 1} / ${STEPS.length}</span>${s.task.ask}
+      hint.innerHTML = `<span class="tr-hint-k">Your turn · ${s.kick}</span>${s.task.ask}
         <span class="tr-hint-acts"><button data-tr="back" ${i === 0 ? "disabled" : ""}>Back</button><button data-tr="next">Skip</button><button data-tr="close" aria-label="Close tour">×</button></span>`;
       dot.hidden = false; hint.hidden = false;
       return;
@@ -261,11 +291,14 @@
     card.innerHTML = `
       <div class="tr-prog" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
       <button class="tr-x" data-tr="close" aria-label="Close tour">×</button>
-      <div class="tr-kick"><span class="tr-flow">${s.kick}</span><span class="tr-n">${i + 1} / ${STEPS.length}</span></div>
+      <div class="tr-kick"><span class="tr-flow">Chapter ${ch.n} · ${s.kick}</span><span class="tr-n">${ch.at} / ${ch.len}</span></div>
+      ${ch.at === 1 && CHAPTERS[s.kick] ? `<div class="tr-chap"><span class="tr-chap-k">In this chapter</span><p><b>Goal:</b> ${CHAPTERS[s.kick].goal}</p><p><b>What happens:</b> ${CHAPTERS[s.kick].what}</p></div>` : ""}
       <h3>${s.title}</h3>
       <div class="tr-body">${s.task ? `<div class="tr-task done"><span class="tr-task-k">✓ Done</span><p>${s.task.ok}</p></div>` : ""}${s.body}</div>
+      ${showToc ? toc() : ""}
       <div class="tr-foot">
         <button class="tr-btn" data-tr="back" ${i === 0 ? "disabled" : ""}>Back</button>
+        <button class="tr-btn ghost" data-tr="toc" aria-expanded="${showToc}">Chapters</button>
         <span class="sp"></span>
         <button class="tr-btn pri" data-tr="next">${i === STEPS.length - 1 ? "Finish" : "Next"}</button>
       </div>`;
@@ -292,13 +325,16 @@
   const loop = () => { if (i >= 0) { check(); place(); } raf = requestAnimationFrame(loop); };
   // Also check right after the person clicks or types, and on a slow timer, in case animation frames are paused
   ["click", "input", "change"].forEach(t => document.addEventListener(t, () => setTimeout(check, 30)));
-  setInterval(() => { if (i >= 0) check(); }, 400);
+  setInterval(() => { if (i >= 0) { check(); place(); } }, 400);
   const start = k => { build(); show(k || 0); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); };
 
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-tr]"); if (!b) return;
     e.preventDefault(); e.stopPropagation();
     const a = b.dataset.tr;
+    if (a === "toc") { showToc = !showToc; renderCard(); place(); return; }
+    if (a === "jump") { showToc = false; show(+b.dataset.v); return; }
+    showToc = false;
     if (a === "close") stop(); else if (a === "back") show(i - 1); else if (a === "next") (i === STEPS.length - 1 ? stop() : show(i + 1));
   }, true);
   document.addEventListener("keydown", e => {

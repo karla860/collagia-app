@@ -1,4 +1,5 @@
 :root {
+  --vh100: 100vh; --vw100: 100vw; /* replaced by core.js (fitUI) with the real screen size divided by the interface zoom */
   /* Official Collagia palette (Figma "Colors" frame) */
   --text: #232121;          /* Black */
   --muted: #6E6D7A;         /* Text Secondary (Extended Neutrals) */
@@ -47,7 +48,7 @@ input { font: inherit; color: inherit; }
 svg.i { width: 16px; height: 16px; flex: none; }
 
 /* ---------- App shell ---------- */
-.app { display: flex; min-height: 100vh; }
+.app { display: flex; min-height: var(--vh100); }
 .sidebar { width: 228px; flex: none; padding: 16px 12px; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; }
 .logo { font-size: var(--fs-20); font-weight: 700; letter-spacing: -0.5px; margin: 0 8px 24px; }
 .nav { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
@@ -268,7 +269,7 @@ table.t { width: 100%; border-collapse: collapse; background: var(--surface); fo
 @media (max-width: 900px) {
   .h-grid.wide { grid-template-columns: 1fr; }
   .h-search { width: 100%; }
-  .tip { left: 0; transform: none; width: min(340px, calc(100vw - 48px)); }
+  .tip { left: 0; transform: none; width: min(340px, calc(var(--vw100) - 48px)); }
   .tip::before { left: 12px; }
   .home-proto { left: 12px; right: 12px; transform: none; width: auto; }
 }
