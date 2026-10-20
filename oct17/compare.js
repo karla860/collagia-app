@@ -164,7 +164,7 @@ const cpGroups = (c, s, m) => {
   const tabs = `<div class="cpx-tabs" role="tablist">${TABS.map(([k, l, n]) => `<button role="tab" aria-selected="${tab === k}" class="${tab === k ? "on" : ""}" data-a="cpTab" data-v="${k}">${l}${k === "all" ? "" : `<span class="n">${n}</span>`}</button>`).join("")}</div>`;
   const pick = (cls, html) => tab === "all" || tab === cls ? html : "";
   const secs = OUTCOMES.map(([kind]) => pick(kind, (sections.match(new RegExp(`<section class="cpx-sec cpx-block ${kind}">[\\s\\S]*?</section>`)) || [""])[0])).join("");
-  return `${search}${tabs}<div class="cpx-table cpx-blocks">${secs}${pick("same", sameSec)}</div>`;
+  return `<div class="cpx-bar2">${tabs}${search}</div><div class="cpx-table cpx-blocks">${secs}${pick("same", sameSec)}</div>`;
 };
 
 /* The right-hand column: who is compared with what, the numbers, and the one rule that explains removals */
@@ -180,7 +180,7 @@ const cpSide = (c, s, m, foot) => {
     <section class="cpx-attrs"><span class="cpx-k">Attributes · ${c.attrs.length}</span>
       ${c.attrs.map(k => { const inStudy = s.published.includes(k), n = m.all.reduce((t, r) => t + r.marks.filter(x => x.k === k && x.kind !== "same").length, 0);
         const sq = valueCounts(c, k).slice(0, 4).map(([v]) => `<i ${hue(k, v)}></i>`).join("");
-        return `<div class="cpx-attr"><span class="cdots">${sq}</span><span class="cpx-an"><b>${esc(attrLabel(k))}</b>${inStudy ? "" : `<small>New to the study</small>`}</span><span class="cpx-ac${n ? "" : " zero"}">${n}<small>${n === 1 ? "change" : "changes"}</small></span></div>`; }).join("")}
+        return `<div class="cpx-attr"><span class="cpx-an"><b>${esc(attrLabel(k))}</b>${inStudy ? "" : `<small>New to the study</small>`}</span><span class="cpx-ac${n ? "" : " zero"}">${n}<small>${n === 1 ? "change" : "changes"}</small></span></div>`; }).join("")}
     </section>
     ${foot ? `<small class="cpx-at">${foot}</small>` : ""}
   </aside>`;

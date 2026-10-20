@@ -1342,3 +1342,11 @@ body.locked .g-pill kbd { display: none; }
 .cpx-ac { display: inline-flex; align-items: baseline; gap: 4px; font: 600 var(--fs-14)/1 Inter, sans-serif; font-variant-numeric: tabular-nums; }
 .cpx-ac small { font-size: var(--fs-12); font-weight: 400; color: var(--muted); }
 .cpx-ac.zero { color: var(--muted); font-weight: 400; }
+/* Compare: tabs and search on one row */
+.cpx-bar2 { display: flex; align-items: flex-end; gap: 16px; border-bottom: 1px solid var(--border); }
+.cpx-bar2 .cpx-tabs { flex: 1; border-bottom: 0; min-width: 0; flex-wrap: wrap; }
+.cpx-bar2 .cpx-q { width: 300px; flex: none; margin-bottom: 6px; }
+/* Success: Undo as a quiet icon next to Back */
+.o-undo-ic { width: 32px; height: 32px; margin-left: 4px; color: var(--muted); }
+.o-undo-ic:hover { color: var(--text); background: var(--hover); }
+.cpx-attr { grid-template-columns: minmax(0, 1fr) auto; }

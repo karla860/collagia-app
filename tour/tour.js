@@ -145,12 +145,16 @@
       </ul>
       <p class="tr-sub"><b>This version (Karla)</b></p>
       <ul>
-        <li><b>Compare with a study</b>, an optional read-only look before applying: what changes, what's removed, what stays, product by product.</li>
-        <li><b>Search any product</b> and see exactly what happens to it.</li>
+        <li><b>Compare with a study</b>: an optional, read-only look before applying. Tabs for Removed, Changed, Added and Stays the same, a count per attribute, and search that says what happens to any product.</li>
+        <li><b>No separate preview.</b> Choosing a study opens Compare; Apply asks for confirmation only when values would be lost, and can be undone.</li>
         <li><b>Built for many studies:</b> one searchable dropdown that opens on the study that's behind.</li>
-        <li><b>The Apply preview matches Compare</b>, so the second step confirms the first.</li>
-        <li><b>Edge states</b> for the collection: no search match, no value, one-product values, photos loading, no products.</li>
-        <li><b>Figma style guide applied:</b> the app's icons, text styles, alert colours and grey attribute tags.</li>
+        <li><b>A calmer collection screen:</b> colour squares on products with details on hover, a list view with one attributes cell, a rail to browse by attribute and value, and version history.</li>
+        <li><b>Edge states:</b> no search match, missing values, one-product values, photos loading, an empty collection.</li>
+        <li><b>Cards</b> show a grid of the collection's own products and value-coloured attribute tags, at equal heights.</li>
+        <li><b>Share</b> is a quieter dialog that returns you to where you opened it.</li>
+        <li><b>One language:</b> Attributes and values everywhere, no Label Library.</li>
+        <li><b>Figma style guide</b> (icons, text styles, colours), Collagia favicon, and a layout that scales to any screen.</li>
+        <li><b>This tour:</b> chapters with goals, and red points where you try things yourself.</li>
       </ul>
       <p class="tr-hint">Still to confirm with Giorgi: that applying really does replace same-named attributes, what a version means to a user, and whether Manage can become Share. Karla's original files are untouched in <code>oct15/</code>.</p>` },
   ];

@@ -76,7 +76,7 @@ const STEP_PICK = () => {
       <div class="o-selbar">${CR.peek ? `<span>Previewing <b>${esc(attrLabel(CR.peek.k))} · ${esc(CR.peek.v)}</b> · ${list.length} of ${crProducts().length} products</span><button class="o-clear" data-a="crPeekClear">Show all</button>`
         : `<span>${crProducts().length} products in this study. Every value of a ticked attribute comes with it; previewing a value changes nothing.</span>`}</div>
       <div class="o-pgrid">${list.map(p => `<div class="o-pcard">${thumb(p, "sq")}<div class="nm">${esc(p.name)}</div><div class="o-id">${p.id}</div>
-        <div class="o-pchips">${CR.included.size ? swatches([...CR.included].map(k => [k, crTag(k, p)])) : `<span class="o-none">No attributes ticked</span>`}</div></div>`).join("")}</div>
+        <div class="o-pchips"></div></div>`).join("")}</div>
     </div>
   </div>`;
 };
