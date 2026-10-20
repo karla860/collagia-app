@@ -1231,3 +1231,6 @@ body.locked .g-pill kbd { display: none; }
 /* Cards: 0.75px #E4E4E4 stroke */
 .ccard.v4, .ccard.v4:hover, .ccard.v4:focus-visible { border: .75px solid #E4E4E4; }
 .o-study, .o-study.off:hover { border: .75px solid #E4E4E4; }
+/* Value marks: tiny squares with 0.5px corners, everywhere (cards, rail, chips, compare) */
+.o-vdot, .cdots i, .ccard.v4 .ctag .cdots i { border-radius: .5px; }
+.cdots i + i { margin-left: 1px; }

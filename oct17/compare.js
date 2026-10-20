@@ -248,7 +248,7 @@ const cpBody = (c, s) => {
   if (CP.loading) return `${CP.demo === "loading" ? cpSample("Simulated loading") : ""}<div class="cpx-loading" aria-busy="true"><p class="o-muted">Comparing with ${esc(s.name)}…</p>${"<div class=\"cpx-skel\"></div>".repeat(4)}</div>`;
   if (!matchCount(c, s)) return cpEmpty(ic.box, `${esc(s.name)} has none of these products`, `It's built on ${esc(COLLAGES[s.collage].name)}, so applying ${esc(c.name)} there would change nothing.`);
   const m = cpModel(c, s), at = CP.at ? CP.at.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "";
-  return cpLayout(c, s, m, at ? `Compared at ${at}` : "", cpPicker(c)); // picker inside the main column, so the card starts at the top
+  return cpLayout(c, s, m, "", cpPicker(c)); // picker inside the main column, so the card starts at the top
 };
 
 const MODAL_COMPARE = () => {

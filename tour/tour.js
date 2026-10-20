@@ -34,8 +34,8 @@
       <p>You're signed in as <b>Roo</b>, and the account isn't empty. It already has:</p>
       <ul>
         <li><b>4 studies:</b> FA26 footwear review, Price architecture, SS27 merchandising (all on 320 Nike shoes) and Antiquities sale 2026 (on 30 Christie's lots).</li>
-        <li><b>2 collections:</b> Franchise, made from FA26 footwear review and now on v2, and Statue backgrounds, from a CSV.</li>
-        <li><b>One study is behind:</b> Price architecture still has the older Franchise v1. That's why it shows up in Compare and Apply.</li>
+        <li><b>2 collections:</b> FA26 line review (franchise, upper material, silhouette and colour story), made from FA26 footwear review and now on v2, and Statue backgrounds, from a CSV.</li>
+        <li><b>One study is behind:</b> Price architecture still has the older FA26 line review v1. That's why it shows up in Compare and Apply.</li>
       </ul>
       <p class="tr-hint">Nothing here was created by the tour. It's the starting point, so the later steps have something real to work with.</p>` },
 
@@ -113,7 +113,7 @@
       ${why("The study that's behind is the one most likely to change, so there's usually nothing to pick. A dropdown stays tidy with 3 studies or 30.")}` },
     { kick: "Compare with a study", title: "Grouped by what happens, riskiest first", go: () => { goCompare(); render(); }, sel: ".cpx-table", place: "left", body: `
       ${was("On staging, the preview marks changes with coloured +, ⇄ and − chips that don't say what they mean, one item per row with a lot of empty space.")}
-      ${did("Four sections in plain words: Removed (8 products lose their Franchise), Changed, Added and Stays the same. Each line reads Now → After, like “Slides → No value · 8 products”. Open it and every product shows its own before → after. The values that stay the same sit underneath with their counts, and open too.")}
+      ${did("Four sections in plain words: Removed (8 slides lose their values), Changed, Added and Stays the same. Each line reads Now → After, like “Slides → No value · 8 products”. Open it and every product shows its own before → after. The values that stay the same sit underneath with their counts, and open too.")}
       ${why("You see the difference, not a list to work through. There is nothing to tick or choose, because applying is all or nothing.")}` },
     { kick: "Compare with a study", title: "Ask about any product", go: () => { goCompare("nike calm"); render(); }, sel: ".cpx-sr", place: "below", body: `
       ${did("Search covers every product in the study and the collection. Each match says what happens to it (Removed, Changed, Added, Stays the same, Not affected or Not in this study) with its value before and after.")}
@@ -176,7 +176,7 @@
     "Two attributes in one go": { at: ".preview .o-mf .btn.primary", ask: "Click <b>Add 2 attributes in Antiquities sale 2026</b>.", done: () => App.modal === "success", ok: "Both attributes are in the study: 30 products, 56 values added." },
     "The core fix: a checkbox means one thing": { at: '.o-rrow.attr[data-v="franchise"]', ask: "Untick <b>Franchise</b> and watch the products lose their Franchise value.", done: () => !CR.included.has("franchise"), ok: "Franchise is out of the collection, so the products no longer carry it. Tick it again to bring it back." },
     "Choosing which study to compare with": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Compare with</b> dropdown to see every study.", done: () => App.menu === "cpstudy", ok: "Studies with an older version come first, each with its version and how many products it shares." },
-    "A card shows what is inside": { at: ".h-grid .ccard", ask: "Open the <b>Franchise</b> collection.", done: () => App.modal === "card", ok: "This is the collection screen. Next, a look around it." },
+    "A card shows what is inside": { at: ".h-grid .ccard", ask: "Open the <b>FA26 line review</b> collection.", done: () => App.modal === "card", ok: "This is the collection screen. Next, a look around it." },
     "Pick an attribute and the grid sorts itself by colour": { at: ".o-vsec-h", ask: "Click the <b>Phantom</b> section header to see only those shoes.", done: () => CD.sel && CD.sel.v, ok: "Just one value now. “Show all” in the bar goes back." },
     "When search finds nothing": { at: ".o-empty2 [data-a=\"cardQClear\"]", ask: "Press <b>Clear search</b>.", done: () => !CD.q, ok: "All 312 products are back." },
     "An optional look before you apply": { at: "[data-a=\"cpOpen\"]", ask: "Click <b>Compare with a study</b>.", done: () => App.modal === "compare", ok: "Compare opened on Price architecture, the study that's behind." },

@@ -138,20 +138,30 @@ const buildStudies = () => {
   const pricing = mkStudy("Price architecture", "nike", { edited: "Edited 3 weeks ago" });
   NIKE_IDS.forEach(id => { const f = franchiseOf(PRODUCTS[id]); publishTag(pricing, "franchise", id, isSlide(id) ? "Slides" : ["Vomero", "Structure"].includes(f) ? "Running" : f); });
   pricing.applied.franchise = "v1";
+  // The line review also judges upper, silhouette and colour story. Price architecture has the older v1 of those too:
+  // the same silhouettes, a few uppers judged differently, and colour story missing on some shoes (so applying adds it).
+  const hsh = s => [...s].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);
+  const LINE = [["Upper material", ["Knit", "Mesh", "Leather", "Suede", "Synthetic"]], ["Silhouette", ["Low", "Mid", "High"]], ["Colour story", ["Core neutrals", "Seasonal brights", "Earth tones"]]];
+  const lineKeys = LINE.map(([label, vals]) => { const k = ensureAttr(label);
+    NIKE_IDS.forEach(id => { const v = vals[hsh(id + label) % vals.length];
+      if (!isSlide(id)) publishTag(review, k, id, v);
+      if (label === "Upper material" && hsh(id + "v1") % 18 === 0) publishTag(pricing, k, id, vals[(vals.indexOf(v) + 1) % vals.length]);
+      else if (label === "Colour story" && hsh(id + "v1") % 12 === 0) return;
+      else publishTag(pricing, k, id, v); });
+    return k; });
   const christies = mkStudy("Antiquities sale 2026", "christies", { edited: "Edited 2 weeks ago" });
   // A study with many attributes, to show what that looks like when choosing a study. Franchise is read off the name;
   // the rest are spread deterministically over the catalogue (made-up but stable).
   const merch = mkStudy("SS27 merchandising", "nike", { edited: "Edited 5 days ago" });
-  const hsh = s => [...s].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);
   const MERCH = [["Season", ["SP27", "SU27", "Carryover"]], ["Hero product", ["Yes", "No"]], ["Upper material", ["Knit", "Mesh", "Leather", "Suede", "Synthetic"]],
     ["Silhouette", ["Low", "Mid", "High"]], ["Colour story", ["Core neutrals", "Seasonal brights", "Earth tones"]]];
   NIKE_IDS.forEach(id => publishTag(merch, "franchise", id, franchiseOf(PRODUCTS[id])));
   MERCH.forEach(([label, vals]) => { const k = ensureAttr(label); NIKE_IDS.forEach(id => publishTag(merch, k, id, vals[hsh(id + label) % vals.length])); });
   STUDIES.push(review, pricing, christies, merch);
 
-  const fr = snapshot(review, ["franchise"]);
-  COLLECTIONS.push({ id: "franchise", name: "Franchise", desc: "Every shoe grouped by its franchise: Air Max, Pegasus, Mercurial and so on.",
-    attrs: ["franchise"], ...fr, source: { type: "study", name: review.name, collage: "nike" }, owner: ME, shared: [PEOPLE.helen, PEOPLE.leyla], v: "v2", created: "Sep 20, 2026", edited: "Oct 9, 2026" });
+  const fr = snapshot(review, ["franchise", ...lineKeys]);
+  COLLECTIONS.push({ id: "franchise", name: "FA26 line review", desc: "How the FA26 line was judged: franchise, upper material, silhouette and colour story for every shoe.",
+    attrs: ["franchise", ...lineKeys], ...fr, source: { type: "study", name: review.name, collage: "nike" }, owner: ME, shared: [PEOPLE.helen, PEOPLE.leyla], v: "v2", created: "Sep 20, 2026", edited: "Oct 9, 2026" });
   review.applied.franchise = "v2";
 
   const statues = { values: { bg: {}, stone: {} }, productIds: [...STATUE_IDS] };
