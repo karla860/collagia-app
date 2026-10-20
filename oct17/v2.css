@@ -1228,3 +1228,6 @@ body.locked .g-pill kbd { display: none; }
 .ccard.v4 .ctag.more { background: var(--sunken); font-weight: 400; }
 .ccard.v4 .when { gap: 4px; font: 500 var(--fs-12)/normal Inter, sans-serif; color: var(--muted); }
 .ccard.v4 .when svg.i { width: 13px; height: 13px; }
+/* Cards: 0.75px #E4E4E4 stroke */
+.ccard.v4, .ccard.v4:hover, .ccard.v4:focus-visible { border: .75px solid #E4E4E4; }
+.o-study, .o-study.off:hover { border: .75px solid #E4E4E4; }

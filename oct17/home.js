@@ -56,7 +56,7 @@ const card = c => {
       <div class="ctitle"><h3>${esc(c.name)}</h3>${moreBtn(c)}</div>
       <div class="ctags">${tags.slice(0, 4).join("")}${tags.length > 4 ? `<span class="ctag more">+${tags.length - 4} more</span>` : ""}</div>
       <div class="csrc">${srcLine(c)}</div>
-      <div class="cfoot"><span class="when" title="Version ${c.v.slice(1)} · last edited ${c.edited}">${ic.clock}${ago(c.edited)} · ${c.v}</span><span class="sp"></span>${avatar2(c.owner, "s")}${visChip(c)}</div>
+      <div class="cfoot"><span class="when" title="Version ${c.v.slice(1)} · last edited ${c.edited}">${ic.clock}${ago(c.edited)} · ${c.v}</span><span class="sp"></span>${avatar2(c.owner, "s")}</div>
     </div>
   </article>`;
 };
