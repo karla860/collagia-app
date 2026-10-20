@@ -72,8 +72,9 @@ const MODAL_SUCCESS = () => {
         <li>${ic.box}<span><b>${r.items}</b> changes · ${r.added} added, ${r.changed} changed, ${r.removed} removed</span></li>
         <li>${ic.history}<span>The study remembers it has <b>${c.v}</b>; re-apply after an update to catch up</span></li>
       </ul>
+      ${ST.undo && ST.undo.study === s.name ? `<button class="o-undo" data-a="undoApply">${ic.history}Undo this apply</button>` : ""}
     </div>
-    <footer class="o-mf flat"><button class="btn" data-a="successHome">Back to Attributes</button>${ST.undo && ST.undo.study === s.name ? `<button class="btn ghost" data-a="undoApply">${ic.history}Undo</button>` : ""}<span class="sp"></span>
+    <footer class="o-mf flat"><button class="btn" data-a="successHome">Back to Attributes</button><span class="sp"></span>
       <button class="btn primary" data-a="openStudyBoard" id="ok-go">Open the study board${ic.arrowR}</button></footer>
   </div>`;
 };

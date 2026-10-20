@@ -1326,3 +1326,19 @@ body.locked .g-pill kbd { display: none; }
 .o-study.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .o-study { overflow: hidden; }
 .o-vr-used .t { flex: 1 1 auto !important; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* Success: Undo as a clear labelled button under the facts */
+.o-undo { display: inline-flex; align-items: center; gap: 6px; height: 30px; margin-top: 10px; padding: 0 12px; border: .75px solid #E4E4E4; border-radius: 6px; background: var(--surface); font: 500 var(--fs-13)/1 Inter, sans-serif; color: var(--text); }
+.o-undo:hover { background: var(--hover); }
+.o-undo svg.i { width: 14px; height: 14px; color: var(--muted); }
+/* Side panel attributes: one tidy row each — colour marks, name, change count on the right */
+.cpx-attrs { gap: 2px !important; }
+.cpx-attrs .cpx-k { margin-bottom: 6px; }
+.cpx-attr { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; padding: 8px 0; }
+.cpx-attr .cdots { display: inline-flex; gap: 1px; margin: 0; }
+.cpx-attr .cdots i { width: 6px; height: 6px; border-radius: .5px; background: hsl(var(--h) 62% 52%); box-shadow: none; }
+.cpx-an { display: grid; min-width: 0; }
+.cpx-an b { font-size: var(--fs-13); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cpx-an small { font-size: var(--fs-11); color: var(--muted); }
+.cpx-ac { display: inline-flex; align-items: baseline; gap: 4px; font: 600 var(--fs-14)/1 Inter, sans-serif; font-variant-numeric: tabular-nums; }
+.cpx-ac small { font-size: var(--fs-12); font-weight: 400; color: var(--muted); }
+.cpx-ac.zero { color: var(--muted); font-weight: 400; }

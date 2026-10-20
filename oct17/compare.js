@@ -177,12 +177,10 @@ const cpSide = (c, s, m, foot) => {
   return `<aside class="cpx-side">
     <section class="cpx-study"><span class="cpx-k">Study</span><div class="cpx-study-t"><b>${esc(s.name)}</b>
       <span class="cpx-badge${has && has !== c.v ? " behind" : has ? " ok" : ""}">${has ? (has === c.v ? `Has ${c.v} · up to date` : `Has ${has} · this is ${c.v}`) : `Doesn't have it yet`}</span></div></section>
-    <section class="cpx-glance"><span class="cpx-k">Values at a glance</span>
-      ${["remove", "change", "add", "same"].map(k => [k, vn[k]]).filter(([k, n]) => n || k === "same").map(([k, n]) => stat(n, `value${n === 1 ? "" : "s"} ${{ remove: "removed", change: "changed", add: "added", same: "stay the same" }[k]}`, k === "same" ? "muted" : "")).join("")}
-    </section>
-    <section class="cpx-attrs"><span class="cpx-k">Attributes</span>
+    <section class="cpx-attrs"><span class="cpx-k">Attributes · ${c.attrs.length}</span>
       ${c.attrs.map(k => { const inStudy = s.published.includes(k), n = m.all.reduce((t, r) => t + r.marks.filter(x => x.k === k && x.kind !== "same").length, 0);
-        return `<div class="cpx-attr"><b>${esc(attrLabel(k))}</b>${inStudy ? "" : `<span class="cpx-astate new">New to the study</span>`}<small>${n ? plural(n, "value") + " change" : "No change"}</small></div>`; }).join("")}
+        const sq = valueCounts(c, k).slice(0, 4).map(([v]) => `<i ${hue(k, v)}></i>`).join("");
+        return `<div class="cpx-attr"><span class="cdots">${sq}</span><span class="cpx-an"><b>${esc(attrLabel(k))}</b>${inStudy ? "" : `<small>New to the study</small>`}</span><span class="cpx-ac${n ? "" : " zero"}">${n}<small>${n === 1 ? "change" : "changes"}</small></span></div>`; }).join("")}
     </section>
     ${foot ? `<small class="cpx-at">${foot}</small>` : ""}
   </aside>`;
