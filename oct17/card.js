@@ -157,10 +157,7 @@ const notices = (c, total, list) => {
   if (CD.sel && CD.sel.v === NOVAL) return `<div class="o-notice">${ic.warn}<span><b>${list.length} of ${total} products have no ${lab} in this collection.</b> Applying leaves them without one, and removes any ${lab} a study already has on them.</span></div>`;
   // Note (neutral): worth a look, nothing is lost
   if (CD.sel && CD.sel.v && list.length === 1 && !CD.q) return `<div class="o-notice note">${ic.info}<span><b>Only 1 product carries ${esc(CD.sel.v)}.</b> A one-product value is often a typo or a one-off, so check it in the study before applying.</span></div>`;
-  if (CD.demo === "nophotos") {
-    const n = cProducts(c).filter((_, i) => i % 4 === 1).length;
-    return `<div class="o-notice note"><span class="o-spin" aria-hidden="true"></span><span><b>Loading photos: ${n} of ${total} still on their way.</b> The products are already here with their names, style codes and tags.</span><span class="o-sample">Simulated</span></div>`;
-  }
+  // Photos still loading: no banner, the shimmering thumbnails say it on their own
   if (CD.demo === "unmatched" && c.source.type === "csv") {
     return `<div class="o-notice">${ic.warn}<span><b>${UNMATCHED.length} rows in ${esc(c.source.name)} didn't match a product,</b> so they aren't in this collection. The other ${total} are here as normal.</span><span class="o-sample">Sample rows</span>
       <button class="o-clear" data-a="cdRows">${CD.showRows ? "Hide rows" : "See which rows"}</button><button class="btn" data-a="updateFromCsv" data-v="${c.id}">${ic.upload}Update from a CSV</button></div>
@@ -182,9 +179,9 @@ const emptyState = (c, total, selName) => !total ? emptyColl0(c) : CD.q
 /* ---------- The screen ---------- */
 const appliedDD = c => {
   const used = usedBy(c), id = "applied";
-  return `<div class="o-dd"><button class="o-applied-btn${App.menu === id ? " open" : ""}" data-a="menu" data-v="${id}" aria-haspopup="menu">${ic.studies}${used.length ? `Applied in ${used.length} ${used.length === 1 ? "study" : "studies"}` : "Not applied to any study yet"}${ic.chev}</button>
+  return `<div class="o-dd"><button class="o-applied-btn${App.menu === id ? " open" : ""}" data-a="menu" data-v="${id}" aria-haspopup="menu" title="Studies that already have this collection">${ic.studies}${used.length ? `Used in ${esc(used[0].name)}${used.length > 1 ? ` + ${used.length - 1} more` : ""}` : "Not in any study yet"}${ic.chev}</button>
     ${App.menu === id ? `<div class="o-menu o-appliedmenu" role="menu">
-      ${used.length ? used.map(s => `<button role="menuitem" data-a="openStudyFromCard" data-v="${esc(s.name)}"><span class="o-amrow"><b>${esc(s.name)}</b><small>${esc(COLLAGES[s.collage].name)} · has ${s.applied[c.id]}${s.applied[c.id] === c.v ? "" : `, behind ${c.v}`}</small></span>${ic.chevR}</button>`).join("") : `<span class="bd-mnone">Apply it to a study and that study will be listed here.</span>`}
+      ${used.length ? used.map(s => `<button role="menuitem" data-a="openStudyFromCard" data-v="${esc(s.name)}"><span class="o-amrow"><b>${esc(s.name)}</b><small>${s.name === c.source.name ? "Made from this study · " : ""}has ${s.applied[c.id]}${s.applied[c.id] === c.v ? ", up to date" : `, behind ${c.v}`}</small></span>${ic.chevR}</button>`).join("") : `<span class="bd-mnone">Apply it to a study and that study will be listed here.</span>`}
     </div>` : ""}</div>`;
 };
 ACTIONS.openStudyFromCard = el => { App.modal = null; setFlow("board"); const c = curColl(); BD.matrix = "group"; BD.groupBy = c.attrs[0]; BD.show = c.attrs[0]; JUMP.board(el.dataset.v); return false; };

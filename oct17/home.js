@@ -45,9 +45,9 @@ const moreBtn = c => `<button class="more-btn" data-a="menu" data-v="card:${c.id
 const cover = c => {
   const ps = cProducts(c), k = c.attrs[0], first = k && valueCounts(c, k)[0];
   return `<div class="ccanvas">
-    <div class="cc-loose">${ps.slice(12, 24).map(p => thumb(p, "t")).join("")}</div>
-    <div class="cc-frame"><span class="cc-lab">${first ? `<b>${esc(attrLabel(k))}</b>${esc(first[0])}` : "<b>Products</b>"}<i>${ps.length}</i></span>
-      <div class="cc-grid">${ps.slice(0, 40).map(p => thumb(p, "t")).join("")}</div><i class="cc-c tl"></i><i class="cc-c tr"></i><i class="cc-c bl"></i><i class="cc-c br"></i></div>
+    <div class="cc-loose">${ps.slice(-16).map(p => thumb(p, "t")).join("")}</div>
+    <div class="cc-frame"><span class="cc-lab"><b>${first ? esc(attrLabel(k)) : "Products"}</b><i>${first ? esc(first[0]) + " " : ""}${ps.length}</i></span>
+      <div class="cc-grid">${ps.slice(0, 80).map(p => thumb(p, "t")).join("")}</div><i class="cc-c tl"></i><i class="cc-c tr"></i><i class="cc-c bl"></i><i class="cc-c br"></i></div>
   </div>`;
 };
 const card = c => {

@@ -19,7 +19,7 @@ const MODAL_PICK = () => {
   <div class="o-scroll grey"><div class="o-studies">${list.length ? list.map(s => { const n = matchCount(c, s); return `
     <div class="o-study${ST.sel === s.name ? " on" : ""}${n ? "" : " off"}" ${n ? `data-a="pickStudy" data-v="${esc(s.name)}" tabindex="0"` : 'aria-disabled="true" title="None of this study’s products are in the collection"'} role="radio" aria-checked="${ST.sel === s.name}">
       <div class="o-sprev study">${studyProducts(s).slice(0, 12).map(p => thumb(p, "s56")).join("")}${has(s)}</div>
-      <div class="o-sbody"><div><b>${esc(s.name)}</b><span>${esc(COLLAGES[s.collage].name)} · ${s.edited}</span>${fit(s)}</div></div>
+      <div class="o-sbody"><div><b>${esc(s.name)}</b><span>${esc(COLLAGES[s.collage].name)} · ${s.edited}</span>${fit(s)}${studyTags(s, 3)}</div></div>
     </div>`; }).join("") : `<p class="o-muted o-nostudy">No studies match “${esc(ST.q)}”</p>`}</div></div>
   <footer class="o-mf"><span class="o-showing">${sel ? `Applying to <b>${esc(sel.name)}</b>` : "Choose a study"}</span><span class="sp"></span>
     <button class="btn primary" data-a="toPreview" ${sel && list.includes(sel) ? "" : "disabled"}>${ic.eye}Preview changes${ic.chevR}</button></footer>

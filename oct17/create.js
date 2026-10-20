@@ -50,8 +50,16 @@ const STEP_STUDY = () => `<div class="o-scroll grey"><div class="o-studies">${ST
   return `<div class="o-study${CR.study === s.name ? " on" : ""}${ok ? "" : " off"}" ${ok ? `data-a="crPickStudy" data-v="${esc(s.name)}" tabindex="0"` : 'aria-disabled="true" title="This study hasn’t published any attributes yet"'} role="radio" aria-checked="${CR.study === s.name}">
     <div class="o-sprev study">${studyProducts(s).slice(0, 12).map(p => thumb(p, "s56")).join("")}</div>
     <div class="o-sbody"><div><b>${esc(s.name)}</b><span>${esc(COLLAGES[s.collage].name)} · ${s.edited}</span>
-      ${ok ? `<span class="o-fit all">${n} attribute${n === 1 ? "" : "s"} published</span><span class="o-pubs">${s.published.map(attrLabel).join(" · ")}</span>` : `<span class="o-fit none">Nothing published yet</span>`}</div></div>
+      ${studyTags(s)}</div></div>
   </div>`; }).join("")}</div></div>`;
+
+/* What a study already has: one grey tag per published attribute with its value count, the first four then "+N more" */
+const studyTags = (s, max = 4) => {
+  if (!s.published.length) return `<span class="o-fit none">Nothing published yet</span>`;
+  const tags = s.published.map(k => `<span class="ctag" title="${esc(attrLabel(k))}: ${studyValueCounts(s, k).length} values">${esc(attrLabel(k))}<small>${studyValueCounts(s, k).length}</small></span>`);
+  return `<span class="o-stags-h">${s.published.length} attribute${s.published.length === 1 ? "" : "s"} in this study</span>
+    <span class="ctags o-stags">${tags.slice(0, max).join("")}${tags.length > max ? `<span class="ctag more" title="${esc(s.published.slice(max).map(attrLabel).join(", "))}">+${tags.length - max} more</span>` : ""}</span>`;
+};
 
 /* ---------- Step 3a · Choose attributes ---------- */
 const STEP_PICK = () => {

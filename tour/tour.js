@@ -35,65 +35,48 @@
     { kick: "Study board", title: "A study is products on a board", go: () => goBoard(), sel: ".bx-top .bx-box:first-child", place: "below", body: `
       <p>This is the FA26 footwear review, a study on the Nike GB Men's Footwear collage. Switch study from its name; the collage it sits on is to the left. Like the app, nothing here moves by hand: the board type and the show bar decide the formation.</p>
       ${did("The board is a working tool now: select, tag, group, filter. The top right tells you how many attributes this study has published and gives the two ways out: save them to a collection, or bring a collection in.")}` },
-    { kick: "Study board", title: "Group by anything, including your own tags", sel: ".bx-show .bx-box:first-child", place: "above", body: `
-      <p>The show bar, as in the app and the Phase 1 redesign. The red chip is the current board: Pareto (tiers by a metric, with the two cut points on the slider), Rank, Group or Freestyle. Then Filter, the metric and aggregation, Add group, and on the right tile size and the Data table. The numbers bottom-left are items in view, like the app.</p>
-      ${tryit("Drag a bucket on the slider, add one with +, drag one off the end to remove it. Hover any tool on the left to see what it does and its shortcut.")}` },
     { kick: "Study board", title: "Frame what your eye groups together", go: () => goBoardSel(), sel: ".bx-tile.on", place: "below", body: `
       <p>Selecting is its own tool, Create custom attribute (<b>F</b>), as in the app. With it on, drag a frame around a group or click tiles. Four shoes are selected now. With the Select tool (<b>V</b>), dragging pans and clicking shows a product card instead.</p>
       ${why("This is the framing tool already in the app. It's the one thing a spreadsheet can never do: pick products by what they look like.")}` },
     { kick: "Study board", title: "Name what you saw: attribute and value", sel: ".bx-panel", place: "left", body: `
       <p>An attribute is what you are judging (Upper material), a value is what you see (Knit). Publish, and every selected product gets that value. Then select the next group and publish Mesh, then Leather. Existing names and values are offered as you type, so spellings stay consistent.</p>
 ` },
-    { kick: "Study board", title: "Published attributes become filters and groups", go: () => { goBoard(); App.menu = "attrs"; render(); }, sel: ".bx-top .o-menu", place: "left", body: `
-      <p>Everything this study has published, with its values and counts, and shortcuts to group or show each one. Franchise was read off the product names to give the study a starting point; everything else is yours.</p>
-      ${did("On staging the only trace of a published attribute is a row in the filter box. Here the study shows what it holds and what to do with it.")}` },
     { kick: "Study board", title: "Four board types, one chip", go: () => { goBoard(); App.menu = "matrix"; render(); }, sel: ".bx-show .o-menu", place: "right", body: `
       <p>Pareto cuts the products into tiers by a metric. Rank sorts them. Group makes a frame per value. Freestyle frames whatever you published and leaves the rest loose. Changing type never moves anything by hand, exactly like the app's Change matrix.</p>
       ${why("Save to a collection and Apply a collection live in the attributes menu, top right, where the published list is. That is the board end of the two-way road.")}` },
 
     /* ---------- Homepage ---------- */
-    { kick: "Attributes page", title: "The sidebar is cut to what people use", go: () => goHome(), sel: ".sidebar", place: "right", body: `
-      ${was("On staging, the sidebar is eight items in one flat list: Studies, Collages, Connections, Label Library, Models, Imports, Groups, Settings.")}
-      ${did("Studies, Collages and Attributes, with Settings and support at the bottom. Attributes sits with the things people use every day.")}` },
-    { kick: "Attributes page", title: "A card shows what is inside", sel: ".h-grid .ccard", place: "right", body: `
+    { kick: "Attributes page", title: "A card shows what is inside", go: () => goHome(), sel: ".h-grid .ccard", place: "right", body: `
       ${was("On staging, a Label Library card shows a title, “version 1” and two dates, and every card looks the same.")}
-      ${did("Five product photos, then a green “+” chip per attribute it adds, with a dot for each value's colour. Below: where it came from, owner, Private or Shared, version and age. You can tell what a collection does without opening it.")}` },
-    { kick: "Attributes page", title: "One primary action, with the two ways to start", sel: ".h-head .o-dd:last-child", place: "below", body: `
-      ${did("“New collection” opens a short menu: From a study, From a CSV. Each option says in a few words what it is for.")}` },
+      ${did("The cover is the collection's products on a board. Then one tag per attribute with its number of values, where it came from, who has it, and when it last changed.")}` },
 
     /* ---------- Create ---------- */
     { kick: "New collection", title: "Start by saying where the attributes are", go: () => { goHome(); openCreate(null); render(); }, sel: ".o-choose", place: "below", body: `
       ${did("Two tiles with real sentences: in a study (you tagged products on a board) or in a spreadsheet (a CSV with a style code per row). A stepper shows the four steps.")}` },
     { kick: "New collection", title: "Pick a study: show what is there to take", go: () => { goHome(); openCreate("study"); render(); }, sel: ".o-studies", place: "above", body: `
-      ${did("Each study shows how many attributes it has published and names them. A study with nothing published is greyed out and says so.")}` },
+      ${did("Each study lists the attributes it already has as tags, with how many values each one holds. SS27 merchandising shows a study with six: the first four, then “+2 more”. A study with nothing published is greyed out and says so.")}
+      ${why("You pick a study for what's already in it. Tags make that readable at a glance, however many attributes a study has.")}` },
     { kick: "New collection", title: "The core fix: a checkbox means one thing", go: () => { goPick(); render(); }, sel: ".o-rail.picks", place: "right", body: `
       ${was("On staging every attribute pill is a checkbox and a tab, and a dropdown filters the list. That is why it reads as a filter.")}
-      ${did("A checkbox means only “this attribute goes into the collection”. The values under it are read-only pills with real counts, because every value comes with its attribute. There is nothing else to decide.")}` },
-    { kick: "New collection", title: "Previewing is visibly not choosing", go: () => { goPick(); const k = STUDIES[0].published[0]; const v = studyValueCounts(STUDIES[0], k)[0][0]; CR.peek = { k, v }; render(); }, sel: ".o-rail.picks .o-vpills", place: "right", body: `
-      ${did("Click a value pill and the grid shows only those products, with a banner that says previewing changes nothing. Pills are dashed and round; checkboxes are square.")}` },
-    { kick: "New collection", title: "Products show the tags they will carry", go: () => { goPick(); render(); }, sel: ".cr .o-pgrid", place: "left", body: `
-      ${did("Each product shows its value for every ticked attribute. The live list shows name and ID 66 times and never the tag itself, which is the whole point.")}` },
+      ${did("A checkbox means only “this attribute goes into the collection”. The values under it are read-only, with real counts. Each product on the right shows the tag it will carry for every ticked attribute.")}` },
     { kick: "New collection", title: "Name it, and know it is private", go: () => { goPick(); CR.step = "name"; CR.name = ""; render(); }, sel: ".o-nameform", place: "right", body: `
-      ${did("A name pre-filled from the attributes, an optional description, and a plain line: private until you share it.")}
+      ${did("A name pre-filled from the attributes, an optional description, a preview of the card it will make, and a plain line: private until you share it.")}
       ${why("Sharing is a separate, deliberate step, so it helps to say so at the moment you make something.")}` },
-    { kick: "New collection", title: "See the card before you make it", sel: ".o-namecard", place: "left", body: `
-      ${did("A live preview of the card as it will appear on the Attributes page. Create opens the new collection straight away.")}` },
 
     /* ---------- Open a collection ---------- */
-    { kick: "Open a collection", title: "Opening a collection is reading, not importing", go: () => { goCard(); render(); }, sel: ".o-ident", place: "below", body: `
-      ${was("On staging, clicking a card opens “Label Library — name” with four action buttons along the bottom, so it reads as the start of an import rather than a place to see what's inside.")}
-      ${did("The header is the collection's identity: name, owner, Private / Shared, version, and where it came from. No wizard.")}` },
     { kick: "Open a collection", title: "Two things up top, the rest behind ⋯", go: () => { goCard(); render(); }, sel: ".v2h .o-dd", place: "left", body: `
       ${was("On staging, four identical buttons sit bottom-right: Import Library to Study, Update Library From Study, Update Library from CSV and Export CSV.")}
       ${did("Share sits in the header because it is the deliberate step everyone has to take. Download CSV, the two update moves and version history live behind ⋯, each with a line saying what it does.")}` },
     { kick: "Open a collection", title: "The one big action, and where it has been used", go: () => { goCard(); App.menu = "applied"; render(); }, sel: ".v2card .o-mf", place: "above", body: `
-      ${did("Apply to a study is the single red button. Next to it, “Applied in N studies” opens a list of those studies with the version each one has, and a click takes you to that board.")}` },
-    { kick: "Open a collection", title: "The rail is a view selector, never a checkbox", sel: ".o-rail.tree", place: "right", body: `
+      ${did("Apply to a study is the single red button. Next to it, “Used in” lists the studies that already have this collection and which version each has. Franchise was made from FA26 footwear review, and an older v1 already sits in Price architecture, so both are listed. Applying it somewhere new adds that study here.")}
+      ${why("Before applying, it's useful to know where a collection already lives, and which studies are behind.")}` },
+    { kick: "Open a collection", title: "Every version, kept", go: () => { goCard(); CD.histOpen = true; render(); }, sel: ".o-hist", place: "left", body: `
+      ${was("On staging, a collection says “version 1” and nothing about what changed between versions or which studies have which one.")}
+      ${did("Version history lists every version: what changed, who made it, when, and which studies still use it. You can view an older version and restore it as a new one.")}
+      ${why("Collections change over time. Knowing which version a study has, and what's different, is what makes updating it safe.")}` },
+    { kick: "Open a collection", title: "The rail is a view selector, never a checkbox", go: () => { goCard(); render(); }, sel: ".o-rail.tree", place: "right", body: `
       ${was("On staging, attributes are tabs and values are a single dropdown, so you only ever see one value's products and never the whole collection.")}
       ${did("“Tags in this collection”: a tree of attribute → values, each value with its colour, a bar for its share and a count. One thing selected at a time, the grid follows.")}` },
-    { kick: "Open a collection", title: "Every product shows what it gets", go: () => { goCard(); render(); }, sel: ".o-selbar", place: "below", body: `
-      ${was("On staging, products show only an image, name and ID, so nothing says which value each one carries or what applying would do.")}
-      ${did("One sentence up top: applying this adds Franchise to 312 products. Then every product carries a “+ Franchise: Phantom” chip, the same + language as the apply preview, tinted with that value's colour.")}` },
     { kick: "Open a collection", title: "Pick an attribute and the grid sorts itself by colour", go: () => { goCard(); CD.sel = { k: "franchise", v: null }; render(); }, sel: ".o-vsec-h", place: "below", body: `
       ${did("Clicking an attribute splits the grid into one colour section per value, biggest first. Click a section header to see just that value. Find a product searches by name or style code.")}` },
 
@@ -105,13 +88,13 @@
     { kick: "Edge states", title: "Products with no value", go: () => { setFlow("edge"); JUMP.edge("novalue"); }, sel: ".v2card .o-notice", place: "below", body: `
       ${did("The rail gets a “No value” row, cards show a dashed “No Material”, and an alert warns that applying clears any Material a study already has on them.")}
       ${why("Gaps are easy to miss when you only see what's there. Calling them out before applying stops a silent loss.")}` },
-    { kick: "Edge states", title: "A value only one product carries", go: () => { setFlow("edge"); JUMP.edge("single"); }, sel: ".v2card .o-notice", place: "below", body: `
+    { kick: "Edge states", title: "A value only one product carries", go: () => { setFlow("edge"); JUMP.edge("single"); }, sel: ".v2card .o-pgrid .o-pcard", place: "right", body: `
       ${did("Its count turns orange, and a quiet note under the toolbar says a one-product value is often a typo.")}
       ${why("Singletons are usually mistakes. Catching one here is cheaper than fixing it in every study later.")}` },
-    { kick: "Edge states", title: "Photos still loading", go: () => { setFlow("edge"); JUMP.edge("nophotos"); }, sel: ".v2card .o-notice", place: "below", body: `
-      ${did("Thumbnails that haven't arrived shimmer in place. Names, style codes and tags are already there, and a note says how many photos are still coming.")}
+    { kick: "Edge states", title: "Photos still loading", go: () => { setFlow("edge"); JUMP.edge("nophotos"); }, sel: ".v2card .o-pcard:has(.o-th.loading)", place: "right", body: `
+      ${did("Photos that haven't arrived show a grey card with a light sweeping across it. Names, style codes and tags are already there. No banner: the cards say it themselves.")}
       ${why("You can start reading the collection straight away instead of waiting on the slowest photo.")}` },
-    { kick: "Edge states", title: "A collection with no products", go: () => { setFlow("edge"); JUMP.edge("empty"); }, sel: ".v2card .o-e0-why", place: "left", body: `
+    { kick: "Edge states", title: "A collection with no products", go: () => { setFlow("edge"); JUMP.edge("empty"); }, sel: ".v2card .o-e0-h", place: "left", body: `
       ${did("One plain message, one reason and one action: Update from a CSV. Compare and Apply are switched off.")}
       ${why("An empty screen should say it's empty and how to fill it, nothing more. Switching off Apply stops you sending nothing to a study.")}` },
 
@@ -123,10 +106,6 @@
     { kick: "Compare with a study", title: "Choosing which study to compare with", go: () => { goCompare(); render(); }, sel: ".cpx-pick", place: "below", body: `
       ${did("One searchable dropdown. It opens on a study with an older version, and lists each study's version and shared products.")}
       ${why("The study that's behind is the one most likely to change, so there's usually nothing to pick. A dropdown stays tidy with 3 studies or 30.")}` },
-    { kick: "Compare with a study", title: "One headline, the numbers beside it", go: () => { goCompare(); render(); }, sel: ".cpx-side", place: "left", body: `
-      ${was("On staging, the import preview lists every item with no summary, so you count the changes yourself.")}
-      ${did("One headline, “38 products would change in Price architecture”. Beside it, a card names the study and its version (Has v1 · this is v2), then At a glance: 38 change, 8 lose their Franchise, 282 stay the same.")}
-      ${why("It answers “what will this do to my study?” in one look, and shows any data loss in red before anything else.")}` },
     { kick: "Compare with a study", title: "Grouped by what happens, riskiest first", go: () => { goCompare(); render(); }, sel: ".cpx-table", place: "left", body: `
       ${was("On staging, the preview marks changes with coloured +, ⇄ and − chips that don't say what they mean, one item per row with a lot of empty space.")}
       ${did("Four sections in plain words: Removed (8 products lose their Franchise), Changed, Added and Stays the same. Each line reads Now → After, like “Slides → No value · 8 products”. Open it and every product shows its own before → after. The values that stay the same sit underneath with their counts, and open too.")}
@@ -142,14 +121,6 @@
     { kick: "Apply to a study", title: "The collage decides whether anything happens", go: () => { goCard(); setFlow("study"); JUMP.study("pick"); }, sel: ".o-studies .o-study:nth-child(2)", place: "left", body: `
       ${did("Each study shows its collage and how many of the collection's products it contains. One that shares nothing is greyed out with a reason. A study that already has this collection says which version.")}
       ${why("David's example on the kickoff: Christie's attributes applied to a shoes study match nothing.")}` },
-    { kick: "Apply to a study", title: "Always a preview, never a toggle", sel: ".pick .o-mf", place: "above", body: `
-      ${was("Staging has a Dry run switch a user can turn off before seeing anything.")}
-      ${did("The only button is Preview changes.")}` },
-    { kick: "Apply to a study", title: "Totals first, then the detail", go: () => { goCard(); ST.sel = "Price architecture"; JUMP.study("preview"); }, sel: ".cpx-table", place: "left", body: `
-      ${was("On staging, the preview repeats “+ BW” on every row, 113 times, with no summary.")}
-      ${did("One line per change, “Slides → No value · 8 products”, in sections by outcome, removals first. The same view as Compare with a study. The answer to Roo's question is: no, read this, then confirm.")}` },
-    { kick: "Apply to a study", title: "The button says what it does", sel: ".preview .o-mf .btn.primary", place: "above", body: `
-      ${did("“Replace 1 attribute in Price architecture” or “Add…”, never “Import”. When nothing would change it says already up to date.")}` },
     { kick: "Apply to a study", title: "Then tell them where to look", go: () => { goCard(); ST.sel = "Price architecture"; JUMP.study("done"); }, sel: ".o-success", place: "left", body: `
       ${did("The result names the attributes, counts the changes, and says the study now has this version. Open the study board is the primary action, grouped by the new attribute.")}` },
 
@@ -165,10 +136,6 @@
     { kick: "Share", title: "Sharing is a dialog, reached from the collection", go: () => { goAccess(); render(); }, sel: ".o-invite", place: "left", body: `
       ${was("“Manage” in a card menu opens a separate page with a permissions form.")}
       ${did("Invite by email with a role, a people list, pending invites, requests and an activity log. It opens from the collection's Share button, its Shared chip, or the card menu.")}` },
-    { kick: "Share", title: "Roles explained where you choose them", go: () => { goAccess(); App.menu = "inv-role"; render(); }, sel: ".o-invite .o-menu", place: "left", body: `
-      ${did("Viewer can open and apply. Editor can also update. Admin can also share and delete. One line each, inside the menu.")}` },
-    { kick: "Share", title: "Changes write back everywhere", go: () => { goAccess(); render(); }, sel: ".o-share-note", place: "left", body: `
-      ${did("Invite someone and the collection's chip becomes Shared on the card and in its header. The state is real, not decoration.")}` },
 
     /* ---------- Wrap ---------- */
     { kick: "Wrap up", title: "What this version fixes", go: () => goHome(), sel: null, body: `
@@ -201,8 +168,10 @@
   const TASKS = {
     "Name what you saw: attribute and value": { at: ".bx-pub", ask: "Press <b>Publish</b> to tag the four selected shoes “Upper material: Knit”.", done: () => bdStudy().published.some(k => attrLabel(k).toLowerCase() === "upper material"), ok: "Published. The four shoes now carry Upper material: Knit, and it's a filter and a group on this board." },
     "Four board types, one chip": { at: ".bx-show .o-menu [data-v=\"group\"]", ask: "Pick <b>Group</b> in the menu.", done: () => BD.matrix === "group", ok: "The board is now one frame per product type." },
-    "Two things up top, the rest behind ⋯": { at: ".v2h .o-morebtn", ask: "Click <b>⋯</b> to see what else you can do with this collection.", done: () => App.menu === "more", ok: "Download, update from a study or a CSV, version history and rename, each with a line saying what it does." },
+    "Two things up top, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b> to see what else you can do with this collection.", done: () => App.menu === "more", ok: "Download, update from a study or a CSV, version history and rename, each with a line saying what it does." },
     "Two attributes in one go": { at: ".preview .o-mf .btn.primary", ask: "Click <b>Add 2 attributes in Antiquities sale 2026</b>.", done: () => App.modal === "success", ok: "Both attributes are in the study: 30 products, 56 values added." },
+    "The core fix: a checkbox means one thing": { at: '.o-rrow.attr[data-v="franchise"]', ask: "Untick <b>Franchise</b> and watch the tags on the products.", done: () => !CR.included.has("franchise"), ok: "Franchise is out of the collection, so the products no longer carry it. Tick it again to bring it back." },
+    "Choosing which study to compare with": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Compare with</b> dropdown to see every study.", done: () => App.menu === "cpstudy", ok: "Studies with an older version come first, each with its version and how many products it shares." },
     "A card shows what is inside": { at: ".h-grid .ccard", ask: "Open the <b>Franchise</b> collection.", done: () => App.modal === "card", ok: "This is the collection screen. Next, a look around it." },
     "Pick an attribute and the grid sorts itself by colour": { at: ".o-vsec-h", ask: "Click the <b>Phantom</b> section header to see only those shoes.", done: () => CD.sel && CD.sel.v, ok: "Just one value now. “Show all” in the bar goes back." },
     "When search finds nothing": { at: ".o-empty2 [data-a=\"cardQClear\"]", ask: "Press <b>Clear search</b>.", done: () => !CD.q, ok: "All 312 products are back." },
@@ -227,7 +196,8 @@
     document.body.append(spot, card, dot, hint, bar);
     return (els = { spot, card, dot, hint, bar });
   };
-  const target = s => s.sel ? q(s.sel) : null;
+  // Once a task is done the card anchors to what it opened (a menu, a panel) and sits beside it, not on top
+  const target = s => (s.task && taskDone && s.task.selDone && q(s.task.selDone)) || (s.sel ? q(s.sel) : null);
 
   const guided = () => { const s = STEPS[i]; return !!(s && s.task && !taskDone); };
   // Guided mode: no shroud, no card. The point sits on the target's corner, the hint below it (or above if there's no room).
@@ -238,7 +208,7 @@
     const x = Math.min(vw - 14, Math.max(14, t.right - 10)), y = Math.min(vh - 14, Math.max(14, t.top + 10));
     dot.hidden = false; dot.style.left = x + "px"; dot.style.top = y + "px";
     hint.hidden = false; const r = hint.getBoundingClientRect();
-    const below = y + 18 + r.height < vh - 64;
+    const below = y + 18 + r.height < vh - 16;
     hint.classList.toggle("up", !below);
     hint.style.top = (below ? y + 18 : y - 18 - r.height) + "px";
     hint.style.left = Math.min(vw - r.width - 16, Math.max(16, x - r.width + 24)) + "px";
@@ -264,7 +234,7 @@
     spot.style.borderRadius = getComputedStyle(el).borderRadius || "10px";
     card.style.maxHeight = ""; card.style.width = "";
     let r = card.getBoundingClientRect(), cw = r.width, ch = r.height;
-    let pref = s.place || "right", x, y;
+    let pref = (s.task && taskDone && s.task.placeDone) || s.place || "right", x, y;
     const room = { right: vw - (left + w + gap) - 16, left: left - gap - 16, below: vh - (top + h + gap) - 16, above: top - gap - 16 };
     const fits = { right: room.right >= cw, left: room.left >= cw, below: room.below >= ch, above: room.above >= ch };
     if (!fits[pref]) pref = ["right", "left", "below", "above"].find(k => fits[k]) || null;
@@ -284,11 +254,11 @@
   const renderCard = () => {
     const s = STEPS[i], { card, spot, dot, hint, bar } = els, pct = Math.round(((i + 1) / STEPS.length) * 100);
     if (guided()) {
-      card.hidden = true; spot.hidden = true;
-      hint.innerHTML = `<span class="tr-hint-k">Your turn</span>${s.task.ask}`;
-      bar.innerHTML = `<span class="tr-bar-n">${s.kick} · ${i + 1} / ${STEPS.length}</span><span class="tr-bar-t">Try it in the app. The tour picks up when you're done.</span>
-        <button class="tr-btn" data-tr="back" ${i === 0 ? "disabled" : ""}>Back</button><button class="tr-btn" data-tr="next">Skip</button><button class="tr-x tr-bar-x" data-tr="close" aria-label="Close tour">×</button>`;
-      bar.hidden = false; dot.hidden = false; hint.hidden = false;
+      // Only the point and its hint: no bar over the app. Back / Skip / close live in the hint itself.
+      card.hidden = true; spot.hidden = true; bar.hidden = true;
+      hint.innerHTML = `<span class="tr-hint-k">Your turn · ${i + 1} / ${STEPS.length}</span>${s.task.ask}
+        <span class="tr-hint-acts"><button data-tr="back" ${i === 0 ? "disabled" : ""}>Back</button><button data-tr="next">Skip</button><button data-tr="close" aria-label="Close tour">×</button></span>`;
+      dot.hidden = false; hint.hidden = false;
       return;
     }
     bar.hidden = true; dot.hidden = true; hint.hidden = true;

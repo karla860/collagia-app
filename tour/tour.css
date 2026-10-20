@@ -74,3 +74,11 @@
 .tr-bar .tr-bar-x { position: static; width: 28px; height: 28px; }
 .tr-card .tr-task.done { margin: 4px 0 10px; }
 .tr-bar[hidden], .tr-dot[hidden], .tr-hint-pop[hidden] { display: none; }
+/* The hint is now the only guided UI: its small actions replace the bottom bar */
+.tr-hint-pop { pointer-events: auto; max-width: 280px; }
+.tr-hint-acts { display: flex; align-items: center; gap: 4px; margin-top: 8px; }
+.tr-hint-acts button { appearance: none; border: 1px solid rgba(255,255,255,.25); background: transparent; color: #fff; border-radius: 999px; padding: 3px 10px; font: 500 var(--fs-12)/1.3 Inter, sans-serif; cursor: pointer; }
+.tr-hint-acts button:hover { background: rgba(255,255,255,.12); }
+.tr-hint-acts button:disabled { opacity: .35; cursor: default; }
+.tr-hint-acts button[data-tr="close"] { margin-left: auto; border: 0; padding: 3px 6px; font-size: var(--fs-14); }
+.tr-bar { display: none !important; }

@@ -139,7 +139,15 @@ const buildStudies = () => {
   NIKE_IDS.forEach(id => { const f = franchiseOf(PRODUCTS[id]); publishTag(pricing, "franchise", id, isSlide(id) ? "Slides" : ["Vomero", "Structure"].includes(f) ? "Running" : f); });
   pricing.applied.franchise = "v1";
   const christies = mkStudy("Antiquities sale 2026", "christies", { edited: "Edited 2 weeks ago" });
-  STUDIES.push(review, pricing, christies);
+  // A study with many attributes, to show what that looks like when choosing a study. Franchise is read off the name;
+  // the rest are spread deterministically over the catalogue (made-up but stable).
+  const merch = mkStudy("SS27 merchandising", "nike", { edited: "Edited 5 days ago" });
+  const hsh = s => [...s].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);
+  const MERCH = [["Season", ["SP27", "SU27", "Carryover"]], ["Hero product", ["Yes", "No"]], ["Upper material", ["Knit", "Mesh", "Leather", "Suede", "Synthetic"]],
+    ["Silhouette", ["Low", "Mid", "High"]], ["Colour story", ["Core neutrals", "Seasonal brights", "Earth tones"]]];
+  NIKE_IDS.forEach(id => publishTag(merch, "franchise", id, franchiseOf(PRODUCTS[id])));
+  MERCH.forEach(([label, vals]) => { const k = ensureAttr(label); NIKE_IDS.forEach(id => publishTag(merch, k, id, vals[hsh(id + label) % vals.length])); });
+  STUDIES.push(review, pricing, christies, merch);
 
   const fr = snapshot(review, ["franchise"]);
   COLLECTIONS.push({ id: "franchise", name: "Franchise", desc: "Every shoe grouped by its franchise: Air Max, Pegasus, Mercurial and so on.",
