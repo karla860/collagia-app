@@ -110,10 +110,10 @@
       ${why("The study that's behind is the one most likely to change, so there's usually nothing to pick. A dropdown stays tidy with 3 studies or 30.")}` },
     { kick: "Compare with a study", title: "Grouped by what happens, riskiest first", go: () => { goCompare(); render(); }, sel: ".cpx-table", place: "left", body: `
       ${was("On staging, the preview marks changes with coloured +, ⇄ and − chips that don't say what they mean, one item per row with a lot of empty space.")}
-      ${did("Four sections in plain words: Removed (8 slides lose their values), Changed, Added and Stays the same. Each line reads Now → After, like “Slides → No value · 8 products”. Open it and every product shows its own before → after. The values that stay the same sit underneath with their counts, and open too.")}
+      ${did("Four sections in plain words: Removed (8 slides lose their values), Changed, Added and Unchanged. Each line reads Now → After, like “Slides → No value · 8 products”. Open it and every product shows its own before → after. Unchanged values sit underneath with their counts, and open too.")}
       ${why("You see the difference, not a list to work through. There is nothing to tick or choose, because applying is all or nothing.")}` },
     { kick: "Compare with a study", title: "Ask about any product", go: () => { goCompare("nike calm"); render(); }, sel: ".cpx-sr", place: "below", body: `
-      ${did("Search covers every product in the study and the collection. Each match says what happens to it (Removed, Changed, Added, Stays the same, Not affected or Not in this study) with its value before and after.")}
+      ${did("Search covers every product in the study and the collection. Each match says what happens to it (Removed, Changed, Added, Unchanged, Not affected or Not in this study) with its value before and after.")}
       ${why("The question people actually have is about their own product. This answers it directly, with no scrolling and no marks to decode.")}` },
 
     /* ---------- Apply ---------- */
@@ -145,7 +145,7 @@
       </ul>
       <p class="tr-sub"><b>This version (Karla)</b></p>
       <ul>
-        <li><b>Compare with a study</b>: an optional, read-only look before applying. Tabs for Removed, Changed, Added and Stays the same, a count per attribute, and search that says what happens to any product.</li>
+        <li><b>Compare with a study</b>: an optional, read-only look before applying. Tabs for Removed, Changed, Added and Unchanged, a count per attribute, and search that says what happens to any product.</li>
         <li><b>No separate preview.</b> Choosing a study opens Compare; Apply asks for confirmation only when values would be lost, and can be undone.</li>
         <li><b>Built for many studies:</b> one searchable dropdown that opens on the study that's behind.</li>
         <li><b>A calmer collection screen:</b> colour squares on products with details on hover, a list view with one attributes cell, a rail to browse by attribute and value, and version history.</li>

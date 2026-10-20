@@ -102,7 +102,7 @@ const cpLine = (c, s, t, byId) => {
    removed, changed, added, stays the same, not affected (study only, no value), or not in this study (collection only). */
 const SEARCH_OUT = {
   remove: ["−", "Removed", "Loses its value"], change: ["⇄", "Changed", "Gets a different value"], add: ["+", "Added", "Gets a value for the first time"],
-  same: ["=", "Stays the same", "Keeps its value"], untouched: ["·", "Not affected", "Not in this collection and has no value to lose"], notin: ["·", "Not in this study", "Nothing lands on it"],
+  same: ["=", "Unchanged", "Keeps its value"], untouched: ["·", "Not affected", "Not in this collection and has no value to lose"], notin: ["·", "Not in this study", "Nothing lands on it"],
 };
 const SEARCH_RANK = { remove: 0, change: 1, add: 2, same: 3, untouched: 4, notin: 5 };
 const SEARCH_MAX = 40;
@@ -154,12 +154,12 @@ const cpGroups = (c, s, m) => {
       ${vals.length > 8 ? `<button class="o-clear" data-a="cpSame" data-v="${k}">${open ? "Show fewer" : `+${vals.length - 8} more`}</button>` : ""}</div>
       ${openT ? (() => { const ps = [...openT.ps].sort((a, b) => a.name.localeCompare(b.name)), all = CP.all.has(openT.key); return `<div class="cpx-ps same">${(all ? ps : ps.slice(0, PRODUCTS_SHOWN)).map(p => cpProduct(c, openT, byId[p.id])).join("")}${ps.length > PRODUCTS_SHOWN ? `<button class="o-clear cpx-allbtn" data-a="cpAll" data-v="${esc(openT.key)}">${all ? "Show fewer" : `Show all ${ps.length}`}</button>` : ""}</div>`; })() : ""}`;
   }).join("");
-  const sameSec = stay && sameRows ? `<section class="cpx-sec cpx-block same"><div class="cpx-sh"><span class="cpx-g">=</span><b>Stays the same</b><span>${plural(stay, "product")} keep${stay === 1 ? "s" : ""} ${c.attrs.length === 1 ? `their ${esc(attrLabel(c.attrs[0]))}` : "their values"}</span></div>${sameRows}</section>` : "";
+  const sameSec = stay && sameRows ? `<section class="cpx-sec cpx-block same"><div class="cpx-sh"><span class="cpx-g">=</span><b>Unchanged</b><span>${plural(stay, "product")} keep${stay === 1 ? "s" : ""} ${c.attrs.length === 1 ? `their ${esc(attrLabel(c.attrs[0]))}` : "their values"}</span></div>${sameRows}</section>` : "";
   const search = `<label class="o-searchbox cpx-q">${ic.search}<input id="cp-q" data-in="cpQ" value="${esc(CP.q)}" placeholder="Find any product to see what happens to it" aria-label="Find a product">${CP.q ? `<button class="icon-btn" data-a="cpQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label>`;
   if (CP.q.trim()) return `${search}${cpSearch(c, s, m)}`;
   // Tabs to jump between outcomes; each outcome is its own block
   const vn = { remove: 0, change: 0, add: 0, same: 0 }; m.all.forEach(r => r.marks.forEach(x => vn[x.kind]++));
-  const TABS = [["all", "All", 0], ["remove", "Removed", vn.remove], ["change", "Changed", vn.change], ["add", "Added", vn.add], ["same", "Stays the same", vn.same]].filter(([k, , n]) => k === "all" || n);
+  const TABS = [["all", "All", 0], ["remove", "Removed", vn.remove], ["change", "Changed", vn.change], ["add", "Added", vn.add], ["same", "Unchanged", vn.same]].filter(([k, , n]) => k === "all" || n);
   const tab = TABS.some(([k]) => k === CP.tab) ? CP.tab : "all";
   const tabs = `<div class="cpx-tabs" role="tablist">${TABS.map(([k, l, n]) => `<button role="tab" aria-selected="${tab === k}" class="${tab === k ? "on" : ""}" data-a="cpTab" data-v="${k}">${l}${k === "all" ? "" : `<span class="n">${n}</span>`}</button>`).join("")}</div>`;
   const pick = (cls, html) => tab === "all" || tab === cls ? html : "";
