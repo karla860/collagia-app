@@ -43,12 +43,9 @@ const moreBtn = c => `<button class="more-btn" data-a="menu" data-v="card:${c.id
 /* Card (Figma "Card · Apparel by Pattern Style"): a board canvas as the cover, title with a round ⋯,
    grey tags with a red square, then where it came from, who has it and when it changed */
 const cover = c => {
-  const ps = cProducts(c), k = c.attrs[0], first = k && valueCounts(c, k)[0];
-  return `<div class="ccanvas">
-    <div class="cc-loose">${ps.slice(-16).map(p => thumb(p, "t")).join("")}</div>
-    <div class="cc-frame"><span class="cc-lab"><b>${first ? esc(attrLabel(k)) : "Products"}</b><i>${first ? esc(first[0]) + " " : ""}${ps.length}</i></span>
-      <div class="cc-grid">${ps.slice(0, 80).map(p => thumb(p, "t")).join("")}</div><i class="cc-c tl"></i><i class="cc-c tr"></i><i class="cc-c bl"></i><i class="cc-c br"></i></div>
-  </div>`;
+  // Cover: a plain grid of the collection's own products, with how many more there are
+  const ps = cProducts(c), show = ps.slice(0, 21);
+  return `<div class="cgrid">${show.map(p => thumb(p, "t")).join("")}${ps.length > show.length ? `<span class="cmore">+${ps.length - show.length}</span>` : ""}</div>`;
 };
 const card = c => {
   const tags = c.attrs.map(k => { const n = valueCounts(c, k).length; return `<span class="ctag hued" title="Adds ${esc(attrLabel(k))}: ${esc(valueCounts(c, k).map(([v]) => v).join(", "))}"><span class="cdots">${valueCounts(c, k).slice(0, 4).map(([v]) => `<i ${hue(k, v)}></i>`).join("")}</span>${esc(attrLabel(k))}<small>${n}</small></span>`; });

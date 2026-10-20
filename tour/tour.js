@@ -53,7 +53,7 @@
     /* ---------- Homepage ---------- */
     { kick: "Attributes page", title: "A card shows what is inside", go: () => goHome(), sel: ".h-grid .ccard", place: "right", body: `
       ${was("On staging, an Attributes card shows a title, “version 1” and two dates, and every card looks the same.")}
-      ${did("The cover is the collection's products on a board. Then one tag per attribute with its number of values, where it came from, who has it, and when it last changed.")}` },
+      ${did("The cover is a grid of the collection's own products. Then one tag per attribute with its number of values, where it came from, who has it, and when it last changed.")}` },
 
     /* ---------- Create ---------- */
     { kick: "New collection", title: "Start by saying where the attributes are", go: () => { goHome(); openCreate(null); render(); }, sel: ".o-choose", place: "below", body: `

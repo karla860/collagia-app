@@ -1210,3 +1210,21 @@ body.locked .g-pill kbd { display: none; }
 .cpx-sr-out.remove { color: var(--text); }
 .cpx-sr-out.remove .cpx-g, .cpx-sr-c.remove .cpx-g { background: transparent; border: 1px dashed var(--slider-handle); color: var(--text); }
 .cpx-sr-row.remove { box-shadow: none; }
+
+/* ---------- Attribute card (Figma 4460:1424): white, 8px corners, soft shadow; product grid cover; Figma details ---------- */
+.ccard.v4 { border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 1px 3px rgba(0,0,0,.08); overflow: hidden; }
+.ccard.v4:hover, .ccard.v4:focus-visible { border-color: var(--border); box-shadow: 0 4px 12px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.08); }
+.cgrid { position: relative; height: 171px; display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: 1fr; gap: 6px; padding: 10px; background: #F5F5F5; overflow: hidden; }
+.cgrid .o-th.t { width: 100%; height: 100%; border-radius: 4px; background: var(--surface); box-shadow: 0 0 0 1px rgba(0,0,0,.04); }
+.cgrid .o-th.t img { object-fit: contain; }
+.cgrid .cmore { position: absolute; right: 10px; bottom: 10px; padding: 2px 8px; border-radius: 999px; background: rgba(35,33,33,.75); color: #fff; font: 600 var(--fs-11)/16px Inter, sans-serif; }
+.ccard.v4 .cbody { gap: 10px; padding: 12px; }
+.ccard.v4 .ctitle h3 { font-size: var(--fs-14); line-height: normal; font-weight: 600; letter-spacing: 0; }
+.ccard.v4 .more-btn { width: 24px; height: 24px; background: var(--chip); }
+.ccard.v4 .ctags { gap: 5px; }
+.ccard.v4 .ctag { height: 22px; padding: 3px 7px; gap: 5px; border-radius: 3px; background: var(--sunken); font: 400 var(--fs-12)/var(--lh-12) Inter, sans-serif; }
+.ccard.v4 .ctag .cdots i { width: 6px; height: 6px; box-shadow: 0 0 0 1px var(--sunken); }
+.ccard.v4 .ctag small { font-size: var(--fs-12); }
+.ccard.v4 .ctag.more { background: var(--sunken); font-weight: 400; }
+.ccard.v4 .when { gap: 4px; font: 500 var(--fs-12)/normal Inter, sans-serif; color: var(--muted); }
+.ccard.v4 .when svg.i { width: 13px; height: 13px; }
