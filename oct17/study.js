@@ -54,7 +54,7 @@ const MODAL_PREVIEW = () => {
     </div></div>
     <footer class="o-mf"><span class="sp"></span>
       <button class="btn" data-a="pvBack">Cancel</button>
-      ${synced ? `<button class="btn primary" data-a="pvBack">Choose another study</button>` : `<button class="btn primary${m.lost ? " danger" : ""}" data-a="pvApply">${m.lost ? ic.warn : ic.importStudy}${s.published.some(k => c.attrs.includes(k)) ? "Replace" : "Add"} ${c.attrs.length === 1 ? esc(attrLabel(c.attrs[0])) : c.attrs.length + " attributes"} in ${esc(s.name)}</button>`}
+      ${synced ? `<button class="btn primary" data-a="pvBack">Choose another study</button>` : `<button class="btn primary" data-a="pvApply">${ic.importStudy}${s.published.some(k => c.attrs.includes(k)) ? "Replace" : "Add"} ${c.attrs.length === 1 ? esc(attrLabel(c.attrs[0])) : c.attrs.length + " attributes"} in ${esc(s.name)}</button>`}
     </footer>
   </div>`;
 };

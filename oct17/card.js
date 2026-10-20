@@ -201,10 +201,10 @@ const MODAL_CARD = () => {
       <button class="btn" data-a="openAccessCur">${ic.share}Share</button>
       <div class="o-dd"><button class="icon-btn o-morebtn${App.menu === "more" ? " open" : ""}" data-a="menu" data-v="more" aria-haspopup="menu" aria-label="More">${ic.more}</button>
         ${App.menu === "more" ? `<div class="o-menu o-newmenu right" role="menu">
-          <button role="menuitem" data-a="exportCsv">${ic.download}<span><b>Download CSV</b><small>Style code, then one column per attribute</small></span></button>
+          <button role="menuitem" data-a="exportCsv">${ic.download}<span><b>Download CSV</b></span></button>
           <hr class="o-msep"><div class="o-mgroup">Update this collection</div>
-          <button role="menuitem" data-a="updateFromStudy" data-v="${c.id}">${ic.studies}<span><b>From a study</b><small>Pull a study's current attributes in as ${nextV(c)}</small></span></button>
-          <button role="menuitem" data-a="updateFromCsv" data-v="${c.id}">${ic.upload}<span><b>From a CSV</b><small>Replace the contents from a spreadsheet as ${nextV(c)}</small></span></button>
+          <button role="menuitem" data-a="updateFromStudy" data-v="${c.id}">${ic.studies}<span><b>From a study</b></span></button>
+          <button role="menuitem" data-a="updateFromCsv" data-v="${c.id}">${ic.upload}<span><b>From a CSV</b></span></button>
           <hr class="o-msep">
           <button role="menuitem" data-a="histToggle">${ic.history}Version history</button>
           <button role="menuitem" data-a="cdNameEdit">${ic.pencil}Rename</button>
@@ -221,7 +221,6 @@ const MODAL_CARD = () => {
     </div>
     <footer class="o-mf">
       ${c.desc ? `<span class="o-desc" title="${esc(c.desc)}">${esc(c.desc)}</span><i class="o-fsep"></i>` : ""}
-      ${appliedDD(c)}
       <span class="sp"></span>
       ${old ? `<button class="btn" data-a="verLatest">Back to latest</button><button class="btn primary" data-a="verRestore">${ic.history}Restore as ${nextV(c)}</button>`
         : !total ? `<button class="btn o-cmpbtn" disabled title="There are no products to compare yet"><span class="o-cmpg">⇄</span>Compare with a study</button>

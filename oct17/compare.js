@@ -261,7 +261,7 @@ const MODAL_COMPARE = () => {
       <button class="btn" data-a="cpBack">Back to collection</button>
       ${!c.attrs.length ? `<button class="btn primary" disabled>Apply to a study</button>`
         : !s ? `<button class="btn primary" data-a="toStudyPick">Apply to a study</button>`
-        : `<button class="btn primary${m && m.lost ? " danger" : ""}" data-a="cpApply" ${m && m.changed.length ? "" : "disabled"}>${m && m.lost ? ic.warn : ""}Apply to ${esc(s.name)}</button>`}
+        : `<button class="btn primary" data-a="cpApply" ${m && m.changed.length ? "" : "disabled"}>Apply to ${esc(s.name)}</button>`}
     </footer>
   </div>`;
 };

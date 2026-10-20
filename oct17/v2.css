@@ -1176,3 +1176,37 @@ button.cpx-sv.on { border-color: var(--text); box-shadow: 0 0 0 1px var(--text) 
 /* While a dialog is open the Guide pill shrinks to its icon, so it doesn't sit on top of the content */
 body.locked .g-pill { width: 36px; padding: 0; justify-content: center; font-size: 0; gap: 0; }
 body.locked .g-pill kbd { display: none; }
+
+/* Attribute card tags carry the values' own colours (same dots as the collection rail), not a red square */
+.ccard.v4 .ctag.hued::before { display: none; }
+.ccard.v4 .ctag .cdots { margin: 0; }
+.ccard.v4 .ctag .cdots i { width: 8px; height: 8px; box-shadow: 0 0 0 1.5px var(--chip); }
+/* Cards: one height per row, the palette stroke, footer pinned to the bottom */
+.h-grid { align-items: stretch; }
+.ccard.v4 { border: 1px solid var(--border); height: 100%; }
+.ccard.v4:hover, .ccard.v4:focus-visible { border: 1px solid #D4D4D8; }
+.ccard.v4 .cbody { flex: 1; display: flex; flex-direction: column; }
+.ccard.v4 .cfoot { margin-top: auto; }
+.o-studies { align-items: stretch; }
+.o-study { height: 100%; border: 1px solid var(--border); }
+.o-study .o-sbody { flex: 1; }
+/* Collection footer without the "Used in" button */
+.v2card .o-mf .o-fsep { display: none; }
+
+/* ---------- Compare: outcome labels as neutral pills; Removed and "No value" in a dashed pill, no red ---------- */
+.cpx-sh .cpx-g { display: none; }
+.cpx-sh b { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text) !important; font-size: var(--fs-12); font-weight: 600; }
+.cpx-sh b::before { font: 600 var(--fs-12)/1 system-ui, sans-serif; color: var(--muted); }
+.cpx-sec.change .cpx-sh b::before { content: "⇄"; }
+.cpx-sec.add .cpx-sh b::before { content: "+"; }
+.cpx-sec.same .cpx-sh b::before { content: "="; }
+.cpx-sec.remove .cpx-sh b::before { content: "−"; }
+.cpx-sec.remove .cpx-sh b { border-style: dashed; border-color: var(--slider-handle); }
+.cpx-sec.same .cpx-sh b { background: var(--sunken); color: var(--muted) !important; }
+.cpx-sec.remove .cpx-sh { background: transparent; }
+.cpx-t.remove { box-shadow: none; }
+.cpx-val.none.rm, .cpx-mini .none.rm { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border: 1px dashed var(--slider-handle); border-radius: 999px; background: var(--surface); color: var(--text); font-style: normal; font-weight: 500; }
+.cpx-val:not(.none) { display: inline-flex; height: 24px; padding: 0 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
+.cpx-sr-out.remove { color: var(--text); }
+.cpx-sr-out.remove .cpx-g, .cpx-sr-c.remove .cpx-g { background: transparent; border: 1px dashed var(--slider-handle); color: var(--text); }
+.cpx-sr-row.remove { box-shadow: none; }

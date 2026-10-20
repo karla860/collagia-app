@@ -71,10 +71,10 @@
     /* ---------- Open a collection ---------- */
     { kick: "Open a collection", title: "Two things up top, the rest behind ⋯", go: () => { goCard(); render(); }, sel: ".v2h .o-dd", place: "left", body: `
       ${was("On staging, four identical buttons sit bottom-right: Import Attributes to Study, Update Attributes From Study, Update Attributes from CSV and Export CSV.")}
-      ${did("Share sits in the header because it is the deliberate step everyone has to take. Download CSV, the two update moves and version history live behind ⋯, each with a line saying what it does.")}` },
-    { kick: "Open a collection", title: "The one big action, and where it has been used", go: () => { goCard(); App.menu = "applied"; render(); }, sel: ".v2card .o-mf", place: "above", body: `
-      ${did("Apply to a study is the single red button. Next to it, “Used in” lists the studies that already have this collection and which version each has. Franchise was made from FA26 footwear review, and an older v1 already sits in Price architecture, so both are listed. Applying it somewhere new adds that study here.")}
-      ${why("Before applying, it's useful to know where a collection already lives, and which studies are behind.")}` },
+      ${did("Share sits in the header because it is the deliberate step everyone has to take. Download CSV, the two update moves, version history and rename live behind ⋯, as short plain labels.")}` },
+    { kick: "Open a collection", title: "The one big action", go: () => { goCard(); render(); }, sel: ".v2card .o-mf", place: "above", body: `
+      ${did("Apply to a study is the single red button, with Compare with a study beside it as the optional look first. The footer holds nothing else, so the next step is never in doubt.")}
+      ${why("One clear primary action keeps the screen calm. Where a collection is already used shows up in Compare and in version history, where it's needed.")}` },
     { kick: "Open a collection", title: "Every version, kept", go: () => { goCard(); CD.histOpen = true; render(); }, sel: ".o-hist", place: "left", body: `
       ${was("On staging, a collection says “version 1” and nothing about what changed between versions or which studies have which one.")}
       ${did("Version history lists every version: what changed, who made it, when, and which studies still use it. You can view an older version and restore it as a new one.")}
@@ -172,7 +172,7 @@
      once it's done, confirms what happened. Next is always there as "Skip", so nobody gets stuck. */
   const TASKS = {
     "Four board types, one chip": { at: ".bx-show .o-menu [data-v=\"group\"]", ask: "Pick <b>Group</b> in the menu.", done: () => BD.matrix === "group", ok: "The board is now one frame per product type." },
-    "Two things up top, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b> to see what else you can do with this collection.", done: () => App.menu === "more", ok: "Download, update from a study or a CSV, version history and rename, each with a line saying what it does." },
+    "Two things up top, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b> to see what else you can do with this collection.", done: () => App.menu === "more", ok: "Download, update from a study or a CSV, version history and rename: everything that isn't the main job." },
     "Two attributes in one go": { at: ".preview .o-mf .btn.primary", ask: "Click <b>Add 2 attributes in Antiquities sale 2026</b>.", done: () => App.modal === "success", ok: "Both attributes are in the study: 30 products, 56 values added." },
     "The core fix: a checkbox means one thing": { at: '.o-rrow.attr[data-v="franchise"]', ask: "Untick <b>Franchise</b> and watch the products lose their Franchise value.", done: () => !CR.included.has("franchise"), ok: "Franchise is out of the collection, so the products no longer carry it. Tick it again to bring it back." },
     "Choosing which study to compare with": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Compare with</b> dropdown to see every study.", done: () => App.menu === "cpstudy", ok: "Studies with an older version come first, each with its version and how many products it shares." },

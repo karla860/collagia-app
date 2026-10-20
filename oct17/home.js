@@ -51,7 +51,7 @@ const cover = c => {
   </div>`;
 };
 const card = c => {
-  const tags = c.attrs.map(k => { const n = valueCounts(c, k).length; return `<span class="ctag" title="Adds ${esc(attrLabel(k))}: ${esc(valueCounts(c, k).map(([v]) => v).join(", "))}">${esc(attrLabel(k))}<small>${n}</small></span>`; });
+  const tags = c.attrs.map(k => { const n = valueCounts(c, k).length; return `<span class="ctag hued" title="Adds ${esc(attrLabel(k))}: ${esc(valueCounts(c, k).map(([v]) => v).join(", "))}"><span class="cdots">${valueCounts(c, k).slice(0, 4).map(([v]) => `<i ${hue(k, v)}></i>`).join("")}</span>${esc(attrLabel(k))}<small>${n}</small></span>`; });
   return `
   <article class="ccard v4" data-a="openCard" data-v="${c.id}" tabindex="0">
     ${cover(c)}
