@@ -56,7 +56,7 @@ const tile = (p, t, share) => {
   const s = bdStudy(), on = BD.tool === "attr" && BD.sel.has(p.id), v = BD.show && !(BD.show in COLS) ? (s.tags[BD.show] || {})[p.id] : null;
   const dim = BD.hl.size && !BD.hl.has(p.id), hl = BD.hl.has(p.id);
   return `<figure class="bx-tile${on ? " on" : ""}${dim ? " dim" : ""}${hl ? " hl" : ""}${BD.peek === p.id ? " peek" : ""} v-${BD.view}" style="width:${t}px;height:${t}px" data-a="bdTile" data-v="${p.id}" data-id="${p.id}">
-    <img src="${p.img}" alt="" loading="lazy" draggable="false">
+    ${p.img ? `<img src="${p.img}" alt="" loading="lazy" draggable="false">` : thumb(p, "bx-draw")}
     ${BD.pct && share != null ? `<b class="bx-pct">${share.toFixed(1)}%</b>` : ""}
     ${v && t >= 72 ? `<i class="bx-tag">${esc(v)}</i>` : ""}
     ${on ? `<i class="bx-check">${ic.check}</i>` : ""}

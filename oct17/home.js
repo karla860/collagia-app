@@ -40,16 +40,26 @@ const srcLine = c => c.source.type === "study"
 const visChip = (c, act = "") => `<span class="o-vis ${isPrivate(c) ? "private" : "shared"}" ${act}>${isPrivate(c) ? ic.lock : ic.people}${visLabel(c)}</span>`;
 const avatar2 = (p, cls = "") => p.photo ? `<img class="o-av photo ${cls}" src="${p.photo}" alt="" title="${esc(p.name)}">` : `<span class="o-av ${cls}${p.you ? " me" : ""}" title="${esc(p.name)}">${p.name.split(/\s+/).map(w => w[0]).join("").slice(0, 2)}</span>`;
 const moreBtn = c => `<button class="more-btn" data-a="menu" data-v="card:${c.id}" aria-haspopup="menu" aria-label="More actions for ${esc(c.name)}">${ic.more}</button>`;
+/* Card (Figma "Card · Apparel by Pattern Style"): a board canvas as the cover, title with a round ⋯,
+   grey tags with a red square, then where it came from, who has it and when it changed */
+const cover = c => {
+  const ps = cProducts(c), k = c.attrs[0], first = k && valueCounts(c, k)[0];
+  return `<div class="ccanvas">
+    <div class="cc-loose">${ps.slice(12, 24).map(p => thumb(p, "t")).join("")}</div>
+    <div class="cc-frame"><span class="cc-lab">${first ? `<b>${esc(attrLabel(k))}</b>${esc(first[0])}` : "<b>Products</b>"}<i>${ps.length}</i></span>
+      <div class="cc-grid">${ps.slice(0, 40).map(p => thumb(p, "t")).join("")}</div><i class="cc-c tl"></i><i class="cc-c tr"></i><i class="cc-c bl"></i><i class="cc-c br"></i></div>
+  </div>`;
+};
 const card = c => {
-  const ps = cProducts(c), [hero, ...rest] = ps;
+  const tags = c.attrs.map(k => { const n = valueCounts(c, k).length; return `<span class="ctag" title="Adds ${esc(attrLabel(k))}: ${esc(valueCounts(c, k).map(([v]) => v).join(", "))}">${esc(attrLabel(k))}<small>${n}</small></span>`; });
   return `
-  <article class="ccard v3" data-a="openCard" data-v="${c.id}" tabindex="0">
-    <div class="cmosaic">${hero ? thumb(hero, "big") : ""}<div class="csmall">${rest.slice(0, 4).map(p => thumb(p, "sm")).join("")}</div>${ps.length > 5 ? `<span class="cmore">+${ps.length - 5}</span>` : ""}</div>
+  <article class="ccard v4" data-a="openCard" data-v="${c.id}" tabindex="0">
+    ${cover(c)}
     <div class="cbody">
       <div class="ctitle"><h3>${esc(c.name)}</h3>${moreBtn(c)}</div>
-      <div class="cattrs3">${c.attrs.map(k => { const n = valueCounts(c, k).length; return `<span class="cattr" title="Adds ${esc(attrLabel(k))}: ${esc(valueCounts(c, k).map(([v]) => v).join(", "))}">${ic.plus}<b>${esc(attrLabel(k))}</b><span class="cdots">${valueCounts(c, k).slice(0, 6).map(([v]) => `<i ${hue(k, v)}></i>`).join("")}</span><small>${n} value${n === 1 ? "" : "s"}</small></span>`; }).join("")}</div>
+      <div class="ctags">${tags.slice(0, 4).join("")}${tags.length > 4 ? `<span class="ctag more">+${tags.length - 4} more</span>` : ""}</div>
       <div class="csrc">${srcLine(c)}</div>
-      <div class="cfoot">${avatar2(c.owner, "s")}<span class="cown">${c.owner.you ? "You" : esc(c.owner.name.split(" ")[0])}</span>${visChip(c)}<span class="sp"></span><span class="when" title="Version ${c.v.slice(1)} · last edited ${c.edited}">${c.v} · ${ago(c.edited)}</span></div>
+      <div class="cfoot"><span class="when" title="Version ${c.v.slice(1)} · last edited ${c.edited}">${ic.clock}${ago(c.edited)} · ${c.v}</span><span class="sp"></span>${avatar2(c.owner, "s")}${visChip(c)}</div>
     </div>
   </article>`;
 };

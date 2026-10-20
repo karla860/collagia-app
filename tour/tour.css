@@ -73,3 +73,4 @@
 .tr-bar .tr-btn { padding: 5px 12px; border-radius: 999px; }
 .tr-bar .tr-bar-x { position: static; width: 28px; height: 28px; }
 .tr-card .tr-task.done { margin: 4px 0 10px; }
+.tr-bar[hidden], .tr-dot[hidden], .tr-hint-pop[hidden] { display: none; }

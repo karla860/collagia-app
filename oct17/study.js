@@ -119,14 +119,22 @@ ACTIONS.pvApply = () => {
   ST.result = t; App.modal = "success";
   setTimeout(() => { const b = document.getElementById("ok-go"); if (b) b.focus(); });
 };
-ACTIONS.openStudyBoard = () => { App.modal = null; setFlow("board"); const s = stStudy(); if (s) { BD.matrix = "group"; BD.groupBy = stColl().attrs[0]; BD.show = BD.groupBy; } JUMP.board(ST.sel); toast(`Opened ${ST.sel || "the study"}`); return false; };
+// Opens the board grouped by the collection's first attribute, then split by its second, so every attribute that landed is visible
+ACTIONS.openStudyBoard = () => { App.modal = null; setFlow("board"); const s = stStudy(), at = stColl().attrs; if (s) { BD.matrix = "group"; BD.groupBy = at[0]; BD.group2 = at[1] || null; BD.show = BD.groupBy; BD.filters = {}; } JUMP.board(ST.sel); toast(`Opened ${ST.sel || "the study"}`); return false; };
+// Demo: a collection with two attributes (Statue backgrounds: Background color + Material) applied to a study that has neither.
+// Resets that study first so the demo can be replayed.
+const resetAntiquities = () => { const s = studyByName("Antiquities sale 2026"); if (s) { s.tags = {}; s.published = []; s.applied = {}; } };
 ACTIONS.successHome = () => { App.modal = null; setFlow("home"); App.page = "home"; };
 document.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches(".o-study")) { e.preventDefault(); e.target.click(); } });
 
 JUMP.study = v => {
   App.page = "home"; App.menu = null; ST.fromBoard = false;
   if (!collById(CD.id)) CD.id = COLLECTIONS[0].id;
-  if (v === "preview") { ST.sel = ST.sel || "Price architecture"; ST.open = null; App.modal = "preview"; }
+  if (v === "multi" || v === "multidone" || v === "multiboard") {
+    resetAntiquities(); CD.id = "statues"; ST.sel = "Antiquities sale 2026"; ST.fromCompare = false; CP.open = null; CP.touched = false; CP.q = ""; App.modal = "preview";
+    if (v !== "multi") { ACTIONS.pvApply(); if (v === "multiboard") { ACTIONS.openStudyBoard(); return; } }
+  }
+  else if (v === "preview") { ST.sel = ST.sel || "Price architecture"; ST.open = null; App.modal = "preview"; }
   else if (v === "done") { ST.sel = ST.sel || "Price architecture"; ST.result = ST.result || diffTotals(diffFor(curColl(), stStudy())); App.modal = "success"; }
   else { ST.q = ""; ST.sel = null; App.modal = "studyPick"; }
   render();

@@ -1082,3 +1082,48 @@ button.cpx-sv.on { border-color: var(--text); box-shadow: 0 0 0 1px var(--text) 
 .o-th.loading { position: relative; overflow: hidden; background: #ECECEC; }
 .o-th.loading::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.85) 50%, transparent 70%); transform: translateX(-100%); animation: o-sweep 1.6s ease-in-out infinite; }
 @keyframes o-sweep { to { transform: translateX(100%); } }
+
+/* ---------- Attribute card (Figma "Card · Apparel by Pattern Style") ---------- */
+.ccard.v4 { border: 1px solid var(--border); border-radius: 10px; box-shadow: none; overflow: hidden; transition: border-color .15s, box-shadow .15s; }
+.ccard.v4:hover, .ccard.v4:focus-visible { border-color: #CFCFD2; box-shadow: 0 8px 24px rgba(0,0,0,.07); outline: 0; }
+.ccanvas { position: relative; height: 172px; display: flex; align-items: center; justify-content: center; gap: 44px; background: #F4F4F4 radial-gradient(circle, #DADADA 1px, transparent 1.2px) 0 0 / 12px 12px; border-bottom: 1px solid var(--border); overflow: hidden; }
+.cc-loose { display: grid; grid-template-columns: repeat(4, 12px); gap: 4px; padding: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+.cc-frame { position: relative; padding: 18px 10px 10px; background: var(--surface); border: 1px solid var(--border); }
+.cc-lab { position: absolute; top: -1px; left: -1px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; background: var(--surface); border: 1px solid var(--border); font: 500 8px/1.2 Inter, sans-serif; color: var(--muted); white-space: nowrap; }
+.cc-lab b { color: var(--text); font-weight: 600; margin-right: 2px; }
+.cc-lab i { font-style: normal; padding: 0 3px; border-radius: 2px; background: var(--text); color: #fff; }
+.cc-grid { display: grid; grid-template-columns: repeat(8, 14px); gap: 4px; }
+.ccanvas .o-th.t { width: 12px; height: 12px; border-radius: 2px; }
+.cc-grid .o-th.t { width: 14px; height: 14px; }
+.ccanvas .o-th.t img { object-fit: cover; }
+.cc-c { position: absolute; width: 8px; height: 8px; border: 0 solid var(--text); }
+.cc-c.tl { top: -5px; left: -5px; border-width: 1.5px 0 0 1.5px; } .cc-c.tr { top: -5px; right: -5px; border-width: 1.5px 1.5px 0 0; }
+.cc-c.bl { bottom: -5px; left: -5px; border-width: 0 0 1.5px 1.5px; } .cc-c.br { bottom: -5px; right: -5px; border-width: 0 1.5px 1.5px 0; }
+.ccard.v4 .cbody { gap: 10px; padding: 14px 16px; }
+.ccard.v4 .ctitle h3 { font-size: var(--fs-16); line-height: var(--lh-16); font-weight: 600; letter-spacing: var(--ls-tight); }
+.ccard.v4 .more-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--chip); }
+.ccard.v4 .more-btn:hover { background: #E2E2E4; }
+.ctags { display: flex; flex-wrap: wrap; gap: 6px; }
+.ctag { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px; border-radius: 4px; background: var(--chip); font: 500 var(--fs-13)/1 Inter, sans-serif; color: var(--text); }
+.ctag > i { width: 6px; height: 6px; background: var(--accent); flex: none; }
+.ctag small { font-size: var(--fs-12); font-weight: 400; color: var(--muted); }
+.ctag.more { color: var(--muted); font-weight: 500; }
+.ccard.v4 .csrc { font-size: var(--fs-12); color: var(--muted); }
+.ccard.v4 .cfoot { display: flex; align-items: center; gap: 6px; padding-top: 2px; border-top: 0; }
+.ccard.v4 .when { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-13); color: var(--muted); }
+.ccard.v4 .when svg.i { width: 16px; height: 16px; }
+.ccard.v4 .ctag::before { width: 6px; height: 6px; border-radius: 0; }
+/* Study cards: equal height per row, hugging their content (the grid no longer stretches to fill the dialog) */
+.o-studies { align-content: start; align-items: stretch; }
+.o-study { display: flex; flex-direction: column; }
+.o-study .o-sbody { flex: none; }
+/* "All products" rail row (Figma): 14px box icon, Body 13 Semi Bold, count Small 12 Regular, black when selected */
+.o-tr.all { gap: 8px; padding: 7px 8px; border-radius: 6px; font: 600 var(--fs-13)/var(--lh-13) Inter, sans-serif; }
+.o-tr.all b { font-weight: 600; }
+.o-tr.all svg.i { width: 14px; height: 14px; }
+.o-tr.all .n { font: 400 var(--fs-12)/var(--lh-12) Inter, sans-serif; }
+.o-tr.all.on { background: var(--text); color: #fff; }
+.o-tr.all.on svg.i, .o-tr.all.on .n { color: #fff; }
+/* Board tiles for products without a photo (the statue lots): their drawn silhouette fills the tile */
+.bx-tile .o-th.bx-draw { width: 100%; height: 100%; border-radius: inherit; }
+.bx-tile .o-th.bx-draw svg { width: 100%; height: 100%; display: block; }

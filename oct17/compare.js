@@ -285,7 +285,7 @@ ACTIONS.cpApply = () => { if (cpFind(CP.study).sample) { toast("Sample study: ap
 
 /* Guide: #compare opens the picker; sub-entries show each state (sample states are labelled as such on screen) */
 JUMP.compare = v => {
-  App.page = "home"; openCard(v === "statues" ? "statues" : "franchise"); openCompare();
+  App.page = "home"; if (v === "statues") resetAntiquities(); openCard(v === "statues" ? "statues" : "franchise"); openCompare();
   const pick = { search: "Price architecture", changes: "Price architecture", uptodate: "FA26 footwear review", statues: "Antiquities sale 2026", noshared: "Antiquities sale 2026", loading: "Price architecture", error: "Price architecture" }[v];
   if (v === "noattrs") { CP.demo = "noattrs"; CP.study = null; CP.loading = false; }
   if (v === "many") { CP.demo = "many"; CP.loading = false; }

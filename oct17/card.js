@@ -30,7 +30,7 @@ const rail = () => {
   const c = curColl(), all = !CD.sel, ps = cProducts(c), nv = c.attrs.reduce((n, k) => n + valueCounts(c, k).length, 0);
   return `<aside class="o-rail tree" aria-label="Show products by attribute">
     <div class="o-rail-h"><span>Tags in this collection</span><small>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"} · ${nv} value${nv === 1 ? "" : "s"}</small></div>
-    <button class="o-tr all${all ? " on" : ""}" data-a="cardAll" role="radio" aria-checked="${all}">${ic.box}<b>All products</b><span class="n">${ps.length}</span></button>
+    <button class="o-tr all${all ? " on" : ""}" data-a="cardAll" role="radio" aria-checked="${all}">${ic.allProducts}<b>All products</b><span class="n">${ps.length}</span></button>
     ${c.attrs.map(k => {
       const onA = CD.sel && CD.sel.k === k && !CD.sel.v, n = Object.keys(c.values[k] || {}).length, vals = valueCounts(c, k), closed = CD.closed.has(k);
       return `<div class="o-tnode${closed ? " closed" : ""}">
