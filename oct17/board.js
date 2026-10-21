@@ -204,24 +204,8 @@ const showBar = () => {
 const toolRail = () => `<div class="bx-tools">${Object.entries(TOOLS).map(([k, t], i) => `${i === 5 ? "<i></i>" : ""}<button class="${BD.tool === k || (k === "swap" && BD.flyout === "swap") ? "on" : ""}${k === "swap" && BD.view !== "full" ? " dot" : ""}" data-a="bdTool" data-v="${k}" ${tipAttrs(t.name, t.tip, t.key)}>${t.icon}</button>`).join("")}</div>
   ${BD.flyout === "swap" ? `<div class="bx-flyout"><div class="o-mgroup">Swap images</div>${Object.entries(VIEWS).map(([k, v]) => `<button class="${BD.view === k ? "cur" : ""}" data-a="bdView" data-v="${k}"><span class="bx-vthumb v-${k}"><img src="${bdProducts()[0].img}" alt=""></span><span class="o-amrow"><b>${v.name}</b><small>${v.hint}</small></span></button>`).join("")}<p class="bx-mnone">This catalogue has one photo per product, so the angles are stand-ins.</p></div>` : ""}`;
 
-/* ---------- Right panel: only for the attribute and statistics tools ---------- */
+/* ---------- Right panel: only for the statistics tool. Attributes are named in the input popover alone. ---------- */
 const ensureKey = label => Object.keys(ATTRS).find(x => attrLabel(x).toLowerCase() === label.trim().toLowerCase()) || slug(label.trim());
-const attrPanel = () => {
-  const s = bdStudy(), n = BD.sel.size, sel = [...BD.sel].map(id => PRODUCTS[id]);
-  const head = `<div class="bx-ph">${TOOLS.attr.icon}<b>${n ? `Add an attribute to ${n} product${n === 1 ? "" : "s"}` : "Create custom attribute"}</b><span class="sp"></span><button class="icon-btn" data-a="bdTool" data-v="select" ${tipAttrs("Done", "", "Esc")}>${ic.close}</button></div>`;
-  if (!n) return `<aside class="bx-panel idle">${head}
-    <p>Drag a frame around the products that belong together, or click them one by one. The frame button on a group selects all of it.</p>
-    <p class="o-muted">Then name the attribute (what you're judging, e.g. <b>Upper material</b>) and the value (what you see, e.g. <b>Knit</b>). Publish, then frame the next group and publish another value.</p>
-    ${s.published.length ? `<div class="bx-carried"><span class="o-sec">Published in this study</span>${s.published.map(k => `<div class="bx-crow"><b>${esc(attrLabel(k))}</b><span>${studyValueCounts(s, k).map(([v, c]) => `${esc(v)} ${c}`).join(" · ")}</span></div>`).join("")}</div>` : ""}</aside>`;
-  const key = BD.tag.attr ? ensureKey(BD.tag.attr) : null, existing = key && s.tags[key] ? sel.filter(p => s.tags[key][p.id]).length : 0;
-  const carried = {}; s.published.forEach(k => { const vs = new Set(sel.map(p => (s.tags[k] || {})[p.id]).filter(Boolean)); if (vs.size) carried[k] = [...vs]; });
-  return `<aside class="bx-panel">${head}
-    <div class="bx-selstrip">${sel.slice(0, 8).map(p => thumb(p, "s36")).join("")}${n > 8 ? `<span class="bx-more">+${n - 8}</span>` : ""}</div>
-    <p class="o-muted">Choose an attribute and a value in the box next to the tool.</p>
-    ${existing ? `<p class="bx-note">${ic.info}${existing} of these already have a ${esc(attrLabel(key))} value. Publishing replaces it.</p>` : ""}
-    ${Object.keys(carried).length ? `<div class="bx-carried"><span class="o-sec">On the selection</span>${Object.entries(carried).map(([k, vs]) => `<div class="bx-crow"><b>${esc(attrLabel(k))}</b><span>${vs.map(esc).join(", ")}</span><button class="o-clear" data-a="bdRemoveTag" data-v="${k}">Remove</button></div>`).join("")}</div>` : ""}
-  </aside>`;
-};
 /* ---------- Input popover (Figma 4392:1295): Attribute Name and Value Name beside the framed products ----------
    Each field is a combobox: type a new name, or pick from what this study already has (with counts). */
 const IP_CHEV = `<img class="bx-ip-chev" src="assets/icons/ip-chevron.svg" width="14" height="14" alt="">`;
@@ -312,7 +296,7 @@ const shortcutsCard = () => BD.shortcuts ? `<div class="bx-keys"><div class="bx-
 
 RENDER.board = () => {
   const cv = $("#bd-canvas"), keep = cv ? [cv.scrollLeft, cv.scrollTop] : null;
-  const panel = BD.tool === "attr" ? attrPanel() : BD.tool === "stats" ? statsPanel() : "";
+  const panel = BD.tool === "stats" ? statsPanel() : "";
   $("#board").innerHTML = `${topBar()}<div class="bx-main">${toolRail()}<div class="bx-canvas t-${BD.tool}" id="bd-canvas">${canvas()}<div class="bx-pins">${pinLayer()}</div></div>${panel}${inputPop()}</div>${BD.table ? dataTable() : ""}${showBar()}${peekCard()}${shortcutsCard()}`;
   const nc = $("#bd-canvas"); if (nc && keep && !BD.resetScroll) { nc.scrollLeft = keep[0]; nc.scrollTop = keep[1]; } BD.resetScroll = false;
   if ($("#bd-inpop")) placeInputPop();
@@ -409,7 +393,6 @@ ACTIONS.bdPublish = () => {
   if (BD.matrix === "freestyle") toast(`Published ${attrLabel(k)} = ${v} on ${n} product${n === 1 ? "" : "s"}. They're framed now.`);
   else toast(`Published ${attrLabel(k)} = ${v} on ${n} product${n === 1 ? "" : "s"}. Switch to Freestyle to see the frame, or Group by ${attrLabel(k)}.`);
 };
-ACTIONS.bdRemoveTag = el => { const s = bdStudy(), k = el.dataset.v, n = BD.sel.size; BD.sel.forEach(id => unpublishTag(s, k, id)); if (!s.published.includes(k)) { if (BD.groupBy === k) BD.groupBy = "type"; if (BD.show === k) BD.show = s.published[0] || null; } toast(`Removed ${attrLabel(k)} from ${n} products`); };
 ACTIONS.bdToast = el => { toast(`Prototype: ${el.dataset.v} isn't part of this prototype`); return false; };
 // Comments
 INPUTS.pinDraft = el => { BD.draft.text = el.value; return false; };

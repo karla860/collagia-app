@@ -26,22 +26,8 @@ const stepper = () => `<div class="o-steps" aria-label="Steps"><ol>${CR_STEPS().
 const crTitle = () => CR.mode === "update" ? `Update <b>${esc(collById(CR.target).name)}</b>` : "New attribute collection";
 
 /* ---------- Step 2a · Pick a study ---------- */
-const STEP_STUDY = () => `<div class="o-scroll grey"><div class="o-studies">${STUDIES.map(s => {
-  const n = s.published.length, ok = n > 0;
-  return `<div class="o-study${CR.study === s.name ? " on" : ""}${ok ? "" : " off"}" ${ok ? `data-a="crPickStudy" data-v="${esc(s.name)}" tabindex="0"` : 'aria-disabled="true" title="No attributes yet"'} role="radio" aria-checked="${CR.study === s.name}">
-    <div class="o-sprev study">${studyProducts(s).slice(0, 12).map(p => thumb(p, "s56")).join("")}</div>
-    <div class="o-sbody"><div><b>${esc(s.name)}</b><span>${esc(COLLAGES[s.collage].name)} · ${s.edited}</span>
-      ${studyTags(s)}</div></div>
-  </div>`; }).join("")}</div></div>`;
-
-/* What a study already has: one grey tag per published attribute with its value count, the first four then "+N more" */
-const studyTags = (s, max = 4) => {
-  if (!s.published.length) return `<span class="o-fit none">Nothing published yet</span>`;
-  // Same tag as the attribute cards: the values' own colours, then the name and how many values
-  const tags = s.published.map(k => `<span class="ctag hued" title="${esc(attrLabel(k))}: ${studyValueCounts(s, k).length} values"><span class="cdots">${studyValueCounts(s, k).slice(0, 4).map(([v]) => `<i ${hue(k, v)}></i>`).join("")}</span>${esc(attrLabel(k))}<small>${studyValueCounts(s, k).length}</small></span>`);
-  return `<span class="o-stags-h">${s.published.length} attribute${s.published.length === 1 ? "" : "s"}</span>
-    <span class="ctags o-stags">${tags.slice(0, max).join("")}${tags.length > max ? `<span class="ctag more" title="${esc(s.published.slice(max).map(attrLabel).join(", "))}">+${tags.length - max} more</span>` : ""}</span>`;
-};
+const STEP_STUDY = () => `<div class="o-scroll grey"><div class="o-studies">${STUDIES.map(s => { const ok = s.published.length > 0;
+  return studyCard(s, { act: ok ? `data-a="crPickStudy" data-v="${esc(s.name)}"` : 'aria-disabled="true" title="No attributes yet"', on: CR.study === s.name, off: !ok, role: "radio" }); }).join("")}</div></div>`;
 
 /* ---------- Step 3a · Review attributes ----------
    The collection screen's own rail and grid (card.js), drawn for the collection this will save: one attribute at a time,

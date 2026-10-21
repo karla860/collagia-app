@@ -10,17 +10,13 @@ const stStudy = () => studyByName(ST.sel);
 const MODAL_PICK = () => {
   const c = stColl(), q = ST.q.trim().toLowerCase(), list = STUDIES.filter(s => !q || s.name.toLowerCase().includes(q));
   const sel = stStudy(), total = c.productIds.length;
-  const fit = s => { const n = matchCount(c, s); return !n ? `<span class="o-fit none">No matching products · different collage</span>` : `<span class="o-fit${n === total ? " all" : ""}">${n === total ? "All" : n} of ${total} products in this collection</span>`; };
   const has = s => s.applied[c.id] ? `<span class="o-applied${s.applied[c.id] === c.v ? " ok" : ""}">${s.applied[c.id]}</span>` : "";
   return `<div class="o-modal xl pick" role="dialog" aria-modal="true" aria-label="Apply ${esc(c.name)} to a study">
   <header class="o-mh"><button class="icon-btn" data-a="pickBack" aria-label="Back">${ic.back}</button><h2 class="o-h20">Apply <b>${esc(c.name)}</b> to a study</h2><span class="sp"></span>
     <label class="o-searchbox">${ic.search}<input id="st-q" data-in="stQ" placeholder="Search studies…" value="${esc(ST.q)}" aria-label="Search a study"></label></header>
   <div class="o-pickhelp">${ic.info}Attributes only land on products the study contains, so the study's collage decides whether anything happens. Nothing changes until you've seen the preview.</div>
   <div class="o-scroll grey"><div class="o-studies">${list.length ? list.map(s => { const n = matchCount(c, s); return `
-    <div class="o-study${ST.sel === s.name ? " on" : ""}${n ? "" : " off"}" ${n ? `data-a="pickStudy" data-v="${esc(s.name)}" tabindex="0"` : 'aria-disabled="true" title="No shared products"'} role="radio" aria-checked="${ST.sel === s.name}">
-      <div class="o-sprev study">${studyProducts(s).slice(0, 12).map(p => thumb(p, "s56")).join("")}${has(s)}</div>
-      <div class="o-sbody"><div><b>${esc(s.name)}</b><span>${esc(COLLAGES[s.collage].name)} · ${s.edited}</span>${fit(s)}${studyTags(s, 3)}</div></div>
-    </div>`; }).join("") : `<p class="o-muted o-nostudy">No studies match “${esc(ST.q)}”</p>`}</div></div>
+    ${studyCard(s, { act: n ? `data-a="pickStudy" data-v="${esc(s.name)}"` : 'aria-disabled="true" title="No shared products"', on: ST.sel === s.name, off: !n, badge: has(s), role: "radio" })}`; }).join("") : `<p class="o-muted o-nostudy">No studies match “${esc(ST.q)}”</p>`}</div></div>
   <footer class="o-mf"><span class="o-showing">${sel ? `Applying to <b>${esc(sel.name)}</b>` : "Choose a study"}</span><span class="sp"></span>
     <button class="btn primary" data-a="toPreview" ${sel && list.includes(sel) ? "" : "disabled"}>${ic.eye}Preview changes${ic.chevR}</button></footer>
 </div>`;

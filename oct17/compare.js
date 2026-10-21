@@ -227,10 +227,8 @@ const cpDropdown = (c, list) => {
     </div>` : ""}</div>`;
 };
 // No study chosen yet: every study as a card (its products, name, and the version it has), as in New collection
-const cpStudyCards = c => `<div class="o-studies cpx-studies">${cpStudies().map(s => `<div class="o-study" data-a="cpPick" data-v="${esc(s.name)}" tabindex="0" role="button">
-    <div class="o-sprev study">${studyProducts(s).slice(0, 12).map(p => thumb(p, "s56")).join("")}</div>
-    <div class="o-sbody"><div><b>${esc(s.name)}</b><span>${esc(COLLAGES[s.collage].name)} · ${s.edited}</span>${s.applied[c.id] ? `<span class="cpx-badge${s.applied[c.id] !== c.v ? " behind" : " ok"}">${s.applied[c.id]}</span>` : ""}</div></div>
-  </div>`).join("")}</div>`;
+const cpStudyCards = c => `<div class="o-studies cpx-studies">${cpStudies().map(s => studyCard(s, { act: `data-a="cpPick" data-v="${esc(s.name)}"`,
+  badge: s.applied[c.id] ? `<span class="cpx-badge${s.applied[c.id] !== c.v ? " behind" : " ok"}">${s.applied[c.id]}</span>` : "" })).join("")}</div>`;
 const cpPicker = c => { const list = cpStudies(); return `<div class="cpx-pick" role="radiogroup" aria-label="Study to compare with"><span>Into</span>${cpDropdown(c, list)}</div>
   ${CP.demo === "many" ? cpSample(`Sample: ${sampleStudies().length} made-up studies added to show a long list. They only exist on this screen.`) : ""}`; };
 const cpEmpty = (icon, title, body, extra = "") => `<div class="o-empty o-empty2 cpx-empty">${icon}<b>${title}</b><span>${body}</span>${extra}</div>`;

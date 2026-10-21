@@ -21,6 +21,22 @@ const shownCollections = () => {
 };
 
 /* ---------- The explainer: one picture of the whole feature ---------- */
+/* ---------- One study card, wherever a study is listed or picked ----------
+   Unlike an attribute card (a grid of products, colour-coded tags): one strip of products, the study icon by its name,
+   and plain attribute tags on a single line, the rest folded into "+N more". */
+const studyTags = s => {
+  if (!s.published.length) return `<span class="o-stags"><span class="o-stag none">No attributes yet</span></span>`;
+  const shown = 2, more = s.published.length - shown;
+  return `<span class="o-stags">${s.published.slice(0, shown).map(k => `<span class="o-stag">${esc(attrLabel(k))}</span>`).join("")}${more > 0 ? `<span class="o-stag more" title="${esc(s.published.slice(shown).map(attrLabel).join(", "))}">+${more} more</span>` : ""}</span>`;
+};
+const studyCard = (s, { act = "", on = false, off = false, badge = "", role = "button" } = {}) => `
+  <div class="o-study${on ? " on" : ""}${off ? " off" : ""}" ${act} tabindex="${off ? -1 : 0}" role="${role}"${role === "radio" ? ` aria-checked="${on}"` : ""}>
+    <div class="o-sstrip">${studyProducts(s).slice(0, 6).map(p => thumb(p, "s56")).join("")}</div>
+    <div class="o-sbody"><div class="o-shead">${ic.studies}<b>${esc(s.name)}</b>${badge}</div>
+      <span class="o-smeta">${esc(COLLAGES[s.collage].name)} · ${s.edited}</span>
+      ${studyTags(s)}</div>
+  </div>`;
+
 const explainStrip = (compact = false) => `
   <section class="o-explain${compact ? " compact" : ""}" aria-label="How attributes work">
     <div class="o-ex-node"><span class="o-ex-ic">${ic.studies}</span><b>Study</b><span>Select products on a board and publish a tag: an attribute name and a value, like Upper material = Knit.</span></div>
@@ -138,11 +154,7 @@ RENDER.studies = () => {
     <div class="h-toolbar"><span class="h-count">${q ? `${list.length} of ${STUDIES.length}` : STUDIES.length} studies</span><span class="sp"></span>
       <label class="h-search">${ic.search}<input id="sq" data-in="studySearch" placeholder="Search studies…" value="${esc(S_PAGE.q)}"></label>
       <button class="btn primary" data-a="bdToast" data-v="New study">${ic.plus}New study</button></div>
-    ${list.length ? `<div class="o-studies in-page">${list.map(s => `
-      <div class="o-study" data-a="openStudy" data-v="${esc(s.name)}" tabindex="0" role="link">
-        <div class="o-sprev study">${studyProducts(s).slice(0, 12).map(p => thumb(p, "s56")).join("")}</div>
-        <div class="o-sbody"><div><b>${esc(s.name)}</b><span>${esc(COLLAGES[s.collage].name)} · ${s.edited}</span><span class="o-fit">${studyProducts(s).length} products · ${s.published.length} attribute${s.published.length === 1 ? "" : "s"} published</span></div></div>
-      </div>`).join("")}</div>` : `<div class="no-match"><b>No studies match “${esc(S_PAGE.q)}”</b><span>Try another name.</span></div>`}`;
+    ${list.length ? `<div class="o-studies in-page">${list.map(s => studyCard(s, { act: `data-a="openStudy" data-v="${esc(s.name)}"`, role: "link" })).join("")}</div>` : `<div class="no-match"><b>No studies match “${esc(S_PAGE.q)}”</b><span>Try another name.</span></div>`}`;
 };
 INPUTS.studySearch = el => { S_PAGE.q = el.value; };
 ACTIONS.openStudy = el => { setFlow("board"); JUMP.board(el.dataset.v); return false; };

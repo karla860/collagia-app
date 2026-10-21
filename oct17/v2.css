@@ -195,9 +195,6 @@ kbd { font: 600 var(--fs-11) Inter, system-ui, sans-serif; padding: 1px 5px; bor
 .o-dchip svg.i { width: 12px; height: 12px; }
 .o-dchip.add { background: var(--ok-soft); color: var(--ok); } .o-dchip.rm { background: var(--accent-soft); color: var(--accent); } .o-dchip.ch { background: var(--ch-soft); color: var(--ch); }
 .o-dchip s { opacity: .7; }
-.o-sprev.study { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; padding: 10px; height: auto; background: var(--hover); }
-.o-sprev.study .o-th.s56 { width: 100%; height: auto; aspect-ratio: 1; }
-.o-sprev.study .o-applied { top: 8px; left: 8px; }
 .o-modal.collpick { width: min(640px, 100%); max-height: min(560px, 100%); }
 .o-colllist { display: grid; gap: 8px; padding: 12px 16px 16px; }
 .o-collrow { display: grid; grid-template-columns: auto 1fr auto 16px; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); text-align: left; }
@@ -1167,7 +1164,6 @@ body.locked .g-pill kbd { display: none; }
 
 /* ---------- Study cards: room to breathe ---------- */
 .o-study { padding: 0; overflow: hidden; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 1px 3px rgba(0,0,0,.08); }
-.o-study .o-sprev.study { border-radius: 0; padding: 12px; gap: 6px; background: #F5F5F5; }
 .o-study .o-sbody { padding: 14px 16px 16px; }
 .o-study .o-sbody > div { gap: 4px; }
 .o-study .o-sbody b { font-size: var(--fs-14); line-height: var(--lh-14); }
@@ -1419,3 +1415,17 @@ body.locked .g-pill kbd { display: none; }
 /* Import: study cards, version tag at its own size */
 .cpx-studies .cpx-badge { justify-self: start; align-self: flex-start; width: max-content; margin-top: 6px; }
 .cpx-studies { padding: 24px 40px; }
+
+/* Study card (studyCard in home.js): one strip of products, icon + name, one line of plain tags. Unlike attribute cards. */
+.o-sstrip { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 12px; background: #F5F5F5; }
+.o-sstrip .o-th.s56 { width: 100%; height: auto; aspect-ratio: 1; }
+.o-study .o-sbody { display: grid; gap: 4px; padding: 12px 16px 14px; }
+.o-shead { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.o-shead svg.i { color: var(--muted); }
+.o-shead b { font-size: var(--fs-14); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.o-shead .cpx-badge, .o-shead .o-applied { margin-left: auto; position: static; }
+.o-study .o-sbody .o-smeta { font-size: var(--fs-12); color: var(--muted); }
+.o-stags { display: flex; gap: 4px; margin-top: 6px; overflow: hidden; white-space: nowrap; }
+.o-stag { flex: none; height: 22px; padding: 0 8px; display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 999px; font-size: var(--fs-12); color: var(--text); }
+.o-stag.more, .o-stag.none { color: var(--muted); }
+.o-study .o-sbody > .o-shead { display: flex; flex: none; gap: 6px; }
