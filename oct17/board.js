@@ -140,9 +140,6 @@ const topBar = () => {
     </div>
     ${BD.summary ? `<div class="bx-summary">${esc(summaryText())} · ${bdShown().length} items in view</div>` : ""}
     <div class="bx-box">
-      ${dd("attrs", `${ic.tag}${s.published.length} attribute${s.published.length === 1 ? "" : "s"}${ic.chev}`, `${s.published.length ? s.published.map(k => `<div class="bx-attrrow"><b>${esc(attrLabel(k))}</b><span>${studyValueCounts(s, k).map(([v, n]) => `${esc(v)} <small>${n}</small>`).join(" · ")}</span><span class="bx-attracts"><button class="o-clear" data-a="bdShow" data-v="${k}">Show as frames</button><button class="o-clear" data-a="bdGroup" data-v="${k}">Group by</button></span></div>`).join("") : `<span class="bx-mnone">Press <kbd>F</kbd>, frame some products and publish an attribute to start.</span>`}
-        <hr class="o-msep"><button role="menuitem" data-a="boardSave" ${s.published.length ? "" : "disabled"}>${ic.tag}Save to a collection</button>
-        <button role="menuitem" data-a="boardApply">${ic.importStudy}Import a collection</button>`, " plain", false, tipAttrs("Custom attributes", "Attributes published in this study"))}
       ${dd("res", `Resources${ic.chev}`, `<button role="menuitem" data-a="bdToast" data-v="Training videos">Training videos</button><button role="menuitem" data-a="bdToast" data-v="Help centre">Help centre</button>`, " plain", false)}
       <button class="bx-ib" data-a="bdToast" data-v="Customisation" ${tipAttrs("Customise", "Board colours, labels and layout")}>${fi("top-sliders")}</button>
       <button class="bx-ib" data-a="bdToast" data-v="Report a bug" ${tipAttrs("Report a bug")}>${fi("top-bug")}</button>
@@ -220,7 +217,7 @@ const attrPanel = () => {
   const carried = {}; s.published.forEach(k => { const vs = new Set(sel.map(p => (s.tags[k] || {})[p.id]).filter(Boolean)); if (vs.size) carried[k] = [...vs]; });
   return `<aside class="bx-panel">${head}
     <div class="bx-selstrip">${sel.slice(0, 8).map(p => thumb(p, "s36")).join("")}${n > 8 ? `<span class="bx-more">+${n - 8}</span>` : ""}</div>
-    <p class="o-muted">Name the attribute and its value in the box next to the tool, then publish.</p>
+    <p class="o-muted">Choose an attribute and a value in the box next to the tool.</p>
     ${existing ? `<p class="bx-note">${ic.info}${existing} of these already have a ${esc(attrLabel(key))} value. Publishing replaces it.</p>` : ""}
     ${Object.keys(carried).length ? `<div class="bx-carried"><span class="o-sec">On the selection</span>${Object.entries(carried).map(([k, vs]) => `<div class="bx-crow"><b>${esc(attrLabel(k))}</b><span>${vs.map(esc).join(", ")}</span><button class="o-clear" data-a="bdRemoveTag" data-v="${k}">Remove</button></div>`).join("")}</div>` : ""}
   </aside>`;
@@ -249,11 +246,10 @@ const ipField = (which, label, ph) => {
 };
 const inputPop = () => {
   if (BD.tool !== "attr" || !BD.sel.size) return "";
-  const n = BD.sel.size, ok = BD.tag.attr.trim() && BD.tag.value.trim();
+  // Figma 4392:1295: just the two fields. Choosing a value (or Enter in Value Name) publishes it to the selection.
   return `<div class="bx-inpop" id="bd-inpop" role="dialog" aria-label="Name the attribute and value">
     ${ipField("attr", "Attribute Name", "Type Name*")}
     ${ipField("val", "Value Name", "Type Name*")}
-    <button class="bx-ip-pub" data-a="bdPublish" ${ok ? "" : "disabled"}>Publish to ${n} product${n === 1 ? "" : "s"}</button>
   </div>`;
 };
 // Always sits right next to the Create custom attribute button in the tool rail, top-aligned with it
@@ -271,7 +267,7 @@ ACTIONS.bdDD = el => {
 ACTIONS.bdOpt = el => {
   const [which, ...rest] = el.dataset.v.split("|"), v = rest.join("|");
   if (which === "attr") { if (v !== BD.tag.attr) BD.tag.value = ""; BD.tag.attr = v; BD.dd = "val"; setTimeout(() => { const i = $("#bd-val"); if (i) i.focus(); }); }
-  else { BD.tag.value = v; BD.dd = null; setTimeout(() => { const b = $(".bx-ip-pub"); if (b) b.focus(); }); }
+  else { BD.tag.value = v; BD.dd = null; ACTIONS.bdPublish(); }
 };
 ACTIONS.bdAttrNext = () => { if (!BD.tag.attr.trim()) return false; BD.dd = "val"; setTimeout(() => { const i = $("#bd-val"); if (i) i.focus(); }); };
 // Tabbing into a field opens its list; clicking anywhere else closes it
@@ -415,8 +411,6 @@ ACTIONS.bdPublish = () => {
 };
 ACTIONS.bdRemoveTag = el => { const s = bdStudy(), k = el.dataset.v, n = BD.sel.size; BD.sel.forEach(id => unpublishTag(s, k, id)); if (!s.published.includes(k)) { if (BD.groupBy === k) BD.groupBy = "type"; if (BD.show === k) BD.show = s.published[0] || null; } toast(`Removed ${attrLabel(k)} from ${n} products`); };
 ACTIONS.bdToast = el => { toast(`Prototype: ${el.dataset.v} isn't part of this prototype`); return false; };
-ACTIONS.boardSave = () => { const s = bdStudy(); if (!s.published.length) return false; openCreateFrom(s.name); setFlow("create"); App.page = "home"; };
-ACTIONS.boardApply = () => { ST.target = bdStudy().name; App.modal = "collPick"; setFlow("study"); };
 // Comments
 INPUTS.pinDraft = el => { BD.draft.text = el.value; return false; };
 ACTIONS.pinSave = () => { if (!BD.draft || !BD.draft.text.trim()) return false; const c = { id: Date.now(), x: BD.draft.x, y: BD.draft.y, text: BD.draft.text.trim(), by: ME.name, when: "Just now", replies: [] }; pins().push(c); BD.draft = null; BD.openPin = null; toast("Comment added"); };

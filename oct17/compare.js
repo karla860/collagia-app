@@ -62,9 +62,7 @@ const cpVal = (k, v, kind) => !v ? `<span class="cpx-val none${kind === "remove"
 const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
 
 const cpSummary = (c, s, m) => {
-  const has = s.applied[c.id], label = c.attrs.length === 1 ? `their ${esc(attrLabel(c.attrs[0]))}` : "a value";
-  const ver = has ? (has === c.v ? `${esc(s.name)} already has ${esc(c.name)} ${c.v}.` : `${esc(s.name)} has ${esc(c.name)} ${has}; this is ${c.v}.`) : `${esc(s.name)} doesn't have ${esc(c.name)} yet.`;
-  if (!m.changed.length) return `<div class="cpx-verdict ok">${ic.check}<div><b>Nothing would change.</b><span>${ver} All ${m.shared} shared products already match.</span></div></div>`;
+  if (!m.changed.length) return `<div class="cpx-verdict ok">${ic.check}<div><b>Nothing would change.</b></div></div>`;
   const vals = m.values !== m.changed.length ? ` (${plural(m.values, "value")}${c.attrs.length > 1 ? ` across ${c.attrs.length} attributes` : ""})` : "";
   // Just the headline: the breakdown (lose / stay the same) lives in the At a glance card beside it
   return `<div class="cpx-verdict"><div><b>${plural(m.changed.length, "product")} would change in ${esc(s.name)}${vals}.</b></div></div>`;
@@ -129,7 +127,7 @@ const cpGroups = (c, s, m) => {
   const all = c.attrs.flatMap(k => lines(m.rows, k, false));
   // Open the first line on arrival (removals come first), so the products that matter are already in view
   if (CP.open === null && !CP.touched && all.length) CP.open = all.sort((a, b) => CMP_RANK[a.kind] - CMP_RANK[b.kind])[0].key;
-  const thead = `<div class="cpx-th"><span>Now in ${esc(s.name)}</span><span></span><span>After importing</span><span></span></div>`;
+  const thead = `<div class="cpx-th"><span>Now in ${esc(s.name)}</span><span></span><span>${s.after || "After importing"}</span><span></span></div>`;
   const sections = OUTCOMES.map(([kind, g, title]) => {
     const ts = all.filter(t => t.kind === kind).sort((a, b) => c.attrs.indexOf(a.k) - c.attrs.indexOf(b.k) || b.ps.length - a.ps.length);
     if (!ts.length) return "";
@@ -173,12 +171,12 @@ const cpSide = (c, s, m, foot) => {
   const vn = { remove: 0, change: 0, add: 0, same: 0 }; m.all.forEach(r => r.marks.forEach(x => vn[x.kind]++));
   // Study first (which study, which version), then the numbers. No dividers: spacing alone separates the two.
   return `<aside class="cpx-side">
-    <section class="cpx-study"><span class="cpx-k">Study</span><div class="cpx-study-t"><b>${esc(s.name)}</b>
-      <span class="cpx-badge${has && has !== c.v ? " behind" : has ? " ok" : ""}">${has || "—"}</span></div></section>
+    <section class="cpx-study"><span class="cpx-k">${s.kind || "Study"}</span><div class="cpx-study-t"><b>${esc(s.name)}</b>
+      ${has ? `<span class="cpx-badge${has !== c.v ? " behind" : " ok"}">${has}</span>` : ""}</div></section>
     <section class="cpx-attrs"><span class="cpx-k">Attributes · ${c.attrs.length}</span>
       ${c.attrs.map(k => { const inStudy = s.published.includes(k), n = m.all.reduce((t, r) => t + r.marks.filter(x => x.k === k && x.kind !== "same").length, 0);
         const sq = valueCounts(c, k).slice(0, 4).map(([v]) => `<i ${hue(k, v)}></i>`).join("");
-        return `<div class="cpx-attr"><span class="cpx-an"><b>${esc(attrLabel(k))}</b>${inStudy ? "" : `<small>New to the study</small>`}</span><span class="cpx-ac${n ? "" : " zero"}">${n}<small>${n === 1 ? "change" : "changes"}</small></span></div>`; }).join("")}
+        return `<div class="cpx-attr"><span class="cpx-an"><b>${esc(attrLabel(k))}</b>${inStudy ? "" : `<small>${s.kind ? "New" : "New to the study"}</small>`}</span><span class="cpx-ac${n ? "" : " zero"}">${n}<small>${n === 1 ? "change" : "changes"}</small></span></div>`; }).join("")}
     </section>
     ${foot ? `<small class="cpx-at">${foot}</small>` : ""}
   </aside>`;

@@ -9,8 +9,6 @@ const openCreate = (src, mode = "create", target = null) => {
   resetCreate(mode, target); setFlow(mode === "create" ? "create" : "card"); App.menu = null; App.modal = "create";
   if (src === "csv") { CR.src = "csv"; CR.step = "csv"; }
 };
-// From a board: this study and all of its attributes, straight to the review step
-const openCreateFrom = studyName => { openCreate("study"); CR.study = studyName; CR.included = new Set(studyByName(studyName).published); CR.step = "pick"; };
 const crStudy = () => studyByName(CR.study);
 const crProducts = () => crStudy() ? studyProducts(crStudy()) : [];
 const crTag = (k, p) => (crStudy().tags[k] || {})[p.id];
@@ -51,7 +49,8 @@ const studyTags = (s, max = 4) => {
 const STEP_PICK = () => {
   const c = previewColl();
   // Start on the first attribute each time a study is reviewed (the selection state is shared with the collection screen)
-  if (CR.reviewed !== CR.study) { CR.reviewed = CR.study; Object.assign(CD, { sel: { k: c.attrs[0], v: null }, openA: new Set([c.attrs[0]]), q: "", view: "grid", demo: null }); }
+  const key = CR.src === "csv" ? CR.csv.name : CR.study;
+  if (CR.reviewed !== key) { CR.reviewed = key; Object.assign(CD, { sel: { k: c.attrs[0], v: null }, openA: new Set([c.attrs[0]]), q: "", view: "grid", demo: null }); }
   CD_PREVIEW = c;
   try {
     const list = cardShown(), total = cProducts(c).length, selName = cdSelName();
@@ -66,13 +65,6 @@ const STEP_PICK = () => {
 };
 
 /* ---------- Step 2b · Upload a file ---------- */
-const h32 = s => { let h = 0; for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h; };
-const SAMPLES = [
-  { name: "ho26_line_plan.csv", size: "6 KB", rows: 326, skipped: 6, attrs: ["season", "hero"],
-    build: () => { const values = { season: {}, hero: {} }; NIKE_IDS.forEach(id => { values.season[id] = ["SP27", "HO26", "Carryover"][h32(id) % 3]; values.hero[id] = h32(id + "h") % 6 === 0 ? "Yes" : "No"; }); return { values, productIds: [...NIKE_IDS] }; } },
-  { name: "statue_backgrounds.csv", size: "2 KB", rows: 30, skipped: 0, attrs: ["bg", "stone"],
-    build: () => { const values = { bg: {}, stone: {} }; STATUE_IDS.forEach(id => { values.bg[id] = PRODUCTS[id]._bg; values.stone[id] = PRODUCTS[id]._stone; }); return { values, productIds: [...STATUE_IDS] }; } },
-];
 const fileUp = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9.5 14.5 12 12l2.5 2.5"/></svg>';
 const STEP_CSV = () => `<div class="o-scroll"><div class="dz-wrap">
   <label class="dz${CR.dzOver ? " over" : ""}${CR.dzErr ? " bad" : ""}" id="dz">
@@ -82,22 +74,18 @@ const STEP_CSV = () => `<div class="o-scroll"><div class="dz-wrap">
     <span class="dz-sub">One row per product. First column is the style code, every other column becomes an attribute.</span>
     ${CR.dzErr ? `<span class="dz-err" role="alert">${esc(CR.dzErr)}</span>` : `<span class="dz-browse">or <u>browse files</u></span>`}
   </label>
-  <div class="o-csvex"><span class="o-csvex-h">What the file should look like</span>
-    <table><tr><th>style_code</th><th>Season</th><th>Hero product</th></tr><tr><td>HJ0624-758</td><td>HO26</td><td>Yes</td></tr><tr><td>IO1560-900</td><td>SP27</td><td>No</td></tr><tr><td>…</td><td></td><td></td></tr></table></div>
-  <p class="dz-hint">No file handy? Use a sample.</p>
-  <div class="dz-samples">${SAMPLES.map((s, i) => `<button class="dz-sample" data-a="crSample" data-v="${i}" title="Read this sample"><span class="dz-ficon">CSV</span><span class="dz-fmeta"><b>${esc(s.name)}</b><small>${s.size} · ${s.rows} rows</small></span></button>`).join("")}</div>
 </div></div>`;
 
-/* ---------- Step 3b · Check the file: a summary, not a worklist ---------- */
+/* ---------- Step 2b · Check the file ----------
+   Updating: the Import preview, the collection as it is now against the file. A new collection has nothing to compare
+   with, so it is reviewed exactly like one made from a study. */
+const collageOf = c => Object.keys(COLLAGES).find(k => COLLAGES[k].productIds.includes(c.productIds[0])) || Object.keys(COLLAGES)[0];
 const STEP_CHECK = () => {
-  const f = CR.csv, matched = f.productIds.length;
-  return `<div class="o-scroll grey"><div class="o-check">
-    <div class="o-lead ok">${ic.check}<div><b>${matched} of ${f.rows} rows match a product.</b> ${f.skipped ? `${f.skipped} rows have style codes that aren't in any collage and are skipped.` : "Every row found its product."} All of them come in together, so there is nothing to pick here. Check the columns look right, then name it.</div></div>
-    <div class="o-cols3">${f.attrs.map(k => { const counts = valueCounts(f, k), max = Math.max(...counts.map(([, n]) => n));
-      return `<div class="o-acard"><div class="o-acard-h">${ic.tag}<b>${esc(attrLabel(k))}</b><span class="n">${counts.length} values</span></div>
-        ${counts.map(([v, n]) => `<div class="o-bar"><span>${esc(v)}</span><i style="width:${Math.round(n / max * 100)}%"></i><small>${n}</small></div>`).join("")}</div>`; }).join("")}</div>
-    <div class="o-strip">${cProducts(f).slice(0, 12).map(p => thumb(p, "s56")).join("")}<span class="o-muted">${matched} products</span></div>
-  </div></div>`;
+  if (CR.mode !== "update") return STEP_PICK();
+  const old = collById(CR.target), c = previewColl();
+  if (CR.reviewed !== CR.csv.name) { CR.reviewed = CR.csv.name; Object.assign(CP, { open: null, all: new Set(), more: new Set(), same: new Set(), q: "" }); }
+  const now = { name: old.name, kind: "Collection now", after: "From the file", collage: collageOf(c), tags: old.values, published: old.attrs, applied: {} };
+  return `<div class="o-scroll grey"><div class="cpx-body">${cpLayout(c, now, cpModel(c, now), "")}</div></div>`;
 };
 
 /* ---------- Step 4 · Name it ---------- */
@@ -141,7 +129,6 @@ ACTIONS.crBack = () => { CR.step = { pick: "study", check: "csv", name: CR.src =
 ACTIONS.crNext = () => { CR.step = { study: "pick", pick: "name", check: "name" }[CR.step]; if (CR.step === "name") setTimeout(() => { const i = $("#cr-name"); if (i) i.focus(); }); };
 INPUTS.crName = el => { CR.name = el.value; };
 INPUTS.crDesc = el => { CR.desc = el.value; return false; };
-ACTIONS.crSample = el => { const s = SAMPLES[+el.dataset.v]; CR.csv = { ...s, ...s.build() }; CR.dzErr = ""; CR.step = "check"; return true; };
 ACTIONS.crCreate = () => {
   const c0 = previewColl(), today = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   c0.attrs.forEach(k => ensureAttr(attrLabel(k), k));

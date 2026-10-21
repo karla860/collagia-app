@@ -27,19 +27,25 @@
       <div class="tr-diagram"><span>Study</span><em>⇄</em><span class="lib">Collection</span><em>⇄</em><span>CSV</span></div>
       <p class="tr-hint">A <b>red point</b> means try it yourself. Esc stops the tour; ⌘K restarts it.</p>` },
 
-    /* ---------- The board and the Attributes page ---------- */
-    { kick: "The board", title: "A study is products on a board", go: () => goBoard(), sel: ".bx-top .bx-box:first-child", place: "below", body: `
-      ${did("This study's products, grouped by sales. Its attributes live in the menu top right.")}` },
+    /* ---------- The board: attributes are made here, with the attribute tool's box (Figma 4392:1295) ---------- */
+    { kick: "The board", title: "Frame what your eye groups together", go: () => goBoardSel(), sel: ".bx-tools button[data-v=\"attr\"]", place: "right", body: `
+      ${did("Press <b>F</b>, then drag a frame or click products. Four are selected.")}` },
+    { kick: "The board", title: "Name the attribute and its value", go: () => { goBoardSel(); BD.tag.value = ""; BD.dd = "val"; render(); }, sel: "#bd-inpop", grow: ".bx-ip-dd", place: "right", body: `
+      ${did("Pick an attribute and a value, or type new ones. Choosing the value tags the framed products.")}` },
     { kick: "The board", title: "Your attribute collections", go: () => goHome(), sel: ".h-grid .ccard", place: "right", body: `
-      ${did("The Attributes page: every collection as a card, with its products and attributes.")}` },
-    { kick: "The board", title: "Save a collection from the board", go: () => { goBoard(); App.menu = "attrs"; render(); }, sel: '[data-v="attrs"]', place: "below", body: `
-      ${did("The attributes menu lists what this study has. Save to a collection takes all of them.")}` },
-    { kick: "The board", title: "Review what goes in", go: () => { goPick(); render(); }, sel: ".cr .o-rail.tree", place: "right", body: `
+      ${did("The Attributes page: every collection as a card.")}` },
+
+    /* ---------- New collection ---------- */
+    { kick: "New collection", title: "Start a collection", go: () => goHome(), sel: '[data-v="newmenu"]', place: "below", body: `
+      ${did("New collection, from a study or a CSV.")}` },
+    { kick: "New collection", title: "Pick a study", go: () => { goHome(); openCreate("study"); render(); }, sel: ".o-studies", place: "above", body: `
+      ${did("Each study shows the attributes it has.")}` },
+    { kick: "New collection", title: "Review what goes in", go: () => { goPick(); render(); }, sel: ".cr .o-rail.tree", place: "right", body: `
       ${did("Every attribute goes in. Browse it as the collection will show it.")}` },
-    { kick: "The board", title: "Name it", go: () => { goPick(); CR.step = "name"; CR.name = ""; render(); }, sel: ".o-nameform", place: "right", body: `
+    { kick: "New collection", title: "Name it", go: () => { goPick(); CR.step = "name"; CR.name = ""; render(); }, sel: ".o-nameform", place: "right", body: `
       ${did("A suggested name, and a preview of its card. Private until you share it.")}` },
-    { kick: "The board", title: "Back on the board", go: () => goMade(), sel: ".bx-top .bx-box:first-child", place: "below", body: `
-      ${did("The study now uses the collection, grouped by its first attribute.")}` },
+    { kick: "New collection", title: "Back on the board", go: () => goMade(), sel: null, body: `
+      <p>The study now uses the collection, grouped by its first attribute.</p>` },
 
     /* ---------- Opening a collection ---------- */
     { kick: "Open a collection", title: "A card shows what is inside", go: () => goHome(), sel: ".h-grid .ccard", place: "right", body: `
@@ -49,15 +55,9 @@
     { kick: "Open a collection", title: "Two buttons, the rest behind ⋯", go: () => { goCard(); render(); }, sel: ".v2card .o-mf", place: "above", body: `
       ${did("Import to a study, or update it from one. CSV, versions and rename sit behind ⋯.")}` },
 
-    /* ---------- Creating a new attribute ---------- */
-    { kick: "Create an attribute", title: "Frame what your eye groups together", go: () => goBoardSel(), sel: ".bx-tools button[data-v=\"attr\"]", place: "right", body: `
-      ${did("Press <b>F</b>, then drag a frame or click products. Four are selected.")}` },
-    { kick: "Create an attribute", title: "Name the attribute and its value", go: () => { goBoardSel(); BD.tag.value = ""; BD.dd = "val"; render(); }, sel: "#bd-inpop", grow: ".bx-ip-dd", place: "right", body: `
-      ${did("Pick an attribute and a value, or type new ones, then Publish.")}` },
-
     /* ---------- Adding attributes to a study ---------- */
     { kick: "Add to a study", title: "Import to a study", go: () => { goCard(); render(); }, sel: ".v2card .o-mf .o-cta", place: "above", body: `
-      ${did("From a collection, Import to a study. On a board, Import a collection does the same.")}` },
+      ${did("Brings this collection's attributes into a study.")}` },
     { kick: "Add to a study", title: "Pick any study", go: () => { goCard(); openCompare(); render(); }, sel: ".cpx-studies", place: "below", body: `
       ${did("Every study you have, as a card.")}` },
     { kick: "Add to a study", title: "See what changes", go: () => { goCompare(); render(); }, sel: ".cpx-table", place: "left", body: `
@@ -72,7 +72,7 @@
      The card asks for one small action on the highlighted part. The tour watches the app's state and,
      once it's done, confirms what happened. Next is always there as "Skip", so nobody gets stuck. */
   const TASKS = {
-    "Save a collection from the board": { at: '[data-a="boardSave"]', ask: "Click <b>Save to a collection</b>.", done: () => App.modal === "create", ok: "The study's attributes, ready to review." },
+    "Start a collection": { selDone: ".o-newmenu", placeDone: "left", at: '[data-v="newmenu"]', ask: "Click <b>New collection</b>.", done: () => App.menu === "newmenu", ok: "From a study, or from a CSV." },
     "Review what goes in": { beside: ".cr .o-rail.tree", at: '.cr .o-tname[data-v="upper-material"]', ask: "Click <b>Upper material</b>, then <b>Knit</b>.", done: () => App.modal === "create" && CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Just a view: everything still goes in." },
     "A card shows what is inside": { free: true, at: ".h-grid .ccard", ask: "Open the <b>FA26 line review</b> collection.", done: () => App.modal === "card", ok: "This is the collection." },
     "Browse by attribute and value": { beside: ".o-rail.tree", at: '.o-tname[data-v="upper-material"]', ask: "Click <b>Upper material</b>, then <b>Knit</b>.", done: () => App.modal === "card" && CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Only those products show." },
@@ -85,9 +85,9 @@
   /* ---------- Chapters: the steps grouped like an interactive demo, each opening with its goal ---------- */
   const CHAPTERS = {
     "Start here": { goal: "What attributes and collections are.", what: "One short read." },
-    "The board": { goal: "The board, the Attributes page, and saving a collection.", what: "Save this study's attributes as a collection." },
+    "The board": { goal: "Tag products on a board, then find your collections.", what: "Frame products, name the attribute and value." },
+    "New collection": { goal: "Save a study's attributes as a collection.", what: "Pick a study, review, name it." },
     "Open a collection": { goal: "What's inside a collection.", what: "Open one and browse it." },
-    "Create an attribute": { goal: "Tag products on a board.", what: "Frame products, name the attribute and value." },
     "Add to a study": { goal: "Bring a collection's attributes into a study.", what: "Pick a study, see the changes, import." },
   };
   const KICKS = [...new Set(STEPS.map(s => s.kick))];
