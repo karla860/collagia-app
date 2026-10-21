@@ -219,12 +219,6 @@
 .o-str:last-child { border-bottom: 0; }
 
 /* ---------- Flow 3: New collection ---------- */
-.o-choose { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 12px 12px; }
-.o-opt { display: grid; gap: 4px; justify-items: start; padding: 4px 4px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); text-align: left; }
-.o-opt:hover { border-color: var(--accent); }
-.o-opt b { padding: 0 8px; font-size: var(--fs-14); font-weight: 600; }
-.o-opt > span:last-child { padding: 0 8px; font-size: var(--fs-12); color: var(--sub); }
-.o-optimg { width: 100%; height: 150px; display: grid; place-items: center; background: var(--sunken); margin-bottom: 14px; }
 .o-dash { position: relative; width: 72px; height: 72px; border: 1.5px dashed #b9b9bc; border-radius: 6px; display: grid; place-items: center; color: #b9b9bc; font-weight: 700; font-size: var(--fs-20); }
 .o-dash svg.i { width: 34px; height: 34px; }
 .o-dash i { position: absolute; right: -8px; bottom: -8px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: #c9c9cc; color: #fff; }
@@ -360,7 +354,6 @@
   .o-prev { grid-template-columns: 1fr; }
   .o-peek { display: none; }
   .o-details, .o-auth { grid-template-columns: 1fr; gap: 8px; }
-  .o-choose { grid-template-columns: 1fr; }
   .o-mh { flex-wrap: wrap; }
 }
 
@@ -694,12 +687,6 @@
 .cmeta svg.i { width: 13px; height: 13px; }
 .cmeta .cv { padding: 1px 6px; border-radius: 4px; background: var(--chip); font-size: var(--fs-11); font-weight: 600; }
 /* Empty state B: "+ New" menu */
-.o-newmenu { min-width: 250px; left: 50%; transform: translateX(-50%); text-align: left; }
-.o-newmenu button { align-items: flex-start; padding: 8px 10px; }
-.o-newmenu button > svg.i { margin-top: 2px; }
-.o-newmenu span { display: grid; gap: 1px; }
-.o-newmenu b { font-weight: 500; font-size: var(--fs-13); }
-.o-newmenu small { font-size: var(--fs-12); color: var(--sub); }
 /* Flow 2: icon-only view switch, version menu, read-only bar */
 .o-seg.icons button { padding: 0 9px; color: var(--muted); } /* Figma view toggle 4676:1113: 16px icons in Text Secondary */
 .o-seg.icons button.on { background: var(--chip); }

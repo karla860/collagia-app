@@ -48,9 +48,7 @@ const cpModel = (c, s) => {
 const openCompare = (study = null) => {
   Object.assign(CP, { study: null, open: null, all: new Set(), more: new Set(), same: new Set(), q: "", sq: "", loading: false, demo: null });
   ST.fromCompare = false; setFlow("compare"); App.modal = "compare"; App.menu = null;
-  // Start on the study that most needs it: one that has an older version of this collection
-  const c = curColl(), behind = STUDIES.find(s => matchCount(c, s) && s.applied[c.id] && s.applied[c.id] !== c.v);
-  if (study || behind) cpLoad(study || behind.name);
+  if (study) cpLoad(study);   // otherwise it opens on the study cards
 };
 // The comparison is instant here; a short "Comparing…" beat stands in for the real request
 const cpLoad = name => {
@@ -230,13 +228,18 @@ const cpDropdown = (c, list) => {
       <div class="cpx-opts">${hits.map(item).join("") || `<p class="cpx-nohit">No studies match “${esc(CP.sq)}”</p>`}</div>
     </div>` : ""}</div>`;
 };
+// No study chosen yet: every study as a card (its products, name, and the version it has), as in New collection
+const cpStudyCards = c => `<div class="o-studies cpx-studies">${cpStudies().map(s => `<div class="o-study" data-a="cpPick" data-v="${esc(s.name)}" tabindex="0" role="button">
+    <div class="o-sprev study">${studyProducts(s).slice(0, 12).map(p => thumb(p, "s56")).join("")}</div>
+    <div class="o-sbody"><div><b>${esc(s.name)}</b><span>${esc(COLLAGES[s.collage].name)} · ${s.edited}</span>${s.applied[c.id] ? `<span class="cpx-badge${s.applied[c.id] !== c.v ? " behind" : " ok"}">${s.applied[c.id]}</span>` : ""}</div></div>
+  </div>`).join("")}</div>`;
 const cpPicker = c => { const list = cpStudies(); return `<div class="cpx-pick" role="radiogroup" aria-label="Study to compare with"><span>Into</span>${cpDropdown(c, list)}</div>
   ${CP.demo === "many" ? cpSample(`Sample: ${sampleStudies().length} made-up studies added to show a long list. They only exist on this screen.`) : ""}`; };
 const cpEmpty = (icon, title, body, extra = "") => `<div class="o-empty o-empty2 cpx-empty">${icon}<b>${title}</b><span>${body}</span>${extra}</div>`;
 const cpSample = label => `<span class="cpx-sample" title="Not live prototype data">${label}</span>`;
 const cpBody = (c, s) => {
   if (!c.attrs.length) return `${cpSample("Sample state")}${cpEmpty(ic.tag, "This collection has no attributes", "Importing it would change nothing.")}`;
-  if (!s) return cpEmpty(`<span class="cpx-legend-g">⇄</span>`, "Pick a study", "See what importing would change. Nothing changes until you press Import.");
+  if (!s) return cpStudyCards(c);
   if (CP.demo === "error") return `${cpSample("Simulated error")}${cpEmpty(ic.warn, `Couldn't compare with ${esc(s.name)}`, "The study's data didn't load. Nothing was changed.", `<button class="btn" data-a="cpRetry">Try again</button>`)}`;
   if (CP.loading) return `${CP.demo === "loading" ? cpSample("Simulated loading") : ""}<div class="cpx-loading" aria-busy="true"><p class="o-muted">Comparing with ${esc(s.name)}…</p>${"<div class=\"cpx-skel\"></div>".repeat(4)}</div>`;
   if (!matchCount(c, s)) return cpEmpty(ic.box, `${esc(s.name)} has none of these products`, `It's built on ${esc(COLLAGES[s.collage].name)}, so importing would change nothing.`);
@@ -249,7 +252,7 @@ const MODAL_COMPARE = () => {
   const ready = s && !CP.loading && CP.demo !== "error" && c.attrs.length && matchCount(c, s), m = ready ? cpModel(c, s) : null;
   return `<div class="o-modal xl cpx" role="dialog" aria-modal="true" aria-label="Import ${esc(c.name)} to a study">
     <header class="o-mh"><button class="icon-btn" data-a="cpBack" aria-label="Back to collection">${ic.back}</button><h2 class="o-h20">Import <b>${esc(c.name)}</b> to a study</h2></header>
-    <div class="o-scroll grey"><div class="cpx-body">${ready ? "" : cpPicker(c)}${cpBody(c, s)}</div></div>
+    <div class="o-scroll grey"><div class="cpx-body">${ready || !s ? "" : cpPicker(c)}${cpBody(c, s)}</div></div>
     <footer class="o-mf"><span class="sp"></span>
       <button class="btn" data-a="cpBack">Back to collection</button>
       ${!c.attrs.length || !s ? `<button class="btn primary" disabled>Import</button>`

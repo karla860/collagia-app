@@ -15,144 +15,80 @@
   const goBoard = (study = "FA26 footwear review") => { setFlow("board"); App.modal = null; BD.sel.clear(); BD.hl.clear(); BD.filters = {}; BD.tool = "select"; BD.peek = null; BD.matrix = "pareto"; BD.show = "franchise"; App.menu = null; JUMP.board(study); };
   const goBoardSel = () => { goBoard(); BD.matrix = "freestyle"; BD.tool = "attr"; render(); [...document.querySelectorAll("#bd-canvas .bx-tile")].slice(0, 4).forEach(t => BD.sel.add(t.dataset.id)); BD.tag.attr = "Upper material"; BD.tag.value = "Knit"; render(); };
   const goHome = () => { setFlow("home"); App.modal = null; JUMP.home(); };
-  const goPick = () => { const s = STUDIES[0]; setFlow("create"); App.page = "home"; openCreate("study"); CR.study = s.name; CR.included = new Set(s.published); CR.peek = null; CR.step = "pick"; };
+  const goPick = () => { const s = STUDIES[0]; setFlow("create"); App.page = "home"; openCreate("study"); CR.study = s.name; CR.included = new Set(s.published); CR.step = "pick"; };
+  // After saving from the board: back on it, grouped by the collection's first attribute
+  const goMade = () => { goBoard(); Object.assign(BD, { matrix: "group", groupBy: "franchise", show: "franchise" }); render(); };
   const goCard = () => { setFlow("card"); App.page = "home"; openCard("franchise"); App.menu = null; };
   const goCompare = (q = "") => { setFlow("compare"); App.page = "home"; openCard("franchise"); openCompare(); Object.assign(CP, { study: "Price architecture", loading: false, at: new Date(), q, open: null, touched: false }); App.menu = null; };
-  const goAccess = () => { setFlow("access"); App.page = "home"; openCard("franchise"); AC.from = "card"; openAccess("franchise"); App.menu = null; };
 
   const STEPS = [
-    { kick: "Start here", title: "Collagia in one paragraph", sel: null, body: `
-      <p>Collagia joins product images with business data into a <b>collage</b>. In a <b>study</b> you frame products on a board and tag them: an <b>attribute + value</b>, like Upper material = Knit.</p>
-      <p class="tr-hint">Real Nike products; simulated sales.</p>` },
-    { kick: "Start here", title: "What an attribute collection is", sel: null, body: `
-      <p>A <b>collection</b> lifts a study's attributes out so they can be versioned, shared and applied to other studies.</p>
+    { kick: "Start here", title: "A quick tour", sel: null, body: `
+      <p>Attributes are tags you add to products on a study's board, like Upper material = Knit. A <b>collection</b> saves them so they can be shared and added to other studies.</p>
       <div class="tr-diagram"><span>Study</span><em>⇄</em><span class="lib">Collection</span><em>⇄</em><span>CSV</span></div>
       <p class="tr-hint">A <b>red point</b> means try it yourself. Esc stops the tour; ⌘K restarts it.</p>` },
-    { kick: "Start here", title: "What's already in this account", go: () => goHome(), sel: ".h-grid .ccard", place: "right", body: `
-      <ul>
-        <li><b>4 studies</b>, three on 320 Nike shoes, one on 30 Christie's lots.</li>
-        <li><b>2 collections:</b> FA26 line review (v2) and Statue backgrounds.</li>
-        <li><b>Price architecture</b> is behind, on v1.</li>
-      </ul>` },
 
-    /* ---------- Board ---------- */
-    { kick: "Study board", title: "A study is products on a board", go: () => goBoard(), sel: ".bx-top .bx-box:first-child", place: "below", body: `
-      ${did("Select, tag, group and filter. Top right: how many attributes are published, and ways to save or apply a collection.")}` },
-    { kick: "Study board", title: "Frame what your eye groups together", go: () => goBoardSel(), sel: ".bx-tools button[data-v=\"attr\"]", place: "right", body: `
-      ${did("Press <b>F</b>, then drag a frame or click tiles. Four shoes are selected.")}
-      ${why("Picking products by how they look is what a spreadsheet can't do.")}` },
-    { kick: "Study board", title: "Name the attribute and its value", go: () => { goBoardSel(); BD.tag.value = ""; BD.dd = "val"; render(); }, sel: "#bd-inpop", grow: ".bx-ip-dd", place: "right", body: `
-      ${did("A small box beside the tool: Attribute Name and Value Name, each listing what the study already has.")}
-      ${why("Picking from the list avoids three spellings of one value.")}` },
+    /* ---------- The board and the Attributes page ---------- */
+    { kick: "The board", title: "A study is products on a board", go: () => goBoard(), sel: ".bx-top .bx-box:first-child", place: "below", body: `
+      ${did("This study's products, grouped by sales. Its attributes live in the menu top right.")}` },
+    { kick: "The board", title: "Your attribute collections", go: () => goHome(), sel: ".h-grid .ccard", place: "right", body: `
+      ${did("The Attributes page: every collection as a card, with its products and attributes.")}` },
+    { kick: "The board", title: "Save a collection from the board", go: () => { goBoard(); App.menu = "attrs"; render(); }, sel: '[data-v="attrs"]', place: "below", body: `
+      ${did("The attributes menu lists what this study has. Save to a collection takes all of them.")}` },
+    { kick: "The board", title: "Review what goes in", go: () => { goPick(); render(); }, sel: ".cr .o-rail.tree", place: "right", body: `
+      ${did("Every attribute goes in. Browse it as the collection will show it.")}` },
+    { kick: "The board", title: "Name it", go: () => { goPick(); CR.step = "name"; CR.name = ""; render(); }, sel: ".o-nameform", place: "right", body: `
+      ${did("A suggested name, and a preview of its card. Private until you share it.")}` },
+    { kick: "The board", title: "Back on the board", go: () => goMade(), sel: ".bx-top .bx-box:first-child", place: "below", body: `
+      ${did("The study now uses the collection, grouped by its first attribute.")}` },
 
-    /* ---------- Homepage ---------- */
-    { kick: "Attributes page", title: "A card shows what is inside", go: () => goHome(), sel: ".h-grid .ccard", place: "right", body: `
-      ${was("A title, “version 1” and two dates.")}
-      ${did("The collection's own products, one tag per attribute, its source and its version.")}` },
-
-    /* ---------- Create ---------- */
-    { kick: "New collection", title: "Start by saying where the attributes are", go: () => { goHome(); openCreate(null); render(); }, sel: ".o-choose", place: "below", body: `
-      ${did("In a study, or in a spreadsheet. Four steps either way.")}` },
-    { kick: "New collection", title: "Pick a study: show what is there to take", go: () => { goHome(); openCreate("study"); render(); }, sel: ".o-studies", place: "above", body: `
-      ${did("Each study shows its attributes as tags. One with nothing published is greyed out.")}` },
-    { kick: "New collection", title: "Review what goes in", go: () => { goPick(); render(); }, sel: ".cr .o-rail.tree", place: "right", body: `
-      ${did("Nothing to tick: every published attribute goes in. Browse it exactly as the collection screen shows it.")}
-      ${why("A collection takes the whole study, so there is nothing to choose.")}` },
-    { kick: "New collection", title: "Name it, and know it is private", go: () => { goPick(); CR.step = "name"; CR.name = ""; render(); }, sel: ".o-nameform", place: "right", body: `
-      ${did("A suggested name, an optional description, and a preview of its card.")}
-      ${why("It stays private until you share it.")}` },
-
-    /* ---------- Open a collection ---------- */
-    { kick: "Open a collection", title: "Two things up top, the rest behind ⋯", go: () => { goCard(); render(); }, sel: ".v2h .o-dd", place: "left", body: `
-      ${was("Four identical buttons, bottom right.")}
-      ${did("Share up top. Version history and Rename behind ⋯.")}` },
-    { kick: "Open a collection", title: "Two directions: studies and your computer", go: () => { goCard(); render(); }, sel: ".v2card .o-mf", place: "above", body: `
-      ${did("Studies: update from one, or import into one. Spreadsheet: download, or update from a CSV.")}
-      ${why("A collection sits between your studies and your computer. Grouping by direction says where each move goes.")}` },
-    { kick: "Open a collection", title: "Every version, kept", go: () => { goCard(); CD.histOpen = true; render(); }, sel: ".o-hist", place: "left", body: `
-      ${did("Who changed what, when, and which studies use each version. Restore any of them.")}
-      ${why("Knowing what changed makes updating a study safe.")}` },
-    { kick: "Open a collection", title: "The rail is a view selector, never a checkbox", go: () => { goCard(); render(); }, sel: ".o-rail.tree", place: "right", body: `
-      ${was("Tabs and one dropdown: one value's products at a time.")}
-      ${did("Attributes and their values, with counts. Pick one; the grid follows.")}` },
+    /* ---------- Opening a collection ---------- */
+    { kick: "Open a collection", title: "A card shows what is inside", go: () => goHome(), sel: ".h-grid .ccard", place: "right", body: `
+      ${did("Click a card to open the collection.")}` },
     { kick: "Open a collection", title: "Browse by attribute and value", go: () => { goCard(); render(); }, sel: ".o-rail.tree", place: "right", body: `
-      ${did("One attribute at a time, so each product shows a single value.")}` },
+      ${did("One attribute at a time. Pick a value to see only its products.")}` },
+    { kick: "Open a collection", title: "Two buttons, the rest behind ⋯", go: () => { goCard(); render(); }, sel: ".v2card .o-mf", place: "above", body: `
+      ${did("Import to a study, or update it from one. CSV, versions and rename sit behind ⋯.")}` },
 
-    /* ---------- Collection edge states: empty, partial and missing data ---------- */
-    { kick: "Edge states", title: "When search finds nothing", go: () => { setFlow("edge"); JUMP.edge("nomatch"); }, sel: ".v2card .o-empty2 > span", place: "left", body: `
-      ${did("Says what was searched, with one button to clear it.")}` },
-    { kick: "Edge states", title: "Products with no value", go: () => { setFlow("edge"); JUMP.edge("novalue"); }, sel: ".v2card .o-notice", place: "below", body: `
-      ${did("A “No value” row and a warning before anything is lost.")}` },
-    { kick: "Edge states", title: "A value only one product carries", go: () => { setFlow("edge"); JUMP.edge("single"); }, sel: ".v2card .o-pgrid .o-pcard", place: "right", body: `
-      ${did("Flagged, since a one-product value is often a typo.")}` },
-    { kick: "Edge states", title: "Photos still loading", go: () => { setFlow("edge"); JUMP.edge("nophotos"); }, sel: ".v2card .o-pcard:has(.o-th.loading)", place: "right", body: `
-      ${did("Grey cards shimmer; names and values are already there.")}` },
-    { kick: "Edge states", title: "A collection with no products", go: () => { setFlow("edge"); JUMP.edge("empty"); }, sel: ".v2card .o-e0-h", place: "left", body: `
-      ${did("One message, one action. Import and Download are off.")}` },
+    /* ---------- Creating a new attribute ---------- */
+    { kick: "Create an attribute", title: "Frame what your eye groups together", go: () => goBoardSel(), sel: ".bx-tools button[data-v=\"attr\"]", place: "right", body: `
+      ${did("Press <b>F</b>, then drag a frame or click products. Four are selected.")}` },
+    { kick: "Create an attribute", title: "Name the attribute and its value", go: () => { goBoardSel(); BD.tag.value = ""; BD.dd = "val"; render(); }, sel: "#bd-inpop", grow: ".bx-ip-dd", place: "right", body: `
+      ${did("Pick an attribute and a value, or type new ones, then Publish.")}` },
 
-    /* ---------- Import to a study: a preview first, nothing changes until Import ---------- */
-    { kick: "Import to a study", title: "Import is the main move", go: () => { goCard(); render(); }, sel: ".v2card .o-mf .o-cta", place: "above", body: `
-      ${was("Four identical buttons, and changes only showed once an import had started.")}
-      ${did("Import to a study opens a preview of the changes first.")}` },
-    { kick: "Import to a study", title: "Pick any study", go: () => { goCompare(); render(); }, sel: ".cpx-pick", place: "below", body: `
-      ${did("Every study in one searchable list. Look at any of them; nothing changes yet.")}` },
-    { kick: "Import to a study", title: "Grouped by what happens, riskiest first", go: () => { goCompare(); render(); }, sel: ".cpx-table", place: "left", body: `
-      ${did("Removed, Changed, Added, Unchanged. Each line reads now → after.")}
-      ${why("Removals first, because they're what you'd regret.")}` },
-    { kick: "Import to a study", title: "Ask about any product", go: () => { goCompare("nike calm"); render(); }, sel: ".cpx-sr", place: "below", body: `
-      ${did("Search any product to see what happens to it.")}` },
-
-    { kick: "Import to a study", title: "Nothing changes until you press Import", go: () => { goCompare(); render(); }, sel: ".cpx .o-mf", place: "above", body: `
-      ${did("Import to Price architecture applies it. Back to collection leaves it untouched.")}
-      ${why("Reviewing and importing are one screen, so looking is always safe.")}` },
-    { kick: "Import to a study", title: "Then tell them where to look", go: () => { goCard(); ST.sel = "Price architecture"; JUMP.study("done"); }, sel: ".o-success", place: "left", body: `
-      ${did("What changed, a button to open the study, and Undo.")}` },
-
-    /* ---------- Share ---------- */
-    { kick: "Share", title: "Sharing is a dialog, reached from the collection", go: () => { goAccess(); render(); }, sel: ".o-invite", place: "left", body: `
-      ${was("A separate permissions page.")}
-      ${did("Invite, roles, requests and activity, over the screen you came from.")}` },
-
-    /* ---------- Wrap ---------- */
-    { kick: "Wrap up", title: "What this version fixes", go: () => goHome(), sel: null, body: `
-      <ul>
-        <li><b>Import shows the changes first</b>, with Undo after.</li>
-        <li><b>Moves grouped by direction:</b> studies, or your computer.</li>
-        <li><b>Review, don't pick</b> when saving a collection.</li>
-        <li><b>One attribute at a time</b> on the collection screen.</li>
-        <li><b>Version history</b> with faces.</li>
-        <li><b>Edge states</b> that say what to do.</li>
-        <li><b>Share</b> opens where you are.</li>
-      </ul>` },
+    /* ---------- Adding attributes to a study ---------- */
+    { kick: "Add to a study", title: "Import to a study", go: () => { goCard(); render(); }, sel: ".v2card .o-mf .o-cta", place: "above", body: `
+      ${did("From a collection, Import to a study. On a board, Import a collection does the same.")}` },
+    { kick: "Add to a study", title: "Pick any study", go: () => { goCard(); openCompare(); render(); }, sel: ".cpx-studies", place: "below", body: `
+      ${did("Every study you have, as a card.")}` },
+    { kick: "Add to a study", title: "See what changes", go: () => { goCompare(); render(); }, sel: ".cpx-table", place: "left", body: `
+      ${did("Removed, changed and added, product by product. Nothing has changed yet.")}` },
+    { kick: "Add to a study", title: "Import", go: () => { goCompare(); render(); }, sel: ".cpx .o-mf", place: "above", body: `
+      ${did("Import applies it. Back to collection leaves the study as it is.")}` },
+    { kick: "Add to a study", title: "Done", go: () => { goCard(); ST.sel = "Price architecture"; JUMP.study("done"); }, sel: ".o-success", place: "left", body: `
+      ${did("Open the study to see its new attributes, or undo.")}` },
   ];
 
   /* ---------- Your turn: steps where the person does the thing instead of reading about it ----------
      The card asks for one small action on the highlighted part. The tour watches the app's state and,
      once it's done, confirms what happened. Next is always there as "Skip", so nobody gets stuck. */
   const TASKS = {
-    "Two things up top, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b>.", done: () => App.menu === "more", ok: "Everything that isn't the main job." },
+    "Save a collection from the board": { at: '[data-a="boardSave"]', ask: "Click <b>Save to a collection</b>.", done: () => App.modal === "create", ok: "The study's attributes, ready to review." },
     "Review what goes in": { beside: ".cr .o-rail.tree", at: '.cr .o-tname[data-v="upper-material"]', ask: "Click <b>Upper material</b>, then <b>Knit</b>.", done: () => App.modal === "create" && CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Just a view: everything still goes in." },
-    "Pick any study": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Into</b> list.", done: () => App.menu === "cpstudy", ok: "Any study works." },
-    "A card shows what is inside": { free: true, at: ".h-grid .ccard", ask: "Open the <b>FA26 line review</b> collection.", done: () => App.modal === "card", ok: "This is the collection screen." },
-    "Browse by attribute and value": { beside: ".o-rail.tree", at: '.o-tname[data-v="upper-material"]', ask: "Click <b>Upper material</b>, then <b>Knit</b>.", done: () => CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Only those products show." },
-    "When search finds nothing": { at: ".o-empty2 [data-a=\"cardQClear\"]", ask: "Press <b>Clear search</b>.", done: () => !CD.q, ok: "All 312 products are back." },
-    "Import is the main move": { at: ".v2card .o-mf .o-cta", ask: "Click <b>Import to a study</b>.", done: () => App.modal === "compare", ok: "The preview. Nothing has changed." },
-    "Grouped by what happens, riskiest first": { under: true, at: ".cpx-t[data-v*=\"Vomero\"]", ask: "Open <b>Running → Vomero</b>.", done: () => CP.open && CP.open.includes("Vomero"), ok: "Each product shows before → after." },
-    "Ask about any product": { at: "#cp-q", ask: "Search for <b>Pegasus</b>.", done: () => /pegasus/i.test(CP.q), ok: "Each match says what happens." },
+    "A card shows what is inside": { free: true, at: ".h-grid .ccard", ask: "Open the <b>FA26 line review</b> collection.", done: () => App.modal === "card", ok: "This is the collection." },
+    "Browse by attribute and value": { beside: ".o-rail.tree", at: '.o-tname[data-v="upper-material"]', ask: "Click <b>Upper material</b>, then <b>Knit</b>.", done: () => App.modal === "card" && CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Only those products show." },
+    "Two buttons, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b>.", done: () => App.menu === "more", ok: "Everything else." },
+    "Import to a study": { at: ".v2card .o-mf .o-cta", ask: "Click <b>Import to a study</b>.", done: () => App.modal === "compare", ok: "Now pick a study." },
+    "Pick any study": { at: '.cpx-studies [data-v="Price architecture"]', ask: "Pick <b>Price architecture</b>.", done: () => CP.study === "Price architecture", ok: "Here's what would change." },
   };
   STEPS.forEach(s => { if (TASKS[s.title]) s.task = TASKS[s.title]; });
 
   /* ---------- Chapters: the steps grouped like an interactive demo, each opening with its goal ---------- */
   const CHAPTERS = {
-    "Start here": { goal: "What Collagia and collections are.", what: "Two short reads." },
-    "Study board": { goal: "See where attributes come from.", what: "Frame shoes and name them." },
-    "Attributes page": { goal: "Tell collections apart.", what: "Open one from its card." },
-    "New collection": { goal: "Save a study's attributes as a collection.", what: "Pick, review, name." },
-    "Open a collection": { goal: "Read a collection.", what: "Menu, versions, values." },
-    "Edge states": { goal: "Awkward data, handled.", what: "Five states, each with a next step." },
-    "Import to a study": { goal: "See the changes, then import.", what: "Pick a study, read the changes, import." },
-    "Share": { goal: "Share with the right people.", what: "Who has access, and how." },
-    "Wrap up": { goal: "Recap what changed.", what: "What changed." },
+    "Start here": { goal: "What attributes and collections are.", what: "One short read." },
+    "The board": { goal: "The board, the Attributes page, and saving a collection.", what: "Save this study's attributes as a collection." },
+    "Open a collection": { goal: "What's inside a collection.", what: "Open one and browse it." },
+    "Create an attribute": { goal: "Tag products on a board.", what: "Frame products, name the attribute and value." },
+    "Add to a study": { goal: "Bring a collection's attributes into a study.", what: "Pick a study, see the changes, import." },
   };
   const KICKS = [...new Set(STEPS.map(s => s.kick))];
   const chapterOf = k => { const kick = STEPS[k].kick, all = STEPS.map((s, j) => j).filter(j => STEPS[j].kick === kick); return { n: KICKS.indexOf(kick) + 1, of: KICKS.length, at: all.indexOf(k) + 1, len: all.length }; };

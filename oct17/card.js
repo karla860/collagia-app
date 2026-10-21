@@ -65,7 +65,7 @@ const pchips = p => {
 /* Edge state: photos still loading. The product is already there (name, code, tag); its thumbnail shimmers until the photo arrives. */
 const photoLoading = p => CD.demo === "nophotos" && cProducts(curColl()).findIndex(x => x.id === p.id) % 4 === 1;
 const pthumb = (p, cls) => photoLoading(p) ? `<span class="o-th ${cls} loading" role="img" aria-label="Photo loading"></span>` : thumb(p, cls);
-const pcard = p => `<div class="o-pcard">${pthumb(p, "sq")}<div class="nm">${esc(p.name)}</div><div class="o-id">${p.id}${p.price ? ` · ${money(p.price)}` : ""}</div>${pchips(p)}</div>`;
+const pcard = p => `<div class="o-pcard">${pthumb(p, "sq")}<div class="nm">${esc(p.name)}</div><div class="o-id">${p.id}</div>${pchips(p)}</div>`;
 const gridView = list => {
   const c = curColl();
   return `<div class="o-pgrid">${list.map(pcard).join("")}</div>`;
@@ -182,17 +182,11 @@ const emptyState = (c, total, selName) => !total ? emptyColl0(c) : CD.q
   ? `<div class="o-empty o-empty2">${ic.search}<b>No products match “${esc(CD.q)}”</b><span>The search above looks at product names and style codes in this collection only (${total} products)${CD.sel ? `, within ${esc(selName)}` : ""}.</span><button class="btn" data-a="cardQClear">Clear search</button></div>`
   : `<div class="o-empty o-empty2">${ic.box}<b>No products carry ${esc(selName)}</b><span>This version of the collection has nothing here.</span><button class="btn" data-a="cardAll">Show every ${esc(attrLabel(CD.sel ? CD.sel.k : curColl().attrs[0]))}</button></div>`;
 
-/* ---------- The four moves, grouped by direction ----------
-   A collection sits between studies and your computer (Giorgi's Loom): one group each way, Import is the main move.
-   Nothing to import or download while the collection is empty. */
-const syncBar = (c, total) => `
-  <div class="o-syncg" role="group" aria-label="Studies"><span class="o-syncl">${ic.studies}Studies</span>
-    <button class="btn" data-a="updateFromStudy" data-v="${c.id}">Update from a study</button>
-    <button class="btn primary o-cta" data-a="cpOpen" ${total ? "" : "disabled"}>${ic.importStudy}Import to a study</button></div>
-  <span class="sp"></span>
-  <div class="o-syncg" role="group" aria-label="Spreadsheet"><span class="o-syncl">${ic.csv}Spreadsheet</span>
-    <button class="btn" data-a="exportCsv" ${total ? "" : "disabled"}>${ic.download}Download CSV</button>
-    <button class="btn" data-a="updateFromCsv" data-v="${c.id}">${ic.upload}Update from a CSV</button></div>`;
+/* ---------- Footer: two moves, both with studies (Giorgi's Loom: a collection sits between studies and your computer).
+   Import is the main one; the CSV moves, version history and rename live behind ⋯. Nothing to import while it's empty. */
+const syncBar = (c, total) => `<span class="sp"></span>
+  <button class="btn" data-a="updateFromStudy" data-v="${c.id}">${ic.studies}Update from a study</button>
+  <button class="btn primary o-cta" data-a="cpOpen" ${total ? "" : "disabled"}>${ic.importStudy}Import to a study</button>`;
 
 /* ---------- The screen ---------- */
 const appliedDD = c => {
@@ -217,6 +211,8 @@ const MODAL_CARD = () => {
       <button class="btn" data-a="openAccessCur">${ic.share}Share</button>
       <div class="o-dd"><button class="icon-btn o-morebtn${App.menu === "more" ? " open" : ""}" data-a="menu" data-v="more" aria-haspopup="menu" aria-label="More">${ic.more}</button>
         ${App.menu === "more" ? `<div class="o-menu o-moremenu right" role="menu">
+          <button role="menuitem" data-a="exportCsv">${ic.download}Download CSV</button>
+          <button role="menuitem" data-a="updateFromCsv" data-v="${c.id}">${ic.upload}Update from a CSV</button>
           <button role="menuitem" data-a="histToggle">${ic.history}Version history</button>
           <button role="menuitem" data-a="cdNameEdit">${ic.pencil}Rename</button>
         </div>` : ""}</div>
@@ -231,7 +227,7 @@ const MODAL_CARD = () => {
       </div>
       ${CD.histOpen ? histPanel() : ""}
     </div>
-    <footer class="o-mf o-sync">
+    <footer class="o-mf">
       ${old ? `<span class="sp"></span>` : ""}${old ? `<button class="btn" data-a="verLatest">Back to latest</button><button class="btn primary" data-a="verRestore">${ic.history}Restore as ${nextV(c)}</button>`
         : syncBar(c, total)}
     </footer>

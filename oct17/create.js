@@ -1,13 +1,12 @@
 /* ---------- New collection ----------
-   One modal, four steps either way: Source → Pick a study (or Upload a file) → Review attributes (or Check the file) → Name.
+   One modal, three steps either way: Pick a study (or Upload a file) → Review attributes (or Check the file) → Name; the New collection menu picks which.
    Nothing is chosen attribute by attribute: a collection takes everything the study published. The review step shows it
    exactly as the collection screen will, so it reads the same before and after saving. */
 
-const CR = { step: "source", src: null, study: null, included: new Set(), reviewed: null, name: "", desc: "", csv: null, dzOver: false, dzErr: "", mode: "create", target: null };
-const resetCreate = (mode = "create", target = null) => Object.assign(CR, { step: "source", src: null, study: null, included: new Set(), reviewed: null, name: "", desc: "", csv: null, dzOver: false, dzErr: "", mode, target });
+const CR = { step: "study", src: "study", study: null, included: new Set(), reviewed: null, name: "", desc: "", csv: null, dzOver: false, dzErr: "", mode: "create", target: null };
+const resetCreate = (mode = "create", target = null) => Object.assign(CR, { step: "study", src: "study", study: null, included: new Set(), reviewed: null, name: "", desc: "", csv: null, dzOver: false, dzErr: "", mode, target });
 const openCreate = (src, mode = "create", target = null) => {
   resetCreate(mode, target); setFlow(mode === "create" ? "create" : "card"); App.menu = null; App.modal = "create";
-  if (src === "study") { CR.src = "study"; CR.step = "study"; }
   if (src === "csv") { CR.src = "csv"; CR.step = "csv"; }
 };
 // From a board: this study and all of its attributes, straight to the review step
@@ -22,24 +21,11 @@ const defaultName = () => {
 };
 
 /* ---------- Stepper ---------- */
-const CR_STEPS = () => CR.src === "csv" ? ["Source", "Upload a file", "Check the file", "Name it"] : ["Source", "Pick a study", "Review attributes", "Name it"];
-const crAt = () => ({ source: 0, study: 1, csv: 1, pick: 2, check: 2, name: 3 })[CR.step];
+const CR_STEPS = () => CR.src === "csv" ? ["Upload a file", "Check the file", "Name it"] : ["Pick a study", "Review attributes", "Name it"];
+const crAt = () => ({ study: 0, csv: 0, pick: 1, check: 1, name: 2 })[CR.step];
 const stepper = () => `<div class="o-steps" aria-label="Steps"><ol>${CR_STEPS().map((l, i) => `<li class="${i < crAt() ? "done" : i === crAt() ? "now" : ""}"${i === crAt() ? ' aria-current="step"' : ""}><span class="o-stepn">${i < crAt() ? ic.check : i + 1}</span>${l}</li>`).join("")}</ol>
 </div>`;
 const crTitle = () => CR.mode === "update" ? `Update <b>${esc(collById(CR.target).name)}</b>` : "New attribute collection";
-
-/* ---------- Step 1 · Source ---------- */
-const STEP_SOURCE = () => `
-  <div class="o-src">
-    <div class="o-choose">
-      <button class="o-opt" data-a="crSrc" data-v="study">
-        <span class="o-optimg"><span class="o-optart"><img src="assets/icons/src-study.svg" alt=""><img class="b" src="assets/icons/src-study-badge.svg" alt=""></span></span>
-        <b>In a study</b><span>You framed products on a board and published attributes. Save them here so they can be shared and used in other studies.</span></button>
-      <button class="o-opt" data-a="crSrc" data-v="csv">
-        <span class="o-optimg"><span class="o-optart"><img src="assets/icons/src-csv.svg" alt=""><img class="b" src="assets/icons/src-csv-badge.svg" alt=""></span></span>
-        <b>In a spreadsheet</b><span>A CSV with a product ID per row and a column per attribute. Seasonal flags, planning data, anything that enriches the products.</span></button>
-    </div>
-  </div>`;
 
 /* ---------- Step 2a · Pick a study ---------- */
 const STEP_STUDY = () => `<div class="o-scroll grey"><div class="o-studies">${STUDIES.map(s => {
@@ -131,7 +117,7 @@ const STEP_NAME = () => `<div class="o-scroll"><div class="o-namestep">
 
 const crFooter = () => {
   const n = CR.included.size, step = CR.step;
-  const back = step === "source" ? "" : `<button class="btn" data-a="crBack">${ic.back}Back</button>`;
+  const back = step === "study" || step === "csv" ? "" : `<button class="btn" data-a="crBack">${ic.back}Back</button>`;
   let note = "", next = "";
   if (step === "study") { next = `<button class="btn primary" data-a="crNext" ${CR.study ? "" : "disabled"}>Continue${ic.chevR}</button>`; }
   if (step === "pick") { const vals = [...CR.included].reduce((t, k) => t + studyValueCounts(crStudy(), k).length, 0); note = `<span class="o-showing">All <b>${n}</b> attribute${n === 1 ? "" : "s"} · ${vals} values · ${crTagged().length} tagged products</span>`; next = `<button class="btn primary" data-a="crNext">Continue${ic.chevR}</button>`; }
@@ -143,16 +129,15 @@ const crFooter = () => {
 const MODAL_CREATE = () => `<div class="o-modal xl cr" role="dialog" aria-modal="true" aria-label="New attribute collection">
   <header class="o-mh"><button class="icon-btn" data-a="closeModal" aria-label="Close">${ic.close}</button><h2 class="o-h20">${crTitle()}</h2></header>
   ${stepper()}
-  ${{ source: STEP_SOURCE, study: STEP_STUDY, pick: STEP_PICK, csv: STEP_CSV, check: STEP_CHECK, name: STEP_NAME }[CR.step]()}
+  ${{ study: STEP_STUDY, pick: STEP_PICK, csv: STEP_CSV, check: STEP_CHECK, name: STEP_NAME }[CR.step]()}
   ${crFooter()}
 </div>`;
 
 /* ---------- Actions ---------- */
 ACTIONS.newFromStudy = () => openCreate("study");
 ACTIONS.newFromCsv = () => openCreate("csv");
-ACTIONS.crSrc = el => { CR.src = el.dataset.v; CR.step = CR.src === "csv" ? "csv" : "study"; };
 ACTIONS.crPickStudy = el => { CR.study = el.dataset.v; CR.included = new Set(crStudy().published); };
-ACTIONS.crBack = () => { CR.step = { study: "source", csv: "source", pick: "study", check: "csv", name: CR.src === "csv" ? "check" : "pick" }[CR.step]; };
+ACTIONS.crBack = () => { CR.step = { pick: "study", check: "csv", name: CR.src === "csv" ? "check" : "pick" }[CR.step]; };
 ACTIONS.crNext = () => { CR.step = { study: "pick", pick: "name", check: "name" }[CR.step]; if (CR.step === "name") setTimeout(() => { const i = $("#cr-name"); if (i) i.focus(); }); };
 INPUTS.crName = el => { CR.name = el.value; };
 INPUTS.crDesc = el => { CR.desc = el.value; return false; };
@@ -206,4 +191,4 @@ document.addEventListener("change", e => { if (e.target.id === "dz-file" && e.ta
 ACTIONS.updateFromStudy = el => { openCreate("study", "update", el.dataset.v || CD.id); };
 ACTIONS.updateFromCsv = el => { openCreate("csv", "update", el.dataset.v || CD.id); };
 
-JUMP.create = () => { App.page = "home"; openCreate(null); render(); };
+JUMP.create = () => { App.page = "home"; openCreate("study"); render(); };

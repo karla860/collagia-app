@@ -62,8 +62,8 @@ const card = c => {
 
 const newBtn = () => `<div class="o-dd"><button class="btn primary${App.menu === "newmenu" ? " open" : ""}" data-a="menu" data-v="newmenu" aria-haspopup="menu" aria-expanded="${App.menu === "newmenu"}">${ic.plus}New collection${ic.chev}</button>
   ${App.menu === "newmenu" ? `<div class="o-menu o-newmenu right" role="menu">
-    <button role="menuitem" data-a="newFromStudy">${ic.studies}<span><b>From a study</b><small>Save attributes you published on a board</small></span></button>
-    <button role="menuitem" data-a="newFromCsv">${ic.upload}<span><b>From a CSV</b><small>Turn a spreadsheet into attributes</small></span></button>
+    <button role="menuitem" data-a="newFromStudy">${ic.studies}From a study</button>
+    <button role="menuitem" data-a="newFromCsv">${ic.upload}From a CSV</button>
   </div>` : ""}</div>`;
 const sortDD = () => `<div class="o-dd"><button class="o-select h-sortbtn${App.menu === "hsort" ? " open" : ""}" data-a="menu" data-v="hsort" aria-haspopup="menu" aria-expanded="${App.menu === "hsort"}" title="Sort">${ic.sortI}<span>${SORTS[H.sort]}</span>${ic.chev}</button>
   ${App.menu === "hsort" ? `<div class="o-menu right" role="menu">${Object.entries(SORTS).map(([k, l]) => `<button role="menuitemradio" aria-checked="${H.sort === k}" class="${H.sort === k ? "cur" : ""}" data-a="homeSortPick" data-v="${k}">${l}${H.sort === k ? ic.check : ""}</button>`).join("")}</div>` : ""}</div>`;
