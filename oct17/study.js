@@ -11,13 +11,13 @@ const MODAL_PICK = () => {
   const c = stColl(), q = ST.q.trim().toLowerCase(), list = STUDIES.filter(s => !q || s.name.toLowerCase().includes(q));
   const sel = stStudy(), total = c.productIds.length;
   const fit = s => { const n = matchCount(c, s); return !n ? `<span class="o-fit none">No matching products · different collage</span>` : `<span class="o-fit${n === total ? " all" : ""}">${n === total ? "All" : n} of ${total} products in this collection</span>`; };
-  const has = s => s.applied[c.id] ? `<span class="o-applied${s.applied[c.id] === c.v ? " ok" : ""}">${s.applied[c.id] === c.v ? `Has ${c.v} · up to date` : `Has ${s.applied[c.id]} · behind ${c.v}`}</span>` : "";
+  const has = s => s.applied[c.id] ? `<span class="o-applied${s.applied[c.id] === c.v ? " ok" : ""}">${s.applied[c.id]}</span>` : "";
   return `<div class="o-modal xl pick" role="dialog" aria-modal="true" aria-label="Apply ${esc(c.name)} to a study">
   <header class="o-mh"><button class="icon-btn" data-a="pickBack" aria-label="Back">${ic.back}</button><h2 class="o-h20">Apply <b>${esc(c.name)}</b> to a study</h2><span class="sp"></span>
     <label class="o-searchbox">${ic.search}<input id="st-q" data-in="stQ" placeholder="Search studies…" value="${esc(ST.q)}" aria-label="Search a study"></label></header>
   <div class="o-pickhelp">${ic.info}Attributes only land on products the study contains, so the study's collage decides whether anything happens. Nothing changes until you've seen the preview.</div>
   <div class="o-scroll grey"><div class="o-studies">${list.length ? list.map(s => { const n = matchCount(c, s); return `
-    <div class="o-study${ST.sel === s.name ? " on" : ""}${n ? "" : " off"}" ${n ? `data-a="pickStudy" data-v="${esc(s.name)}" tabindex="0"` : 'aria-disabled="true" title="None of this study’s products are in the collection"'} role="radio" aria-checked="${ST.sel === s.name}">
+    <div class="o-study${ST.sel === s.name ? " on" : ""}${n ? "" : " off"}" ${n ? `data-a="pickStudy" data-v="${esc(s.name)}" tabindex="0"` : 'aria-disabled="true" title="No shared products"'} role="radio" aria-checked="${ST.sel === s.name}">
       <div class="o-sprev study">${studyProducts(s).slice(0, 12).map(p => thumb(p, "s56")).join("")}${has(s)}</div>
       <div class="o-sbody"><div><b>${esc(s.name)}</b><span>${esc(COLLAGES[s.collage].name)} · ${s.edited}</span>${fit(s)}${studyTags(s, 3)}</div></div>
     </div>`; }).join("") : `<p class="o-muted o-nostudy">No studies match “${esc(ST.q)}”</p>`}</div></div>
@@ -48,7 +48,7 @@ const MODAL_COLLPICK = () => {
 const MODAL_PREVIEW = () => {
   const c = stColl(), s = stStudy(), m = cpModel(c, s), synced = !m.changed.length;
   return `<div class="o-modal xl preview cpx" role="dialog" aria-modal="true" aria-label="Preview">
-    <header class="o-mh"><button class="icon-btn" data-a="pvBack" aria-label="Back">${ic.back}</button><h2 class="o-h20">Apply <b>${esc(c.name)}</b> to <b>${esc(s.name)}</b></h2><span class="sp"></span><span class="o-pvtag">${ic.eye}Preview · nothing applied yet</span></header>
+    <header class="o-mh"><button class="icon-btn" data-a="pvBack" aria-label="Back">${ic.back}</button><h2 class="o-h20">Apply <b>${esc(c.name)}</b> to <b>${esc(s.name)}</b></h2></header>
     <div class="o-scroll grey"><div class="cpx-body">
       ${cpLayout(c, s, m, "")}
     </div></div>
@@ -81,8 +81,9 @@ const MODAL_SUCCESS = () => {
   </div>`;
 };
 
-/* ---------- Modal shell: one overlay, the open modal decides its content. No iframes. ---------- */
-const MODALS = { success: () => MODAL_SUCCESS(), card: () => MODAL_CARD(), confirmDelete: () => MODAL_DELETE(), access: () => MODAL_ACCESS(), create: () => MODAL_CREATE(), studyPick: () => MODAL_PICK(), collPick: () => MODAL_COLLPICK(), preview: () => MODAL_PREVIEW(), compare: () => MODAL_COMPARE() };
+/* ---------- Modal shell: one overlay, the open modal decides its content. No iframes.
+   Share opened from a collection is drawn on top of it, so the collection stays behind it. ---------- */
+const MODALS = { success: () => MODAL_SUCCESS(), card: () => MODAL_CARD(), confirmDelete: () => MODAL_DELETE(), access: () => AC.from === "card" ? `<div class="o-under" inert>${MODAL_CARD()}</div><div class="o-stack">${MODAL_ACCESS()}</div>` : MODAL_ACCESS(), create: () => MODAL_CREATE(), studyPick: () => MODAL_PICK(), collPick: () => MODAL_COLLPICK(), preview: () => MODAL_PREVIEW(), compare: () => MODAL_COMPARE() };
 RENDER.modal = () => {
   const ov = $("#o-ov");
   document.body.classList.toggle("locked", !!App.modal);
@@ -105,8 +106,9 @@ RENDER.escape = () => {
   return true;
 };
 let pressedBackdrop = false;
-document.addEventListener("mousedown", e => { pressedBackdrop = e.target.id === "o-ov"; });
-document.addEventListener("click", e => { if (e.target.id === "o-ov" && pressedBackdrop && App.modal) { if (App.modal === "access") ACTIONS.accessBack(); else App.modal = null; render(); } });
+const isBackdrop = el => el.id === "o-ov" || el.classList.contains("o-stack");
+document.addEventListener("mousedown", e => { pressedBackdrop = isBackdrop(e.target); });
+document.addEventListener("click", e => { if (isBackdrop(e.target) && pressedBackdrop && App.modal) { if (App.modal === "access") ACTIONS.accessBack(); else App.modal = null; render(); } });
 
 /* ---------- Actions ---------- */
 ACTIONS.toStudyPick = () => { setFlow("study"); ST.q = ""; ST.sel = null; ST.open = null; ST.fromBoard = false; ST.fromCompare = false; App.modal = "studyPick"; };

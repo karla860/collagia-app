@@ -18,185 +18,142 @@
   const goPick = () => { const s = STUDIES[0]; setFlow("create"); App.page = "home"; openCreate("study"); CR.study = s.name; CR.included = new Set(s.published); CR.peek = null; CR.step = "pick"; };
   const goCard = () => { setFlow("card"); App.page = "home"; openCard("franchise"); App.menu = null; };
   const goCompare = (q = "") => { setFlow("compare"); App.page = "home"; openCard("franchise"); openCompare(); Object.assign(CP, { study: "Price architecture", loading: false, at: new Date(), q, open: null, touched: false }); App.menu = null; };
-  const goAccess = () => { setFlow("access"); App.page = "home"; openCard("franchise"); openAccess("franchise"); App.menu = null; };
+  const goAccess = () => { setFlow("access"); App.page = "home"; openCard("franchise"); AC.from = "card"; openAccess("franchise"); App.menu = null; };
 
   const STEPS = [
     { kick: "Start here", title: "Collagia in one paragraph", sel: null, body: `
-      <p>Collagia joins a company's product images with its business data into a <b>collage</b>, and people explore the collage in a <b>study</b>, a private workspace with boards. On a board you select a group of products and publish a tag: an <b>attribute name + value</b>, like Upper material = Knit. The attribute joins the study's filters next to the real data, so something only an eye could spot becomes a column you can group and filter by.</p>
-      <p class="tr-hint">The products here are real: 320 men's shoes scraped from nike.com/gb, with their names, style codes, prices and photos. The sales figures are simulated and say so.</p>` },
+      <p>Collagia joins product images with business data into a <b>collage</b>. In a <b>study</b> you frame products on a board and tag them: an <b>attribute + value</b>, like Upper material = Knit.</p>
+      <p class="tr-hint">Real Nike products; simulated sales.</p>` },
     { kick: "Start here", title: "What an attribute collection is", sel: null, body: `
-      <p>Published attributes only live in the study that made them. An <b>attribute collection</b> lifts a set of them out so they can be kept, versioned, shared and applied to other studies.</p>
+      <p>A <b>collection</b> lifts a study's attributes out so they can be versioned, shared and applied to other studies.</p>
       <div class="tr-diagram"><span>Study</span><em>⇄</em><span class="lib">Collection</span><em>⇄</em><span>CSV</span></div>
-      <p>Every button in the feature is one arrow in that picture. This tour follows the loop once: add attributes on a board, save a collection, open it, compare it with a study, apply it, share it.</p>
-      <p class="tr-hint">At some steps the tour steps aside and a <b>red point</b> shows you something to try in the app. Do it and the tour picks up again. Skip is always there.</p>
-      <p class="tr-hint">Next and Back move between screens. The prototype stays live underneath, so click around whenever you like. Esc stops the tour; the guide (⌘K, bottom right) restarts it.</p>` },
+      <p class="tr-hint">A <b>red point</b> means try it yourself. Esc stops the tour; ⌘K restarts it.</p>` },
     { kick: "Start here", title: "What's already in this account", go: () => goHome(), sel: ".h-grid .ccard", place: "right", body: `
-      <p>You're signed in as <b>Roo</b>, and the account isn't empty. It already has:</p>
       <ul>
-        <li><b>4 studies:</b> FA26 footwear review, Price architecture, SS27 merchandising (all on 320 Nike shoes) and Antiquities sale 2026 (on 30 Christie's lots).</li>
-        <li><b>2 collections:</b> FA26 line review (franchise, upper material, silhouette and colour story), made from FA26 footwear review and now on v2, and Statue backgrounds, from a CSV.</li>
-        <li><b>One study is behind:</b> Price architecture still has the older FA26 line review v1. That's why it shows up in Compare and Apply.</li>
-      </ul>
-      <p class="tr-hint">Nothing here was created by the tour. It's the starting point, so the later steps have something real to work with.</p>` },
+        <li><b>4 studies</b>, three on 320 Nike shoes, one on 30 Christie's lots.</li>
+        <li><b>2 collections:</b> FA26 line review (v2) and Statue backgrounds.</li>
+        <li><b>Price architecture</b> is behind, on v1.</li>
+      </ul>` },
 
     /* ---------- Board ---------- */
     { kick: "Study board", title: "A study is products on a board", go: () => goBoard(), sel: ".bx-top .bx-box:first-child", place: "below", body: `
-      <p>This is the FA26 footwear review, a study on the Nike GB Men's Footwear collage. Switch study from its name; the collage it sits on is to the left. Like the app, nothing here moves by hand: the board type and the show bar decide the formation.</p>
-      ${did("The board is a working tool now: select, add attributes, group, filter. The top right tells you how many attributes this study has published and gives the two ways out: save them to a collection, or bring a collection in.")}` },
+      ${did("Select, tag, group and filter. Top right: how many attributes are published, and ways to save or apply a collection.")}` },
     { kick: "Study board", title: "Frame what your eye groups together", go: () => goBoardSel(), sel: ".bx-tools button[data-v=\"attr\"]", place: "right", body: `
-      <p>Selecting is its own tool, Create custom attribute (<b>F</b>), as in the app. With it on, drag a frame around a group or click tiles. Four shoes are selected now. With the Select tool (<b>V</b>), dragging pans and clicking shows a product card instead.</p>
-      ${why("This is the framing tool already in the app. It's the one thing a spreadsheet can never do: pick products by what they look like.")}` },
+      ${did("Press <b>F</b>, then drag a frame or click tiles. Four shoes are selected.")}
+      ${why("Picking products by how they look is what a spreadsheet can't do.")}` },
     { kick: "Study board", title: "Name the attribute and its value", go: () => { goBoardSel(); BD.tag.value = ""; BD.dd = "val"; render(); }, sel: "#bd-inpop", grow: ".bx-ip-dd", place: "right", body: `
-      ${did("With products framed, a small box opens right next to the Create custom attribute button, with two fields as in the app: <b>Attribute Name</b> and <b>Value Name</b>. Each one drops down what this study already has, with counts, or you type a new name and create it. Publish puts the value on every framed product.")}
-      ${why("The box always opens in the same place, attached to the tool that made it, so it never covers the shoes you framed. Picking from the list keeps one attribute from ending up with three spellings.")}` },
+      ${did("A small box beside the tool: Attribute Name and Value Name, each listing what the study already has.")}
+      ${why("Picking from the list avoids three spellings of one value.")}` },
 
     /* ---------- Homepage ---------- */
     { kick: "Attributes page", title: "A card shows what is inside", go: () => goHome(), sel: ".h-grid .ccard", place: "right", body: `
-      ${was("On staging, an Attributes card shows a title, “version 1” and two dates, and every card looks the same.")}
-      ${did("The cover is a grid of the collection's own products. Then one tag per attribute with its number of values, where it came from, who has it, and when it last changed.")}` },
+      ${was("A title, “version 1” and two dates.")}
+      ${did("The collection's own products, one tag per attribute, its source and its version.")}` },
 
     /* ---------- Create ---------- */
     { kick: "New collection", title: "Start by saying where the attributes are", go: () => { goHome(); openCreate(null); render(); }, sel: ".o-choose", place: "below", body: `
-      ${did("Two tiles with real sentences: in a study (you tagged products on a board) or in a spreadsheet (a CSV with a style code per row). A stepper shows the four steps.")}` },
+      ${did("In a study, or in a spreadsheet. Four steps either way.")}` },
     { kick: "New collection", title: "Pick a study: show what is there to take", go: () => { goHome(); openCreate("study"); render(); }, sel: ".o-studies", place: "above", body: `
-      ${did("Each study lists the attributes it already has as tags, with how many values each one holds. SS27 merchandising shows a study with six: the first four, then “+2 more”. A study with nothing published is greyed out and says so.")}
-      ${why("You pick a study for what's already in it. Tags make that readable at a glance, however many attributes a study has.")}` },
+      ${did("Each study shows its attributes as tags. One with nothing published is greyed out.")}` },
     { kick: "New collection", title: "Review what goes in", go: () => { goPick(); render(); }, sel: ".cr .o-rail.tree", place: "right", body: `
-      ${was("On staging every attribute pill is a checkbox and a tab, and a dropdown filters the list. That is why it reads as a filter.")}
-      ${did("Nothing to tick: a collection takes every attribute the study published. This step shows it the way the collection screen will, with attributes and values in the rail and the products on the right, one attribute at a time.")}
-      ${why("Choosing attribute by attribute isn't how collections work. A review step reads the same before and after saving, so there is nothing new to learn.")}` },
+      ${did("Nothing to tick: every published attribute goes in. Browse it exactly as the collection screen shows it.")}
+      ${why("A collection takes the whole study, so there is nothing to choose.")}` },
     { kick: "New collection", title: "Name it, and know it is private", go: () => { goPick(); CR.step = "name"; CR.name = ""; render(); }, sel: ".o-nameform", place: "right", body: `
-      ${did("A name pre-filled from the attributes, an optional description, a preview of the card it will make, and a plain line: private until you share it.")}
-      ${why("Sharing is a separate, deliberate step, so it helps to say so at the moment you make something.")}` },
+      ${did("A suggested name, an optional description, and a preview of its card.")}
+      ${why("It stays private until you share it.")}` },
 
     /* ---------- Open a collection ---------- */
     { kick: "Open a collection", title: "Two things up top, the rest behind ⋯", go: () => { goCard(); render(); }, sel: ".v2h .o-dd", place: "left", body: `
-      ${was("On staging, four identical buttons sit bottom-right: Import Attributes to Study, Update Attributes From Study, Update Attributes from CSV and Export CSV.")}
-      ${did("Share sits in the header because it is the deliberate step everyone has to take. Behind ⋯ is one flat list of short labels: Update from a study, Update from a CSV, Download CSV, Version history and Rename. No headings or dividers, because five actions don't need grouping.")}` },
+      ${was("Four identical buttons, bottom right.")}
+      ${did("Share up top. Everything else is one short list behind ⋯.")}` },
     { kick: "Open a collection", title: "The one big action", go: () => { goCard(); render(); }, sel: ".v2card .o-mf", place: "above", body: `
-      ${did("Apply to a study is the single red button, with Compare with a study beside it as the optional look first. The footer holds nothing else, so the next step is never in doubt.")}
-      ${why("One clear primary action keeps the screen calm. Where a collection is already used shows up in Compare and in version history, where it's needed.")}` },
+      ${did("Apply to a study is the one red button. Compare sits beside it.")}` },
     { kick: "Open a collection", title: "Every version, kept", go: () => { goCard(); CD.histOpen = true; render(); }, sel: ".o-hist", place: "left", body: `
-      ${was("On staging, a collection says “version 1” and nothing about what changed between versions or which studies have which one.")}
-      ${did("Version history lists every version: what changed, who made it, when, and which studies still use it. You can view an older version and restore it as a new one.")}
-      ${why("Collections change over time. Knowing which version a study has, and what's different, is what makes updating it safe.")}` },
+      ${did("Who changed what, when, and which studies use each version. Restore any of them.")}
+      ${why("Knowing what changed makes updating a study safe.")}` },
     { kick: "Open a collection", title: "The rail is a view selector, never a checkbox", go: () => { goCard(); render(); }, sel: ".o-rail.tree", place: "right", body: `
-      ${was("On staging, attributes are tabs and values are a single dropdown, so you only ever see one value's products and never the whole collection.")}
-      ${did("“Attributes in this collection”: a tree of attribute → values, each value with its colour and a count. One thing selected at a time, the grid follows.")}` },
+      ${was("Tabs and one dropdown: one value's products at a time.")}
+      ${did("Attributes and their values, with counts. Pick one; the grid follows.")}` },
     { kick: "Open a collection", title: "Browse by attribute and value", go: () => { goCard(); render(); }, sel: ".o-rail.tree", place: "right", body: `
-      ${did("The collection shows one attribute at a time, starting with the first. Every product carries just that attribute's value, so a card never stacks four tags. Click another attribute to switch, or a value to see only its products.")}
-      ${why("One attribute and one value per product is how a collection is read: a column in a spreadsheet, not the whole row at once.")}` },
+      ${did("One attribute at a time, so each product shows a single value.")}` },
 
     /* ---------- Collection edge states: empty, partial and missing data ---------- */
     { kick: "Edge states", title: "When search finds nothing", go: () => { setFlow("edge"); JUMP.edge("nomatch"); }, sel: ".v2card .o-empty2 > span", place: "left", body: `
-      ${did("Says what was searched and where (names and style codes in this collection only), with one button to clear it.")}
-      ${why("A blank grid looks like a broken screen. Naming the scope tells you whether to rephrase or look elsewhere.")}
-      <p class="tr-hint">Every edge state answers three things: why it looks like this, whether anything is lost, and what to do next.</p>` },
+      ${did("Says what was searched, with one button to clear it.")}` },
     { kick: "Edge states", title: "Products with no value", go: () => { setFlow("edge"); JUMP.edge("novalue"); }, sel: ".v2card .o-notice", place: "below", body: `
-      ${did("The rail gets a “No value” row, cards show a dashed “No Material”, and an alert warns that applying clears any Material a study already has on them.")}
-      ${why("Gaps are easy to miss when you only see what's there. Calling them out before applying stops a silent loss.")}` },
+      ${did("A “No value” row and a warning before anything is lost.")}` },
     { kick: "Edge states", title: "A value only one product carries", go: () => { setFlow("edge"); JUMP.edge("single"); }, sel: ".v2card .o-pgrid .o-pcard", place: "right", body: `
-      ${did("Its count turns orange, and a quiet note under the toolbar says a one-product value is often a typo.")}
-      ${why("Singletons are usually mistakes. Catching one here is cheaper than fixing it in every study later.")}` },
+      ${did("Flagged, since a one-product value is often a typo.")}` },
     { kick: "Edge states", title: "Photos still loading", go: () => { setFlow("edge"); JUMP.edge("nophotos"); }, sel: ".v2card .o-pcard:has(.o-th.loading)", place: "right", body: `
-      ${did("Photos that haven't arrived show a grey card with a light sweeping across it. Names, style codes and values are already there. No banner: the cards say it themselves.")}
-      ${why("You can start reading the collection straight away instead of waiting on the slowest photo.")}` },
+      ${did("Grey cards shimmer; names and values are already there.")}` },
     { kick: "Edge states", title: "A collection with no products", go: () => { setFlow("edge"); JUMP.edge("empty"); }, sel: ".v2card .o-e0-h", place: "left", body: `
-      ${did("One plain message, one reason and one action: Update from a CSV. Compare and Apply are switched off.")}
-      ${why("An empty screen should say it's empty and how to fill it, nothing more. Switching off Apply stops you sending nothing to a study.")}` },
+      ${did("One message, one action. Compare and Apply are off.")}` },
 
     /* ---------- Compare with a study (optional, right before applying) ---------- */
     { kick: "Compare with a study", title: "An optional look before you apply", go: () => { goCard(); render(); }, sel: ".v2card .o-mf .o-cmpbtn", place: "above", body: `
-      ${was("On staging, the only way to see what a collection would do is to start the import: pick a study, then read a dry-run list with “+1” on every row.")}
-      ${did("<b>Compare with a study</b> sits right before Apply as an outlined button. It is read-only and optional: Apply to a study stays the one red button, and you can skip Compare entirely.")}
-      ${why("People want to know what a collection will do to their study before they commit. Now they can find out without starting anything.")}` },
+      ${was("You only saw the changes by starting the import.")}
+      ${did("See what applying would change, without starting anything.")}` },
     { kick: "Compare with a study", title: "Choosing which study to compare with", go: () => { goCompare(); render(); }, sel: ".cpx-pick", place: "below", body: `
-      ${did("One searchable dropdown. It opens on a study with an older version, and lists each study's version and shared products.")}
-      ${why("The study that's behind is the one most likely to change, so there's usually nothing to pick. A dropdown stays tidy with 3 studies or 30.")}` },
+      ${did("One searchable list. It opens on the study that's behind.")}` },
     { kick: "Compare with a study", title: "Grouped by what happens, riskiest first", go: () => { goCompare(); render(); }, sel: ".cpx-table", place: "left", body: `
-      ${was("On staging, the preview marks changes with coloured +, ⇄ and − chips that don't say what they mean, one item per row with a lot of empty space.")}
-      ${did("Four sections in plain words: Removed (8 slides lose their values), Changed, Added and Unchanged. Each line reads Now → After, like “Slides → No value · 8 products”. Open it and every product shows its own before → after. Unchanged values sit underneath with their counts, and open too.")}
-      ${why("You see the difference, not a list to work through. There is nothing to tick or choose, because applying is all or nothing.")}` },
+      ${did("Removed, Changed, Added, Unchanged. Each line reads now → after.")}
+      ${why("Removals first, because they're what you'd regret.")}` },
     { kick: "Compare with a study", title: "Ask about any product", go: () => { goCompare("nike calm"); render(); }, sel: ".cpx-sr", place: "below", body: `
-      ${did("Search covers every product in the study and the collection. Each match says what happens to it (Removed, Changed, Added, Unchanged, Not affected or Not in this study) with its value before and after.")}
-      ${why("The question people actually have is about their own product. This answers it directly, with no scrolling and no marks to decode.")}` },
+      ${did("Search any product to see what happens to it.")}` },
 
     /* ---------- Apply ---------- */
     { kick: "Apply to a study", title: "The collage decides whether anything happens", go: () => { goCard(); setFlow("study"); JUMP.study("pick"); }, sel: ".o-studies .o-study:nth-child(2)", place: "left", body: `
-      ${did("Each study shows its collage and how many of the collection's products it contains. One that shares nothing is greyed out with a reason. A study that already has this collection says which version.")}
-      ${why("David's example on the kickoff: Christie's attributes applied to a shoes study match nothing.")}` },
+      ${did("Each study shows how many products it shares. One that shares none is greyed out.")}
+      ${why("Attributes only land on products both sides have.")}` },
     { kick: "Apply to a study", title: "Then tell them where to look", go: () => { goCard(); ST.sel = "Price architecture"; JUMP.study("done"); }, sel: ".o-success", place: "left", body: `
-      ${did("The result names the attributes, counts the changes, and says the study now has this version. One full-width button opens the study by name; Back to Attributes and Undo apply sit underneath as quiet links.")}` },
-
-    /* ---------- Applying a collection with more than one attribute ---------- */
+      ${did("What changed, a button to open the study, and Undo.")}` },
 
     /* ---------- Share ---------- */
     { kick: "Share", title: "Sharing is a dialog, reached from the collection", go: () => { goAccess(); render(); }, sel: ".o-invite", place: "left", body: `
-      ${was("“Manage” in a card menu opens a separate page with a permissions form.")}
-      ${did("Invite by email with a role, a people list, pending invites, requests and an activity log. It opens from the collection's Share button or the card menu.")}` },
+      ${was("A separate permissions page.")}
+      ${did("Invite, roles, requests and activity, over the screen you came from.")}` },
 
     /* ---------- Wrap ---------- */
     { kick: "Wrap up", title: "What this version fixes", go: () => goHome(), sel: null, body: `
-      <p class="tr-sub"><b>Earlier version (Jamie, Oct 19)</b></p>
       <ul>
-        <li><b>A working board</b> on real Nike products: select, publish attributes, group, filter, then save or apply collections from it.</li>
-        <li><b>No iframes.</b> Every screen is one app.</li>
-        <li><b>Correct data model.</b> Attribute = column, value = cell, one per product, values held per study.</li>
-        <li><b>Checkboxes mean one thing</b>, only on the create screen.</li>
-        <li><b>The collection screen is read-first</b>, all four moves visible and ranked, plus Share.</li>
-        <li><b>Cards show what is inside</b>, where it came from and whether it is shared.</li>
-        <li><b>The preview leads with a sentence</b>, puts removals first and names the risk.</li>
-        <li><b>One + language everywhere.</b> Cards, the collection and the preview all show what gets added, colour-coded per value.</li>
-      </ul>
-      <p class="tr-sub"><b>This version (Karla)</b></p>
-      <ul>
-        <li><b>Compare with a study</b>: an optional, read-only look before applying. Tabs for Removed, Changed, Added and Unchanged, a count per attribute, and search that says what happens to any product.</li>
-        <li><b>No separate preview.</b> Choosing a study opens Compare; Apply happens straight away, with no extra confirmation, and can be undone.</li>
-        <li><b>Built for many studies:</b> one searchable dropdown that opens on the study that's behind.</li>
-        <li><b>A calmer collection screen:</b> one attribute at a time, so each product shows a single value; a rail to switch attribute or pick a value; search right above the grid; version history as a timeline with faces.</li>
-        <li><b>A simpler ⋯ menu:</b> one flat list (Update from a study, Update from a CSV, Download CSV, Version history, Rename).</li>
-        <li><b>Edge states:</b> no search match, missing values, one-product values, photos loading, an empty collection.</li>
-        <li><b>Cards</b> show a grid of the collection's own products and value-coloured attribute tags, at equal heights.</li>
-        <li><b>Share</b> is a quieter dialog that returns you to where you opened it.</li>
-        <li><b>One language:</b> Attributes and values everywhere, no Label Library.</li>
-        <li><b>Figma style guide</b> (icons, text styles, colours), Collagia favicon, and a layout that scales to any screen.</li>
-        <li><b>Naming on the board</b> follows the Figma input: Attribute Name and Value Name in a small box next to the attribute tool, each a dropdown of what the study already has, with counts, or a new name to create.</li>
-        <li><b>Nothing to choose when saving:</b> a new collection takes every attribute the study published, and step 3 reviews it in the same rail and grid as the collection screen.</li>
-        <li><b>A clearer finish after applying:</b> one button that opens the study by name, with Back to Attributes and Undo apply as quiet links underneath.</li>
-        <li><b>This tour:</b> chapters with goals, and red points where you try things yourself. The point scrolls to what you need to click, and its hint stays clear of it.</li>
-      </ul>
-      <p class="tr-hint">Still to confirm with Giorgi: that applying really does replace same-named attributes, what a version means to a user, and whether Manage can become Share. Karla's original files are untouched in <code>oct15/</code>.</p>` },
+        <li><b>Compare before applying</b>, no confirmation after.</li>
+        <li><b>Review, don't pick</b> when saving a collection.</li>
+        <li><b>One attribute at a time</b> on the collection screen.</li>
+        <li><b>Version history</b> with faces.</li>
+        <li><b>Edge states</b> that say what to do.</li>
+        <li><b>Share</b> opens where you are.</li>
+      </ul>` },
   ];
 
   /* ---------- Your turn: steps where the person does the thing instead of reading about it ----------
      The card asks for one small action on the highlighted part. The tour watches the app's state and,
      once it's done, confirms what happened. Next is always there as "Skip", so nobody gets stuck. */
   const TASKS = {
-    "Two things up top, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b> to see what else you can do with this collection.", done: () => App.menu === "more", ok: "Download, update from a study or a CSV, version history and rename: everything that isn't the main job." },
-    "Review what goes in": { beside: ".cr .o-rail.tree", at: '.cr .o-tname[data-v="upper-material"]', ask: "In the rail, click <b>Upper material</b>, then one of its values, like <b>Knit</b>.", done: () => App.modal === "create" && CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Only those products show. It's a view, so the collection still takes everything." },
-    "Choosing which study to compare with": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Compare with</b> dropdown to see every study.", done: () => App.menu === "cpstudy", ok: "Studies with an older version come first, each with its version and how many products it shares." },
-    "A card shows what is inside": { free: true, at: ".h-grid .ccard", ask: "Open the <b>FA26 line review</b> collection.", done: () => App.modal === "card", ok: "This is the collection screen. Next, a look around it." },
-    "Browse by attribute and value": { beside: ".o-rail.tree", at: '.o-tname[data-v="upper-material"]', ask: "In the rail, click <b>Upper material</b>, then one of its values, like <b>Knit</b>.", done: () => CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Only the products with that value are showing. Try other attributes and values, or Show all values to go back." },
+    "Two things up top, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b>.", done: () => App.menu === "more", ok: "Everything that isn't the main job." },
+    "Review what goes in": { beside: ".cr .o-rail.tree", at: '.cr .o-tname[data-v="upper-material"]', ask: "Click <b>Upper material</b>, then <b>Knit</b>.", done: () => App.modal === "create" && CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Just a view: everything still goes in." },
+    "Choosing which study to compare with": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Compare with</b> list.", done: () => App.menu === "cpstudy", ok: "Studies that are behind come first." },
+    "A card shows what is inside": { free: true, at: ".h-grid .ccard", ask: "Open the <b>FA26 line review</b> collection.", done: () => App.modal === "card", ok: "This is the collection screen." },
+    "Browse by attribute and value": { beside: ".o-rail.tree", at: '.o-tname[data-v="upper-material"]', ask: "Click <b>Upper material</b>, then <b>Knit</b>.", done: () => CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Only those products show." },
     "When search finds nothing": { at: ".o-empty2 [data-a=\"cardQClear\"]", ask: "Press <b>Clear search</b>.", done: () => !CD.q, ok: "All 312 products are back." },
-    "An optional look before you apply": { at: "[data-a=\"cpOpen\"]", ask: "Click <b>Compare with a study</b>.", done: () => App.modal === "compare", ok: "Compare opened on Price architecture, the study that's behind." },
-    "Grouped by what happens, riskiest first": { under: true, at: ".cpx-t[data-v*=\"Vomero\"]", ask: "Open the <b>Running → Vomero</b> line to see its 22 products.", done: () => CP.open && CP.open.includes("Vomero"), ok: "Each product shows its own before and after." },
-    "Ask about any product": { at: "#cp-q", ask: "Search for <b>Pegasus</b>.", done: () => /pegasus/i.test(CP.q), ok: "Every match says what happens to it." },
-    "The collage decides whether anything happens": { at: ".o-study[data-v=\"Price architecture\"]", ask: "Choose <b>Price architecture</b>.", done: () => ST.sel === "Price architecture", ok: "Selected. Preview changes is now available." },
+    "An optional look before you apply": { at: "[data-a=\"cpOpen\"]", ask: "Click <b>Compare with a study</b>.", done: () => App.modal === "compare", ok: "Opened on the study that's behind." },
+    "Grouped by what happens, riskiest first": { under: true, at: ".cpx-t[data-v*=\"Vomero\"]", ask: "Open <b>Running → Vomero</b>.", done: () => CP.open && CP.open.includes("Vomero"), ok: "Each product shows before → after." },
+    "Ask about any product": { at: "#cp-q", ask: "Search for <b>Pegasus</b>.", done: () => /pegasus/i.test(CP.q), ok: "Each match says what happens." },
+    "The collage decides whether anything happens": { at: ".o-study[data-v=\"Price architecture\"]", ask: "Choose <b>Price architecture</b>.", done: () => ST.sel === "Price architecture", ok: "Selected." },
   };
   STEPS.forEach(s => { if (TASKS[s.title]) s.task = TASKS[s.title]; });
 
   /* ---------- Chapters: the steps grouped like an interactive demo, each opening with its goal ---------- */
   const CHAPTERS = {
-    "Start here": { goal: "Know what Collagia is and what an attribute collection adds.", what: "Two short reads and a look at what's already in this account. Nothing to click yet." },
-    "Study board": { goal: "See where attributes come from.", what: "You.ll see a study board, how a group of shoes is framed, and where you name the attribute and value." },
-    "Attributes page": { goal: "Find your collections and tell them apart at a glance.", what: "One stop on the Attributes page; you'll open a collection from its card." },
-    "New collection": { goal: "Save a study's attributes as a collection.", what: "Pick a study, review what goes in (you'll browse it by value), then name it." },
-    "Open a collection": { goal: "Read a collection: what it holds, who has it, which version.", what: "You'll open the ⋯ menu, look at version history and filter the grid by a value." },
-    "Edge states": { goal: "See how the collection screen handles awkward data.", what: "No search match, missing values, a one-product value, slow photos and an empty collection, each saying what's wrong and what to do." },
-    "Compare with a study": { goal: "Know exactly what applying would change, before you apply.", what: "You'll open Compare, switch study, open a change line, search a product and go on to apply." },
-    "Apply to a study": { goal: "Apply a collection safely.", what: "Choose a study, see what changes, apply, with Undo after." },
-    "Share": { goal: "Share a collection with the right people.", what: "One look at the share dialog: who has access and with which role." },
-    "Wrap up": { goal: "Recap what changed.", what: "A summary of the earlier version and this one." },
+    "Start here": { goal: "What Collagia and collections are.", what: "Two short reads." },
+    "Study board": { goal: "See where attributes come from.", what: "Frame shoes and name them." },
+    "Attributes page": { goal: "Tell collections apart.", what: "Open one from its card." },
+    "New collection": { goal: "Save a study's attributes as a collection.", what: "Pick, review, name." },
+    "Open a collection": { goal: "Read a collection.", what: "Menu, versions, values." },
+    "Edge states": { goal: "Awkward data, handled.", what: "Five states, each with a next step." },
+    "Compare with a study": { goal: "See changes before applying.", what: "Open, switch, search." },
+    "Apply to a study": { goal: "Apply a collection safely.", what: "Apply, with Undo." },
+    "Share": { goal: "Share with the right people.", what: "Who has access, and how." },
+    "Wrap up": { goal: "Recap what changed.", what: "What changed." },
   };
   const KICKS = [...new Set(STEPS.map(s => s.kick))];
   const chapterOf = k => { const kick = STEPS[k].kick, all = STEPS.map((s, j) => j).filter(j => STEPS[j].kick === kick); return { n: KICKS.indexOf(kick) + 1, of: KICKS.length, at: all.indexOf(k) + 1, len: all.length }; };

@@ -23,13 +23,13 @@ const fi = n => `<img class="fi" src="assets/icons/${n}.svg" alt="">`;
 
 /* The app's tools, in its order, with its own tooltip copy */
 const TOOLS = {
-  select: { key: "V", name: "Select", tip: "Select images, frames and change position for them. Drag to pan, click an item to see its details.", icon: fi("tool-select") },
-  swap: { key: "I", name: "Swap images", tip: "Change view: select a different angle to display for all items shown.", icon: fi("tool-swap"), flyout: true },
-  magnify: { key: "M", name: "Magnify", tip: "Use the magnifier to see image details without zooming in, while keeping the whole collection visible.", icon: fi("tool-magnify") },
-  highlight: { key: "H", name: "Highlight", tip: "The highlighter lets you visually focus on specific images of interest while de-emphasising others.", icon: fi("tool-highlight") },
-  stats: { key: "S", name: "Statistics", tip: "Stats panel: create calculations, adjust how stats appear, and control label visibility.", icon: fi("tool-stats") },
-  attr: { key: "F", name: "Create custom attribute", tip: "Group similar items together, then create a new attribute type and assign values to each group. Drag a frame or click items.", icon: fi("tool-attributes") },
-  comment: { key: "C", name: "Comment", tip: "Add a comment to this board. Click anywhere to drop a pin.", icon: fi("tool-notes") },
+  select: { key: "V", name: "Select", tip: "Select and move items", icon: fi("tool-select") },
+  swap: { key: "I", name: "Swap images", tip: "Show a different angle", icon: fi("tool-swap"), flyout: true },
+  magnify: { key: "M", name: "Magnify", tip: "See detail without zooming", icon: fi("tool-magnify") },
+  highlight: { key: "H", name: "Highlight", tip: "Focus on chosen items", icon: fi("tool-highlight") },
+  stats: { key: "S", name: "Statistics", tip: "Calculations and labels", icon: fi("tool-stats") },
+  attr: { key: "F", name: "Create custom attribute", tip: "Frame items, then name them", icon: fi("tool-attributes") },
+  comment: { key: "C", name: "Comment", tip: "Click to drop a pin", icon: fi("tool-notes") },
 };
 const VIEWS = { full: { name: "Side view", hint: "The product shot as supplied" }, close: { name: "Close-up", hint: "Cropped in on the upper and logo" }, mono: { name: "Silhouette", hint: "Shape only, colour removed" } };
 
@@ -133,7 +133,7 @@ const topBar = () => {
     <div class="bx-box">
       <a class="bx-logo" data-a="nav" data-v="attributes" href="#" ${tipAttrs("Back to the portal")}><img src="assets/brand/logo-collagia-brand.svg" alt="Collagia"></a>
       <i class="bx-vsep"></i>
-      ${dd("collage", `${esc(c.name)}${ic.chev}`, `<div class="bx-mnone">${esc(c.feeds.join(" · "))}</div>`, " plain", false, tipAttrs("Collage name", "The base collage providing the data for this study. Every filter and visualisation is built on it."))}
+      ${dd("collage", `${esc(c.name)}${ic.chev}`, `<div class="bx-mnone">${esc(c.feeds.join(" · "))}</div>`, " plain", false, tipAttrs("Collage name", "The data behind this study"))}
       <i class="bx-vsep"></i>
       ${dd("study", `${mIcon(BD.matrix)}<b>${esc(s.name)}</b>${ic.chev}`, STUDIES.map(x => `<button role="menuitemradio" aria-checked="${x === s}" class="${x === s ? "cur" : ""}" data-a="bdStudy" data-v="${esc(x.name)}"><span class="o-amrow"><b>${esc(x.name)}</b><small>${esc(COLLAGES[x.collage].name)} · ${x.published.length} attribute${x.published.length === 1 ? "" : "s"}</small></span></button>`).join(""), " plain", false, tipAttrs("Study", "Switch to another study"))}
       <button class="bx-ib${BD.summary ? " on" : ""}" data-a="bdSummary" ${tipAttrs(BD.summary ? "Hide board summary" : "Show board summary")}>${fi("top-info")}</button>
@@ -154,10 +154,10 @@ const topBar = () => {
 const bucketSlider = () => {
   const cuts = [...BD.buckets].sort((a, b) => a - b);
   return `<div class="bx-bucketbar">
-    <button class="bx-plus" data-a="bdAddBucket" data-v="left" ${tipAttrs("Add bucket", "Create groups by percentage. Add buckets and position them anywhere along the scale. Drag a bucket off the end to remove it.")}>${ic.plus}</button>
+    <button class="bx-plus" data-a="bdAddBucket" data-v="left" ${tipAttrs("Add bucket", "Split by percentage")}>${ic.plus}</button>
     <div class="bx-range">${BD.buckets.map((c, i) => `<input type="range" min="0" max="100" step="1" value="${c}" data-in="bdBucket" data-i="${i}" aria-label="Bucket ${i + 1}">`).join("")}
       ${cuts.map(c => `<span class="bx-rlab" style="left:${c}%">${c}%</span>`).join("")}</div>
-    <button class="bx-plus" data-a="bdAddBucket" data-v="right" ${tipAttrs("Add bucket", "Create groups by percentage. Drag a bucket off the end to remove it.")}>${ic.plus}</button>
+    <button class="bx-plus" data-a="bdAddBucket" data-v="right" ${tipAttrs("Add bucket", "Split by percentage")}>${ic.plus}</button>
   </div>`;
 };
 const showBar = () => {
@@ -166,33 +166,33 @@ const showBar = () => {
   const dimMenu = (act, cur, skip) => `<div class="o-mgroup">Catalogue</div>${Object.entries(COLS).filter(([k]) => k !== skip).map(([k, l]) => `<button role="menuitemradio" aria-checked="${cur === k}" class="${cur === k ? "cur" : ""}" data-a="${act}" data-v="${k}">${l}</button>`).join("")}<div class="o-mgroup">Attributes</div>${s.published.filter(k => k !== skip).length ? s.published.filter(k => k !== skip).map(k => `<button role="menuitemradio" aria-checked="${cur === k}" class="${cur === k ? "cur" : ""}" data-a="${act}" data-v="${k}">${ic.tag}${esc(attrLabel(k))}</button>`).join("") : `<span class="bx-mnone">Publish an attribute to use it here</span>`}`;
   const filterMenu = dims().map(([k, l, kind]) => `<div class="bx-fsec"><div class="o-mgroup">${kind === "attr" ? ic.tag : ""}${esc(l)}${BD.filters[k] && BD.filters[k].size ? `<button class="o-clear" data-a="bdFilterClear" data-v="${esc(k)}">Clear</button>` : ""}</div>${valuesOf(k).slice(0, 8).map(([v, n]) => { const on = BD.filters[k] && BD.filters[k].has(v); return `<button role="menuitemcheckbox" aria-checked="${!!on}" data-a="bdFilter" data-v="${esc(k)}|${esc(v)}"><span class="o-cb ${on ? "on" : ""}">${on ? ic.check : ""}</span>${esc(v === "—" ? "No value" : v)}<span class="n">${n}</span></button>`; }).join("")}${valuesOf(k).length > 8 ? `<span class="bx-mnone">+${valuesOf(k).length - 8} more</span>` : ""}</div>`).join("") + (active.length ? `<button class="bx-mclear" data-a="bdClearFilters">Clear all filters</button>` : "");
   const metricDD = `<span class="bx-metric">${dd("agg", `${AGGS[BD.agg]}${ic.chev}`, Object.entries(AGGS).map(([k, l]) => `<button role="menuitemradio" aria-checked="${BD.agg === k}" class="${BD.agg === k ? "cur" : ""}" data-a="bdAgg" data-v="${k}">${l}</button>`).join(""), " pill", true, tipAttrs("Aggregation"))}
-      ${dd("metric", `<code>${METRICS[BD.metric]}</code>${ic.chev}`, Object.entries(METRICS).map(([k, l]) => `<button role="menuitemradio" aria-checked="${BD.metric === k}" class="${BD.metric === k ? "cur" : ""}" data-a="bdMetric" data-v="${k}"><code>${l}</code>${k !== "price" ? `<span class="n">simulated</span>` : ""}</button>`).join(""), " plain", true, tipAttrs("Metric", "The business data column the board is built on"))}</span>`;
+      ${dd("metric", `<code>${METRICS[BD.metric]}</code>${ic.chev}`, Object.entries(METRICS).map(([k, l]) => `<button role="menuitemradio" aria-checked="${BD.metric === k}" class="${BD.metric === k ? "cur" : ""}" data-a="bdMetric" data-v="${k}"><code>${l}</code>${k !== "price" ? `<span class="n">simulated</span>` : ""}</button>`).join(""), " plain", true, tipAttrs("Metric", "The data column shown"))}</span>`;
   const byMatrix = {
     pareto: `${metricDD}<span class="bx-by">by</span>${bucketSlider()}
-      <button class="bx-ib" data-a="bdCount" ${tipAttrs("# / %", "Toggle between absolute count (#) and percentage (%) of items per partition")}><b class="bx-cm">${BD.countMode}</b></button>
-      <button class="bx-ib${BD.orient === "h" ? " on" : ""}" data-a="bdOrient" ${tipAttrs("Orientation", "Toggle between horizontal and vertical layouts to fit your data or your screen.")}>${sv('<path d="M3 5.5h10M3 10.5h10M8 2.5l3 3-3 3M8 7.5l-3 3 3 3"/>', 'stroke-width="1.3"')}</button>`,
+      <button class="bx-ib" data-a="bdCount" ${tipAttrs("# / %", "Count or percentage")}><b class="bx-cm">${BD.countMode}</b></button>
+      <button class="bx-ib${BD.orient === "h" ? " on" : ""}" data-a="bdOrient" ${tipAttrs("Orientation", "Horizontal or vertical")}>${sv('<path d="M3 5.5h10M3 10.5h10M8 2.5l3 3-3 3M8 7.5l-3 3 3 3"/>', 'stroke-width="1.3"')}</button>`,
     rank: `${metricDD}
-      <button class="bx-bb plain" data-a="bdRankDir" ${tipAttrs("Direction", "Top/Bottom toggle: switch between showing the highest or lowest ranked items")}>${BD.rankDir === "top" ? "Top" : "Bottom"}${sv(BD.rankDir === "top" ? '<path d="M8 12.5v-9M4.5 7 8 3.5 11.5 7"/>' : '<path d="M8 3.5v9M4.5 9 8 12.5 11.5 9"/>')}</button>
-      <label class="bx-num" ${tipAttrs("Number of images", "Enter how many top or bottom items to display")}><input type="number" min="1" max="${total}" value="${BD.rankN}" data-in="bdRankN" id="bd-rankn"><span>items</span></label>`,
+      <button class="bx-bb plain" data-a="bdRankDir" ${tipAttrs("Direction", "Highest or lowest first")}>${BD.rankDir === "top" ? "Top" : "Bottom"}${sv(BD.rankDir === "top" ? '<path d="M8 12.5v-9M4.5 7 8 3.5 11.5 7"/>' : '<path d="M8 3.5v9M4.5 9 8 12.5 11.5 9"/>')}</button>
+      <label class="bx-num" ${tipAttrs("Number of images", "How many to show")}><input type="number" min="1" max="${total}" value="${BD.rankN}" data-in="bdRankN" id="bd-rankn"><span>items</span></label>`,
     group: `${dd("groupby", `<span class="bx-glab">Group by</span><b>${esc(dimLabel(BD.groupBy))}</b>${ic.chev}`, dimMenu("bdGroup", BD.groupBy), " plain", true, tipAttrs("Group by", "One frame per value"))}
       ${BD.group2 ? `<span class="bx-chip">then ${esc(dimLabel(BD.group2))}<button data-a="bdGroup2Clear" aria-label="Remove second grouping">${ic.close}</button></span>` : ""}
       ${metricDD}
-      <button class="bx-ib${BD.wrap === "col" ? " on" : ""}" data-a="bdWrap" ${tipAttrs("Wrap orientation", "Switch between left-to-right and top-to-bottom image wrap within frames.")}>${sv('<path d="M2.5 4h11M2.5 8h8a2 2 0 0 1 0 4H8M9.5 10.5 8 12l1.5 1.5M2.5 12h3"/>', 'stroke-width="1.3"')}</button>`,
-    freestyle: `${dd("showattr", `<span class="bx-glab">Frames</span><b>${BD.show && s.published.includes(BD.show) ? esc(attrLabel(BD.show)) : "None"}</b>${ic.chev}`, s.published.length ? s.published.map(k => `<button role="menuitemradio" aria-checked="${BD.show === k}" class="${BD.show === k ? "cur" : ""}" data-a="bdShow" data-v="${k}">${ic.tag}${esc(attrLabel(k))}</button>`).join("") : `<span class="bx-mnone">Press <kbd>F</kbd> and frame some products first</span>`, " plain", true, tipAttrs("Frames", "Which published attribute draws the frames"))}`,
+      <button class="bx-ib${BD.wrap === "col" ? " on" : ""}" data-a="bdWrap" ${tipAttrs("Wrap orientation", "Rows or columns")}>${sv('<path d="M2.5 4h11M2.5 8h8a2 2 0 0 1 0 4H8M9.5 10.5 8 12l1.5 1.5M2.5 12h3"/>', 'stroke-width="1.3"')}</button>`,
+    freestyle: `${dd("showattr", `<span class="bx-glab">Frames</span><b>${BD.show && s.published.includes(BD.show) ? esc(attrLabel(BD.show)) : "None"}</b>${ic.chev}`, s.published.length ? s.published.map(k => `<button role="menuitemradio" aria-checked="${BD.show === k}" class="${BD.show === k ? "cur" : ""}" data-a="bdShow" data-v="${k}">${ic.tag}${esc(attrLabel(k))}</button>`).join("") : `<span class="bx-mnone">Press <kbd>F</kbd> and frame some products first</span>`, " plain", true, tipAttrs("Frames", "Attribute for the frames"))}`,
   };
   const addGroup = {
-    pareto: `<button class="bx-bb plain" data-a="bdAddBucket" data-v="mid" ${tipAttrs("Add bucket", "Split the board into one more bucket")}>${ic.plus}Add bucket</button>`,
+    pareto: `<button class="bx-bb plain" data-a="bdAddBucket" data-v="mid" ${tipAttrs("Add bucket", "One more bucket")}>${ic.plus}Add bucket</button>`,
     rank: "",
-    group: dd("addgroup", `${ic.plus}Add group`, `<div class="bx-mnone">Split every frame by a second attribute</div>${dimMenu("bdGroup2", BD.group2, BD.groupBy)}`, " plain", true, tipAttrs("Add group", "Add a second grouping inside each frame")),
-    freestyle: `<button class="bx-bb plain" data-a="bdAddGroup" ${tipAttrs("Add group", "Frame products together and name them as a new attribute value", "F")}>${ic.plus}Add group</button>`,
+    group: dd("addgroup", `${ic.plus}Add group`, `<div class="bx-mnone">Split every frame by a second attribute</div>${dimMenu("bdGroup2", BD.group2, BD.groupBy)}`, " plain", true, tipAttrs("Add group", "Group inside each frame")),
+    freestyle: `<button class="bx-bb plain" data-a="bdAddGroup" ${tipAttrs("Add group", "Frame and name a value", "F")}>${ic.plus}Add group</button>`,
   };
   const more = `<button role="menuitem" data-a="bdSummary">${ic.info}${BD.summary ? "Hide" : "Show"} board summary</button><button role="menuitem" data-a="bdPct">${sv('<path d="M3 13 13 3"/><circle cx="4.5" cy="4.5" r="1.5"/><circle cx="11.5" cy="11.5" r="1.5"/>', 'stroke-width="1.4"')}${BD.pct ? "Hide" : "Show"} image percentages</button>${BD.matrix === "group" ? `<button role="menuitem" data-a="bdWrap">Wrap ${BD.wrap === "row" ? "top-to-bottom" : "left-to-right"}</button>` : ""}<hr class="o-msep"><button role="menuitem" data-a="bdShortcuts">${ic.info}Keyboard shortcuts</button>`;
   // Layout follows the app's bottom nav (Figma 4342:1295): sections split by full-height lines, ⋮ in a grey end cap
   return `<div class="bx-show bx-nav">
     <div class="bx-box bx-navl">
       <div class="bx-sec">${dd("matrix", `<span class="bx-cur">${mIcon(BD.matrix)}<span><small>Current board</small>${MATRICES[BD.matrix].label}</span></span>${ic.sortI}`, matrixMenu, " cur", true, tipAttrs("Change matrix", "Pareto, Rank, Group or Freestyle"))}</div>
-      <div class="bx-sec pad">${dd("filters", `${fi("bot-filter")}Filter${active.length ? `<em>${active.reduce((n, [, set]) => n + set.size, 0)}</em>` : ""}`, filterMenu, active.length ? " on" : " plain", true, tipAttrs("Filter", "Refine what's displayed: business data, custom attributes and image attributes can all be filtered."))}
-        <button class="bx-ib${BD.pct ? " on" : ""}" data-a="bdPct" ${tipAttrs("Toggle image percentage", "Show each item's percentage contribution on the image")}>${ic.info}</button></div>
+      <div class="bx-sec pad">${dd("filters", `${fi("bot-filter")}Filter${active.length ? `<em>${active.reduce((n, [, set]) => n + set.size, 0)}</em>` : ""}`, filterMenu, active.length ? " on" : " plain", true, tipAttrs("Filter", "Narrow what shows"))}
+        <button class="bx-ib${BD.pct ? " on" : ""}" data-a="bdPct" ${tipAttrs("Toggle image percentage", "Show % on each image")}>${ic.info}</button></div>
       <div class="bx-sec grow">${byMatrix[BD.matrix]}${addGroup[BD.matrix] || ""}</div>
       <div class="bx-sec cap">${dd("more", fi("bot-more"), more, " plain icon", true, tipAttrs("More"))}</div>
     </div>

@@ -47,7 +47,7 @@ const cover = c => {
   return `<div class="cgrid">${show.map(p => thumb(p, "t")).join("")}${ps.length > show.length ? `<span class="cmore">+${ps.length - show.length}</span>` : ""}</div>`;
 };
 const card = c => {
-  const tags = c.attrs.map(k => { const n = valueCounts(c, k).length; return `<span class="ctag hued" title="Adds ${esc(attrLabel(k))}: ${esc(valueCounts(c, k).map(([v]) => v).join(", "))}"><span class="cdots">${valueCounts(c, k).slice(0, 4).map(([v]) => `<i ${hue(k, v)}></i>`).join("")}</span>${esc(attrLabel(k))}<small>${n}</small></span>`; });
+  const tags = c.attrs.map(k => { const n = valueCounts(c, k).length; return `<span class="ctag hued" title="${esc(valueCounts(c, k).slice(0, 3).map(([v]) => v).join(", "))}${valueCounts(c, k).length > 3 ? ` +${valueCounts(c, k).length - 3} more` : ""}"><span class="cdots">${valueCounts(c, k).slice(0, 4).map(([v]) => `<i ${hue(k, v)}></i>`).join("")}</span>${esc(attrLabel(k))}<small>${n}</small></span>`; });
   return `
   <article class="ccard v4" data-a="openCard" data-v="${c.id}" tabindex="0">
     ${cover(c)}

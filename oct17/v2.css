@@ -122,8 +122,6 @@ kbd { font: 600 var(--fs-11) Inter, system-ui, sans-serif; padding: 1px 5px; bor
 .o-lrow { height: 48px; background: var(--surface); border-bottom: 1px solid var(--border); }
 .o-lrow:first-of-type { border-radius: 6px 6px 0 0; }
 .o-lrow:last-child { border-radius: 0 0 6px 6px; }
-.o-fsep { width: 1px; height: 20px; background: var(--border); }
-.o-desc { display: block; max-width: 460px; font-size: var(--fs-12); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .o-applied-btn { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-size: var(--fs-12); color: var(--text); }
 .o-applied-btn:hover, .o-applied-btn.open { background: var(--hover); }
 .o-applied-btn svg.i { width: 13px; height: 13px; color: var(--muted); }
@@ -206,7 +204,6 @@ kbd { font: 600 var(--fs-11) Inter, system-ui, sans-serif; padding: 1px 5px; bor
 /* Apply: picker and preview */
 .o-pickhelp { display: flex; align-items: center; gap: 8px; padding: 8px 20px; border-bottom: 1px solid var(--border); background: var(--hover); font-size: var(--fs-12); color: var(--muted); flex: none; }
 .o-applied.ok { background: var(--ok); }
-.o-pvtag { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; background: var(--sunken); font-size: var(--fs-12); color: var(--muted); }
 .o-pv { padding: 20px 28px 28px; display: grid; gap: 12px; }
 .o-counters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .o-counters > div { display: grid; gap: 2px; padding: 10px 14px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); }
@@ -715,14 +712,12 @@ body.locked #o-guide { bottom: 80px; }
 
 /* ---------- Compare with a study (collection screen) ----------
    Same marks as the apply preview: − removed (red), ⇄ changed and + added (black/grey), = same (quiet). */
-.o-cmpg { display: inline-grid; place-items: center; min-width: 14px; font: 600 var(--fs-12)/1 var(--mono); }
 .o-cmpbtn { height: 32px; gap: 6px; font-size: var(--fs-13); }
 .o-cmpbtn.open { background: var(--sunken); }
 .o-cmpkinds { display: inline-flex; flex-wrap: wrap; gap: 6px; }
 .o-cmpkinds button { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--muted); font-size: var(--fs-13); font-weight: 500; }
 .o-cmpkinds button:hover:not([disabled]) { background: var(--sunken); color: var(--text); }
 .o-cmpkinds button.on { background: var(--sunken); border-color: var(--text); color: var(--text); }
-.o-cmpkinds button.remove .o-cmpg { color: var(--accent); }
 .o-cmpkinds button[disabled] { opacity: .45; cursor: default; }
 .o-cmpkinds .n { padding: 0 6px; border-radius: 999px; background: var(--sunken); font: 500 var(--fs-11)/18px var(--mono); color: var(--muted); }
 .o-cmpkinds button.on .n { background: var(--surface); }
@@ -1138,7 +1133,6 @@ button.cpx-sv.on { border-color: var(--text); box-shadow: 0 0 0 1px var(--text) 
 .o-selbar { flex-wrap: wrap; row-gap: 8px; }
 .o-selbar .o-adds { min-width: 0; }
 @media (max-width: 1280px) {
-  .v2card .o-mf .o-desc, .v2card .o-mf .o-fsep { display: none; }
   .cpx-cols { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 1100px) {
@@ -1162,8 +1156,6 @@ body.locked .g-pill kbd { display: none; }
 .o-studies { align-items: stretch; }
 .o-study { height: 100%; border: 1px solid var(--border); }
 .o-study .o-sbody { flex: 1; }
-/* Collection footer without the "Used in" button */
-.v2card .o-mf .o-fsep { display: none; }
 
 /* ---------- Compare: outcome labels as neutral pills; Removed and "No value" in a dashed pill, no red ---------- */
 .cpx-sh .cpx-g { display: none; }
@@ -1480,3 +1472,7 @@ body.locked .g-pill kbd { display: none; }
 
 /* Line icons drawn at 11–12px would fall under a pixel; a hairline outline keeps them at the library's ~1px line */
 .o-addchip svg.ph, .o-adds > svg.ph, .sh-chip svg.ph, .o-vt-used svg.ph, .bx-ip-dd svg.ph, .o-tl-used svg.ph { stroke: currentColor; stroke-width: 8; }
+
+/* Share opened from a collection: the collection stays put underneath, the share dialog sits on its own scrim */
+.o-under { display: contents; }
+.o-stack { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; padding: 16px; background: var(--scrim); }

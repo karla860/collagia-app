@@ -176,7 +176,7 @@ const cpSide = (c, s, m, foot) => {
   // Study first (which study, which version), then the numbers. No dividers: spacing alone separates the two.
   return `<aside class="cpx-side">
     <section class="cpx-study"><span class="cpx-k">Study</span><div class="cpx-study-t"><b>${esc(s.name)}</b>
-      <span class="cpx-badge${has && has !== c.v ? " behind" : has ? " ok" : ""}">${has ? (has === c.v ? `Has ${c.v} · up to date` : `${c.v}`) : `Doesn't have it yet`}</span></div></section>
+      <span class="cpx-badge${has && has !== c.v ? " behind" : has ? " ok" : ""}">${has || "—"}</span></div></section>
     <section class="cpx-attrs"><span class="cpx-k">Attributes · ${c.attrs.length}</span>
       ${c.attrs.map(k => { const inStudy = s.published.includes(k), n = m.all.reduce((t, r) => t + r.marks.filter(x => x.k === k && x.kind !== "same").length, 0);
         const sq = valueCounts(c, k).slice(0, 4).map(([v]) => `<i ${hue(k, v)}></i>`).join("");
@@ -217,7 +217,7 @@ const sampleStudies = () => {
 const cpStudies = () => CP.demo === "many" ? [...STUDIES, ...sampleStudies()] : STUDIES;
 const cpFind = name => cpStudies().find(s => s.name === name);
 const editedDays = s => { const m = /(\d+) (day|week)/.exec(s.edited || ""); return m ? +m[1] * (m[2] === "week" ? 7 : 1) : 0; };
-const cpStatus = (c, s) => { const n = matchCount(c, s), has = s.applied[c.id]; return !n ? "No shared products" : has ? (has === c.v ? `Has ${has} · up to date` : `Has ${has} · behind ${c.v}`) : `Doesn't have ${esc(c.name)}`; };
+const cpStatus = (c, s) => { const n = matchCount(c, s), has = s.applied[c.id]; return !n ? "No shared products" : has || "Not applied"; };
 const sampleTag = s => s.sample ? `<span class="cpx-sampletag">Sample</span>` : "";
 
 const cpChips = (c, list) => `${list.map(s => { const n = matchCount(c, s), on = CP.study === s.name, has = s.applied[c.id]; return `<button class="cpx-chip${on ? " on" : ""}${n ? "" : " off"}" data-a="cpPick" data-v="${esc(s.name)}" role="radio" aria-checked="${on}" title="${esc(COLLAGES[s.collage].name)} · ${n ? `shares ${n} products with this collection` : "shares no products with this collection"}">${esc(s.name)}${!n ? `<small>no shared products</small>` : has && has !== c.v ? `<small>has ${has}</small>` : ""}</button>`; }).join("")}`;
@@ -227,7 +227,7 @@ const cpDropdown = (c, list) => {
   const item = s => { const n = matchCount(c, s), on = CP.study === s.name, has = s.applied[c.id];
     return `<button role="option" aria-selected="${on}" class="cpx-opt${on ? " cur" : ""}${n ? "" : " off"}" data-a="cpPick" data-v="${esc(s.name)}">
       <span class="cpx-opt-t"><b>${esc(s.name)}</b>${sampleTag(s)}<small>${esc(COLLAGES[s.collage].name)} · ${n ? `${n} shared` : "none shared"} · ${esc(s.edited)}</small></span>
-      <span class="cpx-badge${has && has !== c.v ? " behind" : has ? " ok" : ""}">${!n ? "—" : has ? (has === c.v ? "Up to date" : `Has ${has}`) : "Not applied"}</span>${on ? ic.check : ""}</button>`; };
+      <span class="cpx-badge${has && has !== c.v ? " behind" : has ? " ok" : ""}">${!n ? "—" : has || "Not applied"}</span>${on ? ic.check : ""}</button>`; };
   const hits = list.filter(s => !q || s.name.toLowerCase().includes(q) || COLLAGES[s.collage].name.toLowerCase().includes(q));
   const shares = hits.filter(s => matchCount(c, s)), none = hits.filter(s => !matchCount(c, s));
   const suggested = shares.filter(s => s.applied[c.id] && s.applied[c.id] !== c.v).sort((a, b) => editedDays(a) - editedDays(b));
@@ -263,7 +263,7 @@ const MODAL_COMPARE = () => {
   const c = cpColl(), s = CP.study && cpFind(CP.study);
   const ready = s && !CP.loading && CP.demo !== "error" && c.attrs.length && matchCount(c, s), m = ready ? cpModel(c, s) : null;
   return `<div class="o-modal xl cpx" role="dialog" aria-modal="true" aria-label="Compare ${esc(c.name)} with a study">
-    <header class="o-mh"><button class="icon-btn" data-a="cpBack" aria-label="Back to collection">${ic.back}</button><h2 class="o-h20">Compare <b>${esc(c.name)}</b> with a study</h2><span class="sp"></span><span class="o-pvtag">${ic.eye}Read-only</span></header>
+    <header class="o-mh"><button class="icon-btn" data-a="cpBack" aria-label="Back to collection">${ic.back}</button><h2 class="o-h20">Compare <b>${esc(c.name)}</b> with a study</h2></header>
     <div class="o-scroll grey"><div class="cpx-body">${ready ? "" : cpPicker(c)}${cpBody(c, s)}</div></div>
     <footer class="o-mf"><span class="sp"></span>
       <button class="btn" data-a="cpBack">Back to collection</button>

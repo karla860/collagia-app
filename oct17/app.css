@@ -701,7 +701,7 @@
 .o-newmenu b { font-weight: 500; font-size: var(--fs-13); }
 .o-newmenu small { font-size: var(--fs-12); color: var(--sub); }
 /* Flow 2: icon-only view switch, version menu, read-only bar */
-.o-seg.icons button { padding: 0 9px; }
+.o-seg.icons button { padding: 0 9px; color: var(--muted); } /* Figma view toggle 4676:1113: 16px icons in Text Secondary */
 .o-seg.icons button.on { background: var(--chip); }
 .o-verbtn { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 6px 0 7px; border: 1px solid transparent; border-radius: 6px; background: var(--chip); color: var(--sub); font-size: var(--fs-12); font-weight: 600; }
 .o-verbtn:hover, .o-verbtn.open { border-color: var(--border-strong); color: var(--text); }

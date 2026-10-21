@@ -86,4 +86,4 @@ ACTIONS.acApprove = el => { const r = AC.requests.splice(+el.dataset.v, 1)[0]; A
 ACTIONS.acDecline = el => { const r = AC.requests.splice(+el.dataset.v, 1)[0]; toast(`Declined ${r.name}'s request`); logAct(`declined ${r.name}'s request`); };
 ACTIONS.resend = el => { AC.sent = +el.dataset.v; toast(`Invite resent to ${AC.people[AC.sent].email}`); };
 
-JUMP.access = () => { App.page = "home"; AC.from = null; openAccess(collById(CD.id) ? CD.id : COLLECTIONS[0].id); render(); };
+JUMP.access = () => { App.page = "home"; openCard(collById(CD.id) ? CD.id : COLLECTIONS[0].id); AC.from = "card"; openAccess(CD.id); render(); };

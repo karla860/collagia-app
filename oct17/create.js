@@ -45,7 +45,7 @@ const STEP_SOURCE = () => `
 /* ---------- Step 2a · Pick a study ---------- */
 const STEP_STUDY = () => `<div class="o-scroll grey"><div class="o-studies">${STUDIES.map(s => {
   const n = s.published.length, ok = n > 0;
-  return `<div class="o-study${CR.study === s.name ? " on" : ""}${ok ? "" : " off"}" ${ok ? `data-a="crPickStudy" data-v="${esc(s.name)}" tabindex="0"` : 'aria-disabled="true" title="This study hasn’t published any attributes yet"'} role="radio" aria-checked="${CR.study === s.name}">
+  return `<div class="o-study${CR.study === s.name ? " on" : ""}${ok ? "" : " off"}" ${ok ? `data-a="crPickStudy" data-v="${esc(s.name)}" tabindex="0"` : 'aria-disabled="true" title="No attributes yet"'} role="radio" aria-checked="${CR.study === s.name}">
     <div class="o-sprev study">${studyProducts(s).slice(0, 12).map(p => thumb(p, "s56")).join("")}</div>
     <div class="o-sbody"><div><b>${esc(s.name)}</b><span>${esc(COLLAGES[s.collage].name)} · ${s.edited}</span>
       ${studyTags(s)}</div></div>
