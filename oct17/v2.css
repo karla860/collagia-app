@@ -130,9 +130,6 @@ kbd { font: 600 var(--fs-11) Inter, system-ui, sans-serif; padding: 1px 5px; bor
 .o-appliedmenu .o-amrow { flex: 1; }
 
 /* Stepper trail */
-.o-trail { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-12); color: var(--muted); }
-.o-trail i { display: inline-flex; color: var(--border-strong); }
-.o-trail svg.i { width: 13px; height: 13px; }
 .o-steps { align-items: center; }
 
 /* Create: source */
@@ -747,12 +744,6 @@ body.locked #o-guide { bottom: 80px; }
 .cpx-body > .cpx-empty { min-height: 320px; }
 .cpx-legend-g { font: 600 22px/1 system-ui, sans-serif; color: var(--muted); }
 .cpx-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: var(--fs-13); color: var(--muted); }
-.cpx-chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font-size: var(--fs-13); font-weight: 500; color: var(--text); }
-.cpx-chip:hover { border-color: var(--border-strong); }
-.cpx-chip.on { background: var(--text); border-color: var(--text); color: #fff; }
-.cpx-chip.off { color: var(--muted); }
-.cpx-chip small { font-size: var(--fs-11); font-weight: 400; color: var(--faint); }
-.cpx-chip.on small { color: rgba(255,255,255,.6); }
 .cpx-verdict { display: flex; gap: 10px; align-items: flex-start; }
 .cpx-verdict > div { display: grid; gap: 4px; }
 .cpx-verdict b { font-size: var(--fs-16); font-weight: 600; }
@@ -826,17 +817,13 @@ body.locked #o-guide { bottom: 80px; }
 .cpx-menu button.cpx-opt { align-items: center; gap: 10px; padding: 8px 10px; white-space: normal; }
 .cpx-menu button.cpx-opt.cur { background: var(--sunken); font-weight: 400; }
 .cpx-menu button.cpx-opt:hover { background: var(--sunken); }
-.cpx-menu button.cpx-opt.off { color: var(--muted); }
 .cpx-menu button.cpx-opt > svg.i { flex: none; color: var(--accent); }
 .cpx-opt-t { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; }
 .cpx-opt-t b { font-weight: 500; }
-.cpx-opt-t small { flex-basis: 100%; font-size: var(--fs-12); color: var(--muted); }
 .cpx-badge { flex: none; padding: 1px 8px; border-radius: 999px; background: var(--sunken); font-size: var(--fs-11); color: var(--muted); white-space: nowrap; }
 .cpx-badge.behind { background: var(--text); color: #fff; }
 .cpx-badge.ok { background: var(--sunken); color: var(--text); }
 .cpx-sampletag { padding: 0 6px; border: 1px dashed var(--border-strong); border-radius: 999px; font-size: 10px; font-weight: 500; color: var(--muted); }
-.cpx-menu button.cpx-offbtn { margin-top: 6px; border-top: 1px solid var(--border); border-radius: 0; color: var(--muted); font-size: var(--fs-12); }
-.cpx-offbtn svg.i { width: 12px; height: 12px; margin-left: auto; }
 .cpx-nohit { margin: 8px 10px; font-size: var(--fs-12); color: var(--muted); }
 /* Use the width: lines on the left, a summary card on the right (Compare and the Apply preview) */
 .cpx-body { width: min(1320px, 100%); padding: 24px 32px 32px; }
@@ -1476,3 +1463,4 @@ body.locked .g-pill kbd { display: none; }
 /* Share opened from a collection: the collection stays put underneath, the share dialog sits on its own scrim */
 .o-under { display: contents; }
 .o-stack { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center; padding: 16px; background: var(--scrim); }
+.o-permmenu button, .o-permmenu button.cur { font-weight: 500; }

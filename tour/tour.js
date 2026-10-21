@@ -94,7 +94,7 @@
       ${was("You only saw the changes by starting the import.")}
       ${did("See what applying would change, without starting anything.")}` },
     { kick: "Compare with a study", title: "Choosing which study to compare with", go: () => { goCompare(); render(); }, sel: ".cpx-pick", place: "below", body: `
-      ${did("One searchable list. It opens on the study that's behind.")}` },
+      ${did("Every study in one searchable list. Pick any of them.")}` },
     { kick: "Compare with a study", title: "Grouped by what happens, riskiest first", go: () => { goCompare(); render(); }, sel: ".cpx-table", place: "left", body: `
       ${did("Removed, Changed, Added, Unchanged. Each line reads now → after.")}
       ${why("Removals first, because they're what you'd regret.")}` },
@@ -131,7 +131,7 @@
   const TASKS = {
     "Two things up top, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b>.", done: () => App.menu === "more", ok: "Everything that isn't the main job." },
     "Review what goes in": { beside: ".cr .o-rail.tree", at: '.cr .o-tname[data-v="upper-material"]', ask: "Click <b>Upper material</b>, then <b>Knit</b>.", done: () => App.modal === "create" && CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Just a view: everything still goes in." },
-    "Choosing which study to compare with": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Compare with</b> list.", done: () => App.menu === "cpstudy", ok: "Studies that are behind come first." },
+    "Choosing which study to compare with": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Compare with</b> list.", done: () => App.menu === "cpstudy", ok: "Any study can be compared." },
     "A card shows what is inside": { free: true, at: ".h-grid .ccard", ask: "Open the <b>FA26 line review</b> collection.", done: () => App.modal === "card", ok: "This is the collection screen." },
     "Browse by attribute and value": { beside: ".o-rail.tree", at: '.o-tname[data-v="upper-material"]', ask: "Click <b>Upper material</b>, then <b>Knit</b>.", done: () => CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Only those products show." },
     "When search finds nothing": { at: ".o-empty2 [data-a=\"cardQClear\"]", ask: "Press <b>Clear search</b>.", done: () => !CD.q, ok: "All 312 products are back." },

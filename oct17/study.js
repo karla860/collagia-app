@@ -76,7 +76,7 @@ const MODAL_SUCCESS = () => {
     </div>
     <footer class="o-ok-acts">
       <button class="btn primary o-ok-go" data-a="openStudyBoard" id="ok-go">Open ${esc(s.name)}${ic.arrowR}</button>
-      <div class="o-ok-sec"><button class="o-ok-link" data-a="successHome">${ic.arrowL}Back to Attributes</button>${ST.undo && ST.undo.study === s.name ? `<i class="o-ok-dot"></i><button class="o-ok-link" data-a="undoApply" title="Puts the study back the way it was">${ic.undo}Undo apply</button>` : ""}</div>
+      ${ST.undo && ST.undo.study === s.name ? `<div class="o-ok-sec"><button class="o-ok-link" data-a="undoApply" title="Undo">${ic.undo}Undo apply</button></div>` : ""}
     </footer>
   </div>`;
 };
@@ -138,7 +138,6 @@ ACTIONS.openStudyBoard = () => { App.modal = null; setFlow("board"); const s = s
 // Demo: a collection with two attributes (Statue backgrounds: Background color + Material) applied to a study that has neither.
 // Resets that study first so the demo can be replayed.
 const resetAntiquities = () => { const s = studyByName("Antiquities sale 2026"); if (s) { s.tags = {}; s.published = []; s.applied = {}; } };
-ACTIONS.successHome = () => { App.modal = null; setFlow("home"); App.page = "home"; };
 document.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches(".o-study")) { e.preventDefault(); e.target.click(); } });
 
 JUMP.study = v => {

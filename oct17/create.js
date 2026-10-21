@@ -25,7 +25,6 @@ const defaultName = () => {
 const CR_STEPS = () => CR.src === "csv" ? ["Source", "Upload a file", "Check the file", "Name it"] : ["Source", "Pick a study", "Review attributes", "Name it"];
 const crAt = () => ({ source: 0, study: 1, csv: 1, pick: 2, check: 2, name: 3 })[CR.step];
 const stepper = () => `<div class="o-steps" aria-label="Steps"><ol>${CR_STEPS().map((l, i) => `<li class="${i < crAt() ? "done" : i === crAt() ? "now" : ""}"${i === crAt() ? ' aria-current="step"' : ""}><span class="o-stepn">${i < crAt() ? ic.check : i + 1}</span>${l}</li>`).join("")}</ol>
-  ${CR.step !== "source" ? `<span class="sp"></span><span class="o-trail">${CR.src === "csv" ? `${ic.csv}${CR.csv ? esc(CR.csv.name) : "CSV"}` : `${ic.studies}${CR.study ? esc(CR.study) : "Study"}`}<i>${ic.arrowR}</i>${ic.tag}${CR.mode === "update" ? esc(collById(CR.target).name) + " " + nextV(collById(CR.target)) : "New collection"}</span>` : ""}
 </div>`;
 const crTitle = () => CR.mode === "update" ? `Update <b>${esc(collById(CR.target).name)}</b>` : "New attribute collection";
 
@@ -173,9 +172,15 @@ ACTIONS.crCreate = () => {
   const c = { ...c0, id: "c" + Date.now(), name, desc: CR.desc.trim(), created: today, edited: today };
   if (CR.src === "study") c.source.collage = crStudy().collage;
   COLLECTIONS.unshift(c);
-  if (CR.src === "study") crStudy().applied[c.id] = "v1";   // the source study is, by definition, on v1
-  App.modal = null; openCard(c.id); setFlow("card"); App.page = "home";
-  toast(`Created “${name}”. It's private until you share it.`);
+  App.modal = null;
+  // From a study: back to its board, grouped by the new collection's first attribute (the study is, by definition, on v1).
+  // A CSV has no study yet, so it opens the collection instead.
+  if (CR.src === "study") {
+    crStudy().applied[c.id] = "v1"; setFlow("board"); Object.assign(BD, { matrix: "group", groupBy: c.attrs[0], show: c.attrs[0] }); JUMP.board(CR.study);
+    toast(`Created “${name}”, applied to ${CR.study}`); return;
+  }
+  openCard(c.id); setFlow("card"); App.page = "home";
+  toast(`Created “${name}”`);
 };
 
 /* Drag and drop onto the drop zone */

@@ -7,7 +7,7 @@
    Applying replaces the study's whole column for each attribute in the collection (applyCollection in data.js),
    which is why values can be removed (the live import preview has the same Deletes). */
 
-const CP = { study: null, open: null, all: new Set(), more: new Set(), same: new Set(), q: "", sq: "", showOff: false, loading: false, demo: null, at: null };
+const CP = { study: null, open: null, all: new Set(), more: new Set(), same: new Set(), q: "", sq: "", loading: false, demo: null, at: null };
 const CMP_RANK = { remove: 0, change: 1, add: 2, same: 3 };
 const LINES_SHOWN = 6, PRODUCTS_SHOWN = 12;
 
@@ -46,7 +46,7 @@ const cpModel = (c, s) => {
 };
 
 const openCompare = (study = null) => {
-  Object.assign(CP, { study: null, open: null, all: new Set(), more: new Set(), same: new Set(), q: "", sq: "", showOff: false, loading: false, demo: null });
+  Object.assign(CP, { study: null, open: null, all: new Set(), more: new Set(), same: new Set(), q: "", sq: "", loading: false, demo: null });
   ST.fromCompare = false; setFlow("compare"); App.modal = "compare"; App.menu = null;
   // Start on the study that most needs it: one that has an older version of this collection
   const c = curColl(), behind = STUDIES.find(s => matchCount(c, s) && s.applied[c.id] && s.applied[c.id] !== c.v);
@@ -190,10 +190,8 @@ const cpLayout = (c, s, m, foot, head = "") => `<div class="cpx-cols"><div class
 
 /* ---------- The Compare screen ---------- */
 /* ---------- Picking the study ----------
-   Always one dropdown with search (built for teams with 10+ studies): suggested studies first
-   (the ones behind this collection), then the rest by last edited, and studies that share nothing folded away.
-   The chip row (cpChips) is kept for reference; set CHIPS_MAX above 0 to bring it back for short lists. */
-const CHIPS_MAX = 0;
+   One searchable list of every study, most recently edited first. Any study can be compared; no groups, nothing greyed out.
+   Each row is just the name and, if the study has this collection, its version. */
 // Sample studies for the "many studies" state only. They live here, never in STUDIES, so no other screen sees them.
 let SAMPLE_STUDIES = null;
 const sampleStudies = () => {
@@ -217,35 +215,22 @@ const sampleStudies = () => {
 const cpStudies = () => CP.demo === "many" ? [...STUDIES, ...sampleStudies()] : STUDIES;
 const cpFind = name => cpStudies().find(s => s.name === name);
 const editedDays = s => { const m = /(\d+) (day|week)/.exec(s.edited || ""); return m ? +m[1] * (m[2] === "week" ? 7 : 1) : 0; };
-const cpStatus = (c, s) => { const n = matchCount(c, s), has = s.applied[c.id]; return !n ? "No shared products" : has || "Not applied"; };
 const sampleTag = s => s.sample ? `<span class="cpx-sampletag">Sample</span>` : "";
-
-const cpChips = (c, list) => `${list.map(s => { const n = matchCount(c, s), on = CP.study === s.name, has = s.applied[c.id]; return `<button class="cpx-chip${on ? " on" : ""}${n ? "" : " off"}" data-a="cpPick" data-v="${esc(s.name)}" role="radio" aria-checked="${on}" title="${esc(COLLAGES[s.collage].name)} · ${n ? `shares ${n} products with this collection` : "shares no products with this collection"}">${esc(s.name)}${!n ? `<small>no shared products</small>` : has && has !== c.v ? `<small>has ${has}</small>` : ""}</button>`; }).join("")}`;
 
 const cpDropdown = (c, list) => {
   const cur = CP.study && cpFind(CP.study), open = App.menu === "cpstudy", q = CP.sq.trim().toLowerCase();
-  const item = s => { const n = matchCount(c, s), on = CP.study === s.name, has = s.applied[c.id];
-    return `<button role="option" aria-selected="${on}" class="cpx-opt${on ? " cur" : ""}${n ? "" : " off"}" data-a="cpPick" data-v="${esc(s.name)}">
-      <span class="cpx-opt-t"><b>${esc(s.name)}</b>${sampleTag(s)}<small>${esc(COLLAGES[s.collage].name)} · ${n ? `${n} shared` : "none shared"} · ${esc(s.edited)}</small></span>
-      <span class="cpx-badge${has && has !== c.v ? " behind" : has ? " ok" : ""}">${!n ? "—" : has || "Not applied"}</span>${on ? ic.check : ""}</button>`; };
-  const hits = list.filter(s => !q || s.name.toLowerCase().includes(q) || COLLAGES[s.collage].name.toLowerCase().includes(q));
-  const shares = hits.filter(s => matchCount(c, s)), none = hits.filter(s => !matchCount(c, s));
-  const suggested = shares.filter(s => s.applied[c.id] && s.applied[c.id] !== c.v).sort((a, b) => editedDays(a) - editedDays(b));
-  const rest = shares.filter(s => !suggested.includes(s)).sort((a, b) => editedDays(a) - editedDays(b));
-  const sec = (title, ss, note = "") => ss.length ? `<div class="o-mgroup">${title}<span class="n">${ss.length}</span></div>${note}${ss.map(item).join("")}` : "";
+  const ver = s => s.applied[c.id] ? `<span class="cpx-badge${s.applied[c.id] !== c.v ? " behind" : " ok"}">${s.applied[c.id]}</span>` : "";
+  const item = s => { const on = CP.study === s.name;
+    return `<button role="option" aria-selected="${on}" class="cpx-opt${on ? " cur" : ""}" data-a="cpPick" data-v="${esc(s.name)}"><span class="cpx-opt-t"><b>${esc(s.name)}</b>${sampleTag(s)}</span>${ver(s)}${on ? ic.check : ""}</button>`; };
+  const hits = list.filter(s => !q || s.name.toLowerCase().includes(q)).sort((a, b) => editedDays(a) - editedDays(b));
   return `<div class="o-dd cpx-dd"><button class="cpx-select${open ? " open" : ""}" data-a="menu" data-v="cpstudy" aria-haspopup="listbox" aria-expanded="${open}">
-      ${cur ? `<b>${esc(cur.name)}</b>${sampleTag(cur)}<small>${cpStatus(c, cur)}</small>` : `<span class="o-muted">Choose one of ${list.length} studies</span>`}${ic.chev}</button>
+      ${cur ? `<b>${esc(cur.name)}</b>${sampleTag(cur)}${ver(cur)}` : `<span class="o-muted">Choose a study</span>`}${ic.chev}</button>
     ${open ? `<div class="o-menu cpx-menu" role="listbox" aria-label="Studies">
-      <label class="o-searchbox cpx-sq" data-keep>${ic.search}<input id="cp-sq" data-in="cpSQ" value="${esc(CP.sq)}" placeholder="Search ${list.length} studies" aria-label="Search studies" autocomplete="off"></label>
-      <div class="cpx-opts">
-        ${sec("Suggested · behind this collection", suggested)}
-        ${sec(q ? "Matching studies" : "Other studies with these products", rest)}
-        ${none.length ? `<div data-keep><button class="cpx-offbtn" data-a="cpOffToggle">${CP.showOff ? "Hide" : "Show"} ${none.length} ${none.length === 1 ? "study" : "studies"} with no shared products${ic.chev}</button></div>${CP.showOff || q ? none.map(item).join("") : ""}` : ""}
-        ${hits.length ? "" : `<p class="cpx-nohit">No studies match “${esc(CP.sq)}”</p>`}
-      </div>
+      <label class="o-searchbox cpx-sq" data-keep>${ic.search}<input id="cp-sq" data-in="cpSQ" value="${esc(CP.sq)}" placeholder="Search studies" aria-label="Search studies" autocomplete="off"></label>
+      <div class="cpx-opts">${hits.map(item).join("") || `<p class="cpx-nohit">No studies match “${esc(CP.sq)}”</p>`}</div>
     </div>` : ""}</div>`;
 };
-const cpPicker = c => { const list = cpStudies(); return `<div class="cpx-pick" role="radiogroup" aria-label="Study to compare with"><span>Compare with</span>${list.length > CHIPS_MAX ? cpDropdown(c, list) : cpChips(c, list)}</div>
+const cpPicker = c => { const list = cpStudies(); return `<div class="cpx-pick" role="radiogroup" aria-label="Study to compare with"><span>Compare with</span>${cpDropdown(c, list)}</div>
   ${CP.demo === "many" ? cpSample(`Sample: ${sampleStudies().length} made-up studies added to show a long list. They only exist on this screen.`) : ""}`; };
 const cpEmpty = (icon, title, body, extra = "") => `<div class="o-empty o-empty2 cpx-empty">${icon}<b>${title}</b><span>${body}</span>${extra}</div>`;
 const cpSample = label => `<span class="cpx-sample" title="Not live prototype data">${label}</span>`;
@@ -279,7 +264,6 @@ const flip = (set, v) => { set.has(v) ? set.delete(v) : set.add(v); };
 ACTIONS.cpOpen = () => openCompare();
 ACTIONS.cpPick = el => { CP.sq = ""; if (CP.study !== el.dataset.v) { CP.demo = ["noattrs", "many"].includes(CP.demo) ? CP.demo : null; cpLoad(el.dataset.v); } };
 INPUTS.cpSQ = el => { CP.sq = el.value; };
-ACTIONS.cpOffToggle = () => { CP.showOff = !CP.showOff; };
 ACTIONS.cpTab = el => { CP.tab = el.dataset.v; };
 ACTIONS.cpOpenT = el => { if (CP.q) return false; CP.touched = true; CP.open = CP.open === el.dataset.v ? null : el.dataset.v; };
 ACTIONS.cpAll = el => { flip(CP.all, el.dataset.v); };
