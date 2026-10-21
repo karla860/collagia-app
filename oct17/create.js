@@ -75,8 +75,10 @@ const STEP_PICK = () => {
     <div class="o-scroll grey">
       <div class="o-selbar">${CR.peek ? `<span>Previewing <b>${esc(attrLabel(CR.peek.k))} · ${esc(CR.peek.v)}</b> · ${list.length} of ${crProducts().length} products</span><button class="o-clear" data-a="crPeekClear">Show all</button>`
         : `<span>${crProducts().length} products in this study. Every value of a ticked attribute comes with it; previewing a value changes nothing.</span>`}</div>
-      <div class="o-pgrid">${list.map(p => `<div class="o-pcard">${thumb(p, "sq")}<div class="nm">${esc(p.name)}</div><div class="o-id">${p.id}</div>
-        <div class="o-pchips"></div></div>`).join("")}</div>
+      <div class="o-pgrid">${list.map(p => { const ks = s.published.filter(k => CR.included.has(k)), has = ks.some(k => crTag(k, p));
+        // One square per ticked attribute, so unticking one takes its square off every product straight away
+        return `<div class="o-pcard${has ? "" : " out"}">${thumb(p, "sq")}<div class="nm">${esc(p.name)}</div><div class="o-id">${p.id}</div>
+        <div class="o-pchips">${ks.length ? swatches(ks.map(k => [k, crTag(k, p)])) : ""}<span class="o-pvals">${has ? ks.map(k => crTag(k, p)).filter(Boolean).map(esc).join(" · ") : "No values from this study"}</span></div></div>`; }).join("")}</div>
     </div>
   </div>`;
 };

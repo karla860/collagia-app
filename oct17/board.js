@@ -34,7 +34,7 @@ const TOOLS = {
 const VIEWS = { full: { name: "Side view", hint: "The product shot as supplied" }, close: { name: "Close-up", hint: "Cropped in on the upper and logo" }, mono: { name: "Silhouette", hint: "Shape only, colour removed" } };
 
 const BD = { study: "FA26 footwear review", tool: "select", sel: new Set(), hl: new Set(), view: "full", matrix: "pareto", groupBy: "type", group2: null, wrap: "row", metric: "units4w", agg: "sum",
-  buckets: [32, 68], countMode: "#", rankN: 60, rankDir: "top", orient: "v", pct: false, show: "franchise", zoom: 1, filters: {}, tag: { attr: "", value: "" },
+  buckets: [32, 68], countMode: "#", rankN: 60, rankDir: "top", orient: "v", pct: false, show: "franchise", zoom: 1, filters: {}, tag: { attr: "", value: "" }, dd: null,
   table: false, summary: false, peek: null, flyout: null, stats: { count: true, metric: true, avgPrice: false }, comments: {}, draft: null, openPin: null };
 const TILE = () => Math.round(56 * BD.zoom), GAP = 6;
 const bdStudy = () => studyByName(BD.study) || STUDIES[0];
@@ -217,18 +217,67 @@ const attrPanel = () => {
     <p class="o-muted">Then name the attribute (what you're judging, e.g. <b>Upper material</b>) and the value (what you see, e.g. <b>Knit</b>). Publish, then frame the next group and publish another value.</p>
     ${s.published.length ? `<div class="bx-carried"><span class="o-sec">Published in this study</span>${s.published.map(k => `<div class="bx-crow"><b>${esc(attrLabel(k))}</b><span>${studyValueCounts(s, k).map(([v, c]) => `${esc(v)} ${c}`).join(" · ")}</span></div>`).join("")}</div>` : ""}</aside>`;
   const key = BD.tag.attr ? ensureKey(BD.tag.attr) : null, existing = key && s.tags[key] ? sel.filter(p => s.tags[key][p.id]).length : 0;
-  const vals = key && ATTRS[key] ? studyValueCounts(s, key).map(([v]) => v) : [];
   const carried = {}; s.published.forEach(k => { const vs = new Set(sel.map(p => (s.tags[k] || {})[p.id]).filter(Boolean)); if (vs.size) carried[k] = [...vs]; });
   return `<aside class="bx-panel">${head}
     <div class="bx-selstrip">${sel.slice(0, 8).map(p => thumb(p, "s36")).join("")}${n > 8 ? `<span class="bx-more">+${n - 8}</span>` : ""}</div>
-    <label class="o-field"><span>Attribute name</span><input id="bd-attr" class="o-input" list="bd-attrs" data-in="bdAttr" placeholder="Type name*" value="${esc(BD.tag.attr)}" autocomplete="off"><datalist id="bd-attrs">${s.published.map(k => `<option value="${esc(attrLabel(k))}">`).join("")}</datalist></label>
-    <label class="o-field"><span>Value</span><input id="bd-val" class="o-input" list="bd-vals" data-in="bdValue" data-enter="bdPublish" placeholder="Type value*" value="${esc(BD.tag.value)}" autocomplete="off"><datalist id="bd-vals">${vals.map(v => `<option value="${esc(v)}">`).join("")}</datalist></label>
-    ${vals.length ? `<div class="bx-valpills">${vals.map(v => `<button class="o-vpill${BD.tag.value === v ? " on" : ""}" data-a="bdPickVal" data-v="${esc(v)}">${esc(v)}</button>`).join("")}</div>` : ""}
+    <p class="o-muted">Name the attribute and its value in the box next to the tool, then publish.</p>
     ${existing ? `<p class="bx-note">${ic.info}${existing} of these already have a ${esc(attrLabel(key))} value. Publishing replaces it.</p>` : ""}
-    <button class="btn primary bx-pub" data-a="bdPublish" ${BD.tag.attr.trim() && BD.tag.value.trim() ? "" : "disabled"}>${ic.tag}Publish</button>
     ${Object.keys(carried).length ? `<div class="bx-carried"><span class="o-sec">On the selection</span>${Object.entries(carried).map(([k, vs]) => `<div class="bx-crow"><b>${esc(attrLabel(k))}</b><span>${vs.map(esc).join(", ")}</span><button class="o-clear" data-a="bdRemoveTag" data-v="${k}">Remove</button></div>`).join("")}</div>` : ""}
   </aside>`;
 };
+/* ---------- Input popover (Figma 4392:1295): Attribute Name and Value Name beside the framed products ----------
+   Each field is a combobox: type a new name, or pick from what this study already has (with counts). */
+const IP_CHEV = `<img class="bx-ip-chev" src="assets/icons/ip-chevron.svg" width="14" height="14" alt="">`;
+const ipOptions = which => {
+  const s = bdStudy(), typed = (which === "attr" ? BD.tag.attr : BD.tag.value).trim(), ql = typed.toLowerCase();
+  const key = BD.tag.attr.trim() ? ensureKey(BD.tag.attr) : null;
+  const all = which === "attr" ? s.published.map(k => [attrLabel(k), `${studyValueCounts(s, k).length} values`])
+    : key && s.tags[key] ? studyValueCounts(s, key).map(([v, c]) => [v, `${c}`]) : [];
+  const exact = all.some(([l]) => l.toLowerCase() === ql);
+  return { list: exact || !ql ? all : all.filter(([l]) => l.toLowerCase().includes(ql)), create: ql && !exact ? typed : null };
+};
+const ipField = (which, label, ph) => {
+  const open = BD.dd === which, val = which === "attr" ? BD.tag.attr : BD.tag.value, o = open ? ipOptions(which) : null;
+  const cur = val.trim().toLowerCase();
+  return `<div class="bx-ip-l">${label}</div>
+    <div class="bx-ip-f${open ? " open" : ""}"><input id="${which === "attr" ? "bd-attr" : "bd-val"}" data-in="${which === "attr" ? "bdAttr" : "bdValue"}" data-a="bdDD" data-v="${which}" data-enter="${which === "attr" ? "bdAttrNext" : "bdPublish"}" role="combobox" aria-expanded="${open}" aria-label="${label}" placeholder="${ph}" value="${esc(val)}" autocomplete="off">
+      <button class="bx-ip-cbtn" data-a="bdDD" data-v="${which}!" tabindex="-1" aria-label="Show options">${IP_CHEV}</button>
+      ${open ? `<div class="bx-ip-dd" role="listbox">${o.list.length ? `<div class="bx-ip-dh">${which === "attr" ? "In this study" : `${esc(attrLabel(ensureKey(BD.tag.attr)))} values`}</div>` : ""}${o.list.map(([l, n]) => `<button role="option" aria-selected="${l.toLowerCase() === cur}" class="${l.toLowerCase() === cur ? "on" : ""}" data-a="bdOpt" data-v="${which}|${esc(l)}"><span>${esc(l)}</span><small>${n}</small>${l.toLowerCase() === cur ? ic.check : ""}</button>`).join("")}
+        ${o.create ? `<button class="bx-ip-new" data-a="bdOpt" data-v="${which}|${esc(o.create)}">${ic.plus}<span>Create “<b>${esc(o.create)}</b>”</span></button>` : ""}
+        ${!o.list.length && !o.create ? `<p class="bx-ip-empty">${which === "attr" ? "Type a name, e.g. Upper material" : "Type a value, e.g. Knit"}</p>` : ""}</div>` : ""}
+    </div>`;
+};
+const inputPop = () => {
+  if (BD.tool !== "attr" || !BD.sel.size) return "";
+  const n = BD.sel.size, ok = BD.tag.attr.trim() && BD.tag.value.trim();
+  return `<div class="bx-inpop" id="bd-inpop" role="dialog" aria-label="Name the attribute and value">
+    ${ipField("attr", "Attribute Name", "Type Name*")}
+    ${ipField("val", "Value Name", "Type Name*")}
+    <button class="bx-ip-pub" data-a="bdPublish" ${ok ? "" : "disabled"}>Publish to ${n} product${n === 1 ? "" : "s"}</button>
+  </div>`;
+};
+// Always sits right next to the Create custom attribute button in the tool rail, top-aligned with it
+const placeInputPop = () => {
+  const pop = $("#bd-inpop"), main = $("#board .bx-main"), btn = $('#board .bx-tools button[data-v="attr"]'); if (!pop || !main || !btn) return;
+  const z = uz(), m = main.getBoundingClientRect(), b = btn.getBoundingClientRect(), ph = pop.offsetHeight * z;
+  const y = Math.min(Math.max(m.top + 8, b.top), m.bottom - ph - 8);
+  pop.style.left = (b.right + 8 - m.left) / z + "px"; pop.style.top = (y - m.top) / z + "px";
+};
+ACTIONS.bdDD = el => {
+  const v = el.dataset.v, which = v.replace("!", "");
+  const next = v.endsWith("!") && BD.dd === which ? null : which; if (next === BD.dd && !v.endsWith("!")) return false;
+  BD.dd = next; if (v.endsWith("!")) setTimeout(() => { const i = $(which === "attr" ? "#bd-attr" : "#bd-val"); if (i) i.focus(); });
+};
+ACTIONS.bdOpt = el => {
+  const [which, ...rest] = el.dataset.v.split("|"), v = rest.join("|");
+  if (which === "attr") { if (v !== BD.tag.attr) BD.tag.value = ""; BD.tag.attr = v; BD.dd = "val"; setTimeout(() => { const i = $("#bd-val"); if (i) i.focus(); }); }
+  else { BD.tag.value = v; BD.dd = null; setTimeout(() => { const b = $(".bx-ip-pub"); if (b) b.focus(); }); }
+};
+ACTIONS.bdAttrNext = () => { if (!BD.tag.attr.trim()) return false; BD.dd = "val"; setTimeout(() => { const i = $("#bd-val"); if (i) i.focus(); }); };
+// Tabbing into a field opens its list; clicking anywhere else closes it
+document.addEventListener("focusin", e => { const w = e.target.id === "bd-attr" ? "attr" : e.target.id === "bd-val" ? "val" : null; if (w && BD.dd !== w) { BD.dd = w; render(); } });
+document.addEventListener("click", e => { if (BD.dd && App.page === "board" && !e.target.closest(".bx-ip-f")) { BD.dd = null; render(); } });
+
 const statsPanel = () => {
   const row = (k, l, d) => `<button class="bx-srow" data-a="bdStat" data-v="${k}" role="checkbox" aria-checked="${BD.stats[k]}"><span class="o-cb ${BD.stats[k] ? "on" : ""}">${BD.stats[k] ? ic.check : ""}</span><span class="o-amrow"><b>${l}</b><small>${d}</small></span></button>`;
   return `<aside class="bx-panel">
@@ -268,8 +317,9 @@ const shortcutsCard = () => BD.shortcuts ? `<div class="bx-keys"><div class="bx-
 RENDER.board = () => {
   const cv = $("#bd-canvas"), keep = cv ? [cv.scrollLeft, cv.scrollTop] : null;
   const panel = BD.tool === "attr" ? attrPanel() : BD.tool === "stats" ? statsPanel() : "";
-  $("#board").innerHTML = `${topBar()}<div class="bx-main">${toolRail()}<div class="bx-canvas t-${BD.tool}" id="bd-canvas">${canvas()}<div class="bx-pins">${pinLayer()}</div></div>${panel}</div>${BD.table ? dataTable() : ""}${showBar()}${peekCard()}${shortcutsCard()}`;
+  $("#board").innerHTML = `${topBar()}<div class="bx-main">${toolRail()}<div class="bx-canvas t-${BD.tool}" id="bd-canvas">${canvas()}<div class="bx-pins">${pinLayer()}</div></div>${panel}${inputPop()}</div>${BD.table ? dataTable() : ""}${showBar()}${peekCard()}${shortcutsCard()}`;
   const nc = $("#bd-canvas"); if (nc && keep && !BD.resetScroll) { nc.scrollLeft = keep[0]; nc.scrollTop = keep[1]; } BD.resetScroll = false;
+  if ($("#bd-inpop")) placeInputPop();
   if (BD.draft) setTimeout(() => { const i = $("#pin-new"); if (i && document.activeElement !== i) i.focus(); });
 };
 
@@ -359,7 +409,7 @@ ACTIONS.bdPublish = () => {
   const label = BD.tag.attr.trim(), v = BD.tag.value.trim(); if (!label || !v || !BD.sel.size) return false;
   const s = bdStudy(), k = ensureKey(label); ensureAttr(label, k);
   BD.sel.forEach(id => publishTag(s, k, id, v));
-  const n = BD.sel.size; BD.sel.clear(); BD.show = k; BD.tag.value = "";
+  const n = BD.sel.size; BD.sel.clear(); BD.show = k; BD.tag.value = ""; BD.dd = null;
   if (BD.matrix === "freestyle") toast(`Published ${attrLabel(k)} = ${v} on ${n} product${n === 1 ? "" : "s"}. They're framed now.`);
   else toast(`Published ${attrLabel(k)} = ${v} on ${n} product${n === 1 ? "" : "s"}. Switch to Freestyle to see the frame, or Group by ${attrLabel(k)}.`);
 };
@@ -453,7 +503,7 @@ document.addEventListener("keydown", e => {
   // In a board text field only Escape is ours: it leaves the field, then works as normal
   if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) { if (e.key !== "Escape" || App.menu) return; e.target.blur(); }
   const k = e.key;
-  if (k === "Escape") { if (App.menu) return; if (BD.shortcuts) BD.shortcuts = false; else if (BD.draft) BD.draft = null; else if (BD.openPin) BD.openPin = null; else if (BD.peek) BD.peek = null; else if (BD.flyout) BD.flyout = null; else if (BD.sel.size) BD.sel.clear(); else if (BD.tool !== "select") setTool("select"); else if (BD.hl.size) BD.hl.clear(); else return; render(); return; }
+  if (k === "Escape") { if (App.menu) return; if (BD.dd) BD.dd = null; else if (BD.shortcuts) BD.shortcuts = false; else if (BD.draft) BD.draft = null; else if (BD.openPin) BD.openPin = null; else if (BD.peek) BD.peek = null; else if (BD.flyout) BD.flyout = null; else if (BD.sel.size) BD.sel.clear(); else if (BD.tool !== "select") setTool("select"); else if (BD.hl.size) BD.hl.clear(); else return; render(); return; }
   if (k === "+" || k === "=" || e.code === "Equal" || e.code === "NumpadAdd") { e.preventDefault(); setZoom(BD.zoom * 1.2); return; }
   if (k === "-" || k === "_" || e.code === "Minus" || e.code === "NumpadSubtract") { e.preventDefault(); setZoom(BD.zoom / 1.2); return; }
   if (k === "0" || e.code === "Digit0" || e.code === "Numpad0") { setZoom(1); return; }

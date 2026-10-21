@@ -60,8 +60,10 @@ const MODAL_PREVIEW = () => {
 };
 
 /* ---------- Result ---------- */
+const UNDO_IC = '<svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>';
 const MODAL_SUCCESS = () => {
   const c = stColl(), s = stStudy(), r = ST.result || { items: 0, added: 0, changed: 0, removed: 0 };
+  // One clear next step (the study, by name), then two quiet ways out: back, or undo
   return `<div class="o-modal o-success" role="alertdialog" aria-modal="true" aria-labelledby="ok-h">
     <div class="o-ok-body">
       <span class="o-ok-badge">${ic.check}</span>
@@ -73,8 +75,10 @@ const MODAL_SUCCESS = () => {
         <li>${ic.history}<span>The study remembers it has <b>${c.v}</b>; re-apply after an update to catch up</span></li>
       </ul>
     </div>
-    <footer class="o-mf flat"><button class="btn" data-a="successHome">Back to Attributes</button>${ST.undo && ST.undo.study === s.name ? `<button class="icon-btn o-undo-ic" data-a="undoApply" title="Undo this apply" aria-label="Undo this apply">${ic.history}</button>` : ""}<span class="sp"></span>
-      <button class="btn primary" data-a="openStudyBoard" id="ok-go">Open the study board${ic.arrowR}</button></footer>
+    <footer class="o-ok-acts">
+      <button class="btn primary o-ok-go" data-a="openStudyBoard" id="ok-go">Open ${esc(s.name)}${ic.arrowR}</button>
+      <div class="o-ok-sec"><button class="o-ok-link" data-a="successHome">${ic.arrowL}Back to Attributes</button>${ST.undo && ST.undo.study === s.name ? `<i class="o-ok-dot"></i><button class="o-ok-link" data-a="undoApply" title="Puts the study back the way it was">${UNDO_IC}Undo apply</button>` : ""}</div>
+    </footer>
   </div>`;
 };
 

@@ -13,7 +13,7 @@
 
   /* Known states */
   const goBoard = (study = "FA26 footwear review") => { setFlow("board"); App.modal = null; BD.sel.clear(); BD.hl.clear(); BD.filters = {}; BD.tool = "select"; BD.peek = null; BD.matrix = "pareto"; BD.show = "franchise"; App.menu = null; JUMP.board(study); };
-  const goBoardSel = () => { goBoard(); BD.matrix = "freestyle"; BD.tool = "attr"; const ps = bdShown().slice(0, 4); ps.forEach(p => BD.sel.add(p.id)); BD.tag.attr = "Upper material"; BD.tag.value = "Knit"; render(); };
+  const goBoardSel = () => { goBoard(); BD.matrix = "freestyle"; BD.tool = "attr"; render(); [...document.querySelectorAll("#bd-canvas .bx-tile")].slice(0, 4).forEach(t => BD.sel.add(t.dataset.id)); BD.tag.attr = "Upper material"; BD.tag.value = "Knit"; render(); };
   const goHome = () => { setFlow("home"); App.modal = null; JUMP.home(); };
   const goPick = () => { const s = STUDIES[0]; setFlow("create"); App.page = "home"; openCreate("study"); CR.study = s.name; CR.included = new Set(s.published); CR.peek = null; CR.step = "pick"; };
   const goCard = () => { setFlow("card"); App.page = "home"; openCard("franchise"); CD.sel = null; App.menu = null; };
@@ -46,6 +46,9 @@
     { kick: "Study board", title: "Frame what your eye groups together", go: () => goBoardSel(), sel: ".bx-tools button[data-v=\"attr\"]", place: "right", body: `
       <p>Selecting is its own tool, Create custom attribute (<b>F</b>), as in the app. With it on, drag a frame around a group or click tiles. Four shoes are selected now. With the Select tool (<b>V</b>), dragging pans and clicking shows a product card instead.</p>
       ${why("This is the framing tool already in the app. It's the one thing a spreadsheet can never do: pick products by what they look like.")}` },
+    { kick: "Study board", title: "Name the attribute and its value", go: () => { goBoardSel(); BD.tag.value = ""; BD.dd = "val"; render(); }, sel: "#bd-inpop", grow: ".bx-ip-dd", place: "right", body: `
+      ${did("With products framed, a small box opens right next to the Create custom attribute button, with two fields as in the app: <b>Attribute Name</b> and <b>Value Name</b>. Each one drops down what this study already has, with counts, or you type a new name and create it. Publish puts the value on every framed product.")}
+      ${why("The box always opens in the same place, attached to the tool that made it, so it never covers the shoes you framed. Picking from the list keeps one attribute from ending up with three spellings.")}` },
 
     /* ---------- Homepage ---------- */
     { kick: "Attributes page", title: "A card shows what is inside", go: () => goHome(), sel: ".h-grid .ccard", place: "right", body: `
@@ -121,7 +124,7 @@
       ${did("Each study shows its collage and how many of the collection's products it contains. One that shares nothing is greyed out with a reason. A study that already has this collection says which version.")}
       ${why("David's example on the kickoff: Christie's attributes applied to a shoes study match nothing.")}` },
     { kick: "Apply to a study", title: "Then tell them where to look", go: () => { goCard(); ST.sel = "Price architecture"; JUMP.study("done"); }, sel: ".o-success", place: "left", body: `
-      ${did("The result names the attributes, counts the changes, and says the study now has this version. Open the study board is the primary action, grouped by the new attribute.")}` },
+      ${did("The result names the attributes, counts the changes, and says the study now has this version. One full-width button opens the study by name; Back to Attributes and Undo apply sit underneath as quiet links.")}` },
 
     /* ---------- Applying a collection with more than one attribute ---------- */
 
@@ -154,7 +157,10 @@
         <li><b>Share</b> is a quieter dialog that returns you to where you opened it.</li>
         <li><b>One language:</b> Attributes and values everywhere, no Label Library.</li>
         <li><b>Figma style guide</b> (icons, text styles, colours), Collagia favicon, and a layout that scales to any screen.</li>
-        <li><b>This tour:</b> chapters with goals, and red points where you try things yourself.</li>
+        <li><b>Naming on the board</b> follows the Figma input: Attribute Name and Value Name in a small box next to the attribute tool, each a dropdown of what the study already has, with counts, or a new name to create.</li>
+        <li><b>Choosing attributes updates live:</b> untick one and every product loses that value straight away.</li>
+        <li><b>A clearer finish after applying:</b> one button that opens the study by name, with Back to Attributes and Undo apply as quiet links underneath.</li>
+        <li><b>This tour:</b> chapters with goals, and red points where you try things yourself. The point scrolls to what you need to click, and its hint stays clear of it.</li>
       </ul>
       <p class="tr-hint">Still to confirm with Giorgi: that applying really does replace same-named attributes, what a version means to a user, and whether Manage can become Share. Karla's original files are untouched in <code>oct15/</code>.</p>` },
   ];
@@ -166,11 +172,11 @@
     "Two things up top, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b> to see what else you can do with this collection.", done: () => App.menu === "more", ok: "Download, update from a study or a CSV, version history and rename: everything that isn't the main job." },
     "The core fix: a checkbox means one thing": { at: '.o-rrow.attr[data-v="franchise"]', ask: "Untick <b>Franchise</b> and watch the products lose their Franchise value.", done: () => !CR.included.has("franchise"), ok: "Franchise is out of the collection, so the products no longer carry it. Tick it again to bring it back." },
     "Choosing which study to compare with": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Compare with</b> dropdown to see every study.", done: () => App.menu === "cpstudy", ok: "Studies with an older version come first, each with its version and how many products it shares." },
-    "A card shows what is inside": { at: ".h-grid .ccard", ask: "Open the <b>FA26 line review</b> collection.", done: () => App.modal === "card", ok: "This is the collection screen. Next, a look around it." },
-    "Browse by attribute and value": { at: '.o-tname[data-v="upper-material"]', ask: "In the rail, click <b>Upper material</b>, then one of its values, like <b>Knit</b>.", done: () => CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Only the products with that value are showing. Try other attributes and values, or All products to go back." },
+    "A card shows what is inside": { free: true, at: ".h-grid .ccard", ask: "Open the <b>FA26 line review</b> collection.", done: () => App.modal === "card", ok: "This is the collection screen. Next, a look around it." },
+    "Browse by attribute and value": { beside: ".o-rail.tree", at: '.o-tname[data-v="upper-material"]', ask: "In the rail, click <b>Upper material</b>, then one of its values, like <b>Knit</b>.", done: () => CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Only the products with that value are showing. Try other attributes and values, or All products to go back." },
     "When search finds nothing": { at: ".o-empty2 [data-a=\"cardQClear\"]", ask: "Press <b>Clear search</b>.", done: () => !CD.q, ok: "All 312 products are back." },
     "An optional look before you apply": { at: "[data-a=\"cpOpen\"]", ask: "Click <b>Compare with a study</b>.", done: () => App.modal === "compare", ok: "Compare opened on Price architecture, the study that's behind." },
-    "Grouped by what happens, riskiest first": { at: ".cpx-t[data-v*=\"Vomero\"]", ask: "Open the <b>Running → Vomero</b> line to see its 22 products.", done: () => CP.open && CP.open.includes("Vomero"), ok: "Each product shows its own before and after." },
+    "Grouped by what happens, riskiest first": { under: true, at: ".cpx-t[data-v*=\"Vomero\"]", ask: "Open the <b>Running → Vomero</b> line to see its 22 products.", done: () => CP.open && CP.open.includes("Vomero"), ok: "Each product shows its own before and after." },
     "Ask about any product": { at: "#cp-q", ask: "Search for <b>Pegasus</b>.", done: () => /pegasus/i.test(CP.q), ok: "Every match says what happens to it." },
     "The collage decides whether anything happens": { at: ".o-study[data-v=\"Price architecture\"]", ask: "Choose <b>Price architecture</b>.", done: () => ST.sel === "Price architecture", ok: "Selected. Preview changes is now available." },
   };
@@ -179,7 +185,7 @@
   /* ---------- Chapters: the steps grouped like an interactive demo, each opening with its goal ---------- */
   const CHAPTERS = {
     "Start here": { goal: "Know what Collagia is and what an attribute collection adds.", what: "Two short reads and a look at what's already in this account. Nothing to click yet." },
-    "Study board": { goal: "See where attributes come from.", what: "You'll see a study board and how a group of shoes is framed to make an attribute." },
+    "Study board": { goal: "See where attributes come from.", what: "You.ll see a study board, how a group of shoes is framed, and where you name the attribute and value." },
     "Attributes page": { goal: "Find your collections and tell them apart at a glance.", what: "One stop on the Attributes page; you'll open a collection from its card." },
     "New collection": { goal: "Save a study's attributes as a collection.", what: "Pick a study, choose which attributes go in (you'll untick one), then name it." },
     "Open a collection": { goal: "Read a collection: what it holds, who has it, which version.", what: "You'll open the ⋯ menu, look at version history and filter the grid by a value." },
@@ -223,6 +229,11 @@
     const x = Math.min(vw - 14, Math.max(14, t.right - 10)), y = Math.min(vh - 14, Math.max(14, t.top + 10));
     dot.hidden = false; dot.style.left = x + "px"; dot.style.top = y + "px";
     hint.hidden = false; const r = R(hint);
+    // Some hints sit beside a whole panel (the rail) so everything you need to click stays in view
+    const side = s.task.beside && q(s.task.beside);
+    if (side) { const p = R(side); hint.classList.remove("up"); hint.style.left = Math.min(vw - r.width - 16, p.right + 16) + "px"; hint.style.top = Math.min(vh - r.height - 16, Math.max(16, t.top - 8)) + "px"; return; }
+    // `under` hangs the hint below the whole target, so the line you're asked to open stays readable
+    if (s.task.under && t.bottom + 10 + r.height < vh - 16) { hint.classList.remove("up"); hint.style.top = t.bottom + 10 + "px"; hint.style.left = Math.min(vw - r.width - 16, Math.max(16, t.right - r.width)) + "px"; return; }
     const below = y + 18 + r.height < vh - 16;
     hint.classList.toggle("up", !below);
     hint.style.top = (below ? y + 18 : y - 18 - r.height) + "px";
@@ -234,6 +245,12 @@
     els.bar.hidden = true; els.dot.hidden = true; els.hint.hidden = true;
     const { spot, card } = els, el = target(s), vw = innerWidth / Z(), vh = innerHeight / Z(), pad = 8, gap = 16;
     card.classList.toggle("centre", !el);
+    // "Free" steps leave the whole screen visible: no shroud, the card parked on the right edge
+    if (s.task && taskDone && s.task.free) {
+      spot.hidden = true; card.style.maxHeight = Math.max(200, vh - 32) + "px"; card.style.width = "";
+      const r = R(card); card.style.left = Math.max(16, vw - r.width - 16) + "px"; card.style.top = Math.max(16, (vh - r.height) / 2) + "px";
+      return;
+    }
     if (!el) {
       spot.classList.add("none"); spot.hidden = false; spot.style.cssText = "top:50%;left:50%;width:0;height:0;border-radius:0";
       card.style.maxHeight = ""; card.style.width = "";
@@ -242,7 +259,10 @@
       return;
     }
     spot.classList.remove("none"); spot.hidden = false;
-    const t = R(el);
+    let t = R(el);
+    // `grow` widens the spotlight to something that hangs outside the target, like an open dropdown
+    const gEl = s.grow && q(s.grow);
+    if (gEl) { const g = R(gEl), l = Math.min(t.left, g.left), tp = Math.min(t.top, g.top), rr = Math.max(t.right, g.right), b = Math.max(t.bottom, g.bottom); t = { left: l, top: tp, right: rr, bottom: b, width: rr - l, height: b - tp }; }
     const top = Math.max(0, t.top - pad), left = Math.max(0, t.left - pad);
     const w = Math.min(vw - left, t.width + pad * 2), h = Math.min(vh - top, t.height + pad * 2);
     spot.style.top = top + "px"; spot.style.left = left + "px"; spot.style.width = w + "px"; spot.style.height = h + "px";
@@ -306,6 +326,8 @@
     renderCard();
     place(); setTimeout(place, 60); setTimeout(place, 300);
     const el = target(s); if (el && el.scrollIntoView) el.scrollIntoView({ block: "nearest", inline: "nearest" });
+    // The thing to click in a "Your turn" step is scrolled into view, even when it sits far down a list
+    const at = s.task && s.task.at && q(s.task.at); if (at && at.scrollIntoView) at.scrollIntoView({ block: "center", inline: "nearest" });
   };
   const stop = () => { if (!els) return; els.spot.hidden = true; els.card.hidden = true; els.dot.hidden = true; els.hint.hidden = true; els.bar.hidden = true; i = -1; cancelAnimationFrame(raf); try { localStorage.setItem(DONE_KEY, "1"); } catch {} if (typeof G !== "undefined") { G.open = true; store.set("guideOpen", true); render(); } };
   // Watch for a "Your turn" step being done, then confirm it on the card

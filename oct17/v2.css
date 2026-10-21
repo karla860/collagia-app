@@ -1469,3 +1469,31 @@ body.locked .g-pill kbd { display: none; }
 .bx-stats { bottom: 74px; left: 9px; }
 .bx-nav .bx-sec.grow > .bx-bb, .bx-nav .bx-sec.grow > .o-dd > .bx-bb { border: 1px solid #E4E4E4; background: #fff; padding: 0 10px; flex: none; }
 .bx-nav .bx-sec.grow > .bx-bb .fi { width: 16px; height: 16px; }
+
+/* Choose attributes: each product shows the values it will carry, and loses them the moment an attribute is unticked */
+.o-rail.picks ~ .o-scroll .o-pchips { align-items: center; flex-wrap: nowrap; gap: 8px; }
+.o-rail.picks ~ .o-scroll .o-sws { flex-wrap: nowrap; }
+.o-pvals { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: var(--b2); color: var(--muted); }
+.o-pcard.out .o-th, .o-pcard.out .nm { opacity: .45; }
+
+/* Board input popover (Figma 4392:1295): white card, 4px corners, labels in 12px semibold, fields with a 0.75px stroke */
+.bx-inpop { position: absolute; z-index: 8; width: 216px; display: grid; gap: 4px; padding: 4px; background: #fff; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,.2), 0 8px 24px rgba(0,0,0,.08); }
+.bx-ip-l { padding: 4px; font: 600 12px/normal Inter, sans-serif; letter-spacing: -.36px; color: #232121; }
+.bx-ip-f { position: relative; display: flex; align-items: center; background: #fff; border: .75px solid #E4E4E4; border-radius: 2px; }
+.bx-ip-f:focus-within, .bx-ip-f.open { border-color: #232121; }
+.bx-ip-f input { flex: 1; min-width: 0; height: 30px; padding: 0 0 0 8px; border: 0; outline: 0; background: none; font: 500 11px/normal Inter, sans-serif; letter-spacing: -.33px; color: #232121; }
+.bx-ip-f input::placeholder { color: rgba(35,33,33,.7); }
+.bx-ip-cbtn { display: grid; place-items: center; width: 30px; height: 30px; border: 0; background: none; cursor: pointer; }
+.bx-ip-chev { display: block; width: 14px; height: 14px; transition: transform .12s; }
+.bx-ip-f.open .bx-ip-chev { transform: rotate(180deg); }
+.bx-ip-dd { position: absolute; z-index: 2; left: -1px; right: -1px; top: calc(100% + 4px); max-height: 220px; overflow: auto; padding: 4px; display: grid; gap: 1px; background: #fff; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,.2), 0 8px 24px rgba(0,0,0,.1); }
+.bx-ip-dh { padding: 4px 6px 2px; font: 500 10px/normal Inter, sans-serif; letter-spacing: .02em; text-transform: uppercase; color: var(--muted); }
+.bx-ip-dd button { display: flex; align-items: center; gap: 6px; width: 100%; padding: 6px; border: 0; border-radius: 2px; background: none; text-align: left; font: 500 11px/normal Inter, sans-serif; letter-spacing: -.33px; color: #232121; cursor: pointer; }
+.bx-ip-dd button:hover, .bx-ip-dd button.on { background: #F1F1F1; }
+.bx-ip-dd button span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bx-ip-dd small { font: 400 11px/normal Inter, sans-serif; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bx-ip-dd svg.i { width: 12px; height: 12px; flex: none; }
+.bx-ip-new { border-top: .75px solid #E4E4E4 !important; border-radius: 0 !important; margin-top: 2px; }
+.bx-ip-empty { margin: 0; padding: 6px; font: 400 11px/normal Inter, sans-serif; color: var(--muted); }
+.bx-ip-pub { margin-top: 4px; height: 30px; border: 0; border-radius: 2px; background: var(--accent); color: #fff; font: 500 12px/normal Inter, sans-serif; letter-spacing: -.36px; cursor: pointer; }
+.bx-ip-pub:disabled { background: #ECECED; color: var(--muted); cursor: default; }
