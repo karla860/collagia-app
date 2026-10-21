@@ -82,7 +82,7 @@ const MODAL_SUCCESS = () => {
 };
 
 /* ---------- Modal shell: one overlay, the open modal decides its content. No iframes. ---------- */
-const MODALS = { success: () => MODAL_SUCCESS(), card: () => MODAL_CARD(), confirmDelete: () => MODAL_DELETE(), access: () => MODAL_ACCESS(), create: () => MODAL_CREATE(), studyPick: () => MODAL_PICK(), collPick: () => MODAL_COLLPICK(), preview: () => MODAL_PREVIEW(), compare: () => MODAL_COMPARE(), confirmApply: () => MODAL_CONFIRM_APPLY() };
+const MODALS = { success: () => MODAL_SUCCESS(), card: () => MODAL_CARD(), confirmDelete: () => MODAL_DELETE(), access: () => MODAL_ACCESS(), create: () => MODAL_CREATE(), studyPick: () => MODAL_PICK(), collPick: () => MODAL_COLLPICK(), preview: () => MODAL_PREVIEW(), compare: () => MODAL_COMPARE() };
 RENDER.modal = () => {
   const ov = $("#o-ov");
   document.body.classList.toggle("locked", !!App.modal);
@@ -100,7 +100,6 @@ RENDER.escape = () => {
   if (App.modal === "studyPick") App.modal = ST.fromBoard ? null : "card";
   else if (App.modal === "preview") App.modal = ST.fromCompare ? "compare" : ST.fromBoard ? "collPick" : "studyPick";
   else if (App.modal === "compare") { App.modal = "card"; setFlow("card"); }
-  else if (App.modal === "confirmApply") App.modal = "compare";
   else if (App.modal === "access") ACTIONS.accessBack();
   else App.modal = null;
   return true;
@@ -119,23 +118,8 @@ INPUTS.stQ = el => { ST.q = el.value; };
 ACTIONS.toPreview = () => { openCompare(ST.sel); };
 ACTIONS.pickColl = el => { CD.id = el.dataset.v; ST.sel = ST.target; ST.fromBoard = true; openCompare(ST.target); };
 ACTIONS.pvBack = () => { if (ST.fromCompare) { App.modal = "compare"; setFlow("compare"); return; } App.modal = ST.fromBoard ? "collPick" : "studyPick"; };
-// Applying can remove values, so: confirm when it would, and keep a copy of the study's attributes so it can be undone
-const MODAL_CONFIRM_APPLY = () => {
-  const c = stColl(), s = stStudy(), m = cpModel(c, s), lab = c.attrs.length === 1 ? attrLabel(c.attrs[0]) : "a value";
-  return `<div class="o-modal confirm" role="alertdialog" aria-modal="true" aria-labelledby="ca-h" aria-describedby="ca-p">
-    <div class="o-confirm"><span class="o-confirm-icon">${ic.warn}</span>
-      <div><h2 id="ca-h" class="o-h16">${m.lost} product${m.lost === 1 ? "" : "s"} will lose ${c.attrs.length === 1 ? `their ${esc(lab)}` : "a value"}</h2>
-      <p id="ca-p">Applying ${esc(c.name)} ${c.v} replaces the ${esc(c.attrs.length > 1 ? c.attrs.slice(0, -1).map(attrLabel).join(", ") + " and " + attrLabel(c.attrs[c.attrs.length - 1]) : attrLabel(c.attrs[0]))} column${c.attrs.length === 1 ? "" : "s"} in ${esc(s.name)}. ${m.changed.length - m.lost} other products change too. You can undo this straight after.</p></div></div>
-    <footer class="o-mf flat"><span class="sp"></span><button class="btn" data-a="caCancel">Back to compare</button><button class="btn danger" data-a="pvApplyNow" id="ca-ok">Apply anyway</button></footer>
-  </div>`;
-};
+// Apply straight away (no confirmation): keep a copy of the study's attributes so the success screen can undo it
 ACTIONS.pvApply = () => {
-  const c = stColl(), s = stStudy();
-  if (cpModel(c, s).lost) { App.modal = "confirmApply"; setTimeout(() => { const b = document.getElementById("ca-ok"); if (b) b.focus(); }); return; }
-  ACTIONS.pvApplyNow();
-};
-ACTIONS.caCancel = () => { App.modal = "compare"; };
-ACTIONS.pvApplyNow = () => {
   const c = stColl(), s = stStudy(), t = diffTotals(diffFor(c, s));
   ST.undo = { study: s.name, coll: c.id, tags: JSON.parse(JSON.stringify(s.tags)), published: [...s.published], applied: { ...s.applied } };
   applyCollection(c, s);

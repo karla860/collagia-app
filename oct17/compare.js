@@ -290,7 +290,7 @@ ACTIONS.cpQClear = () => { CP.q = ""; };
 ACTIONS.cpRetry = () => { CP.demo = null; cpLoad(CP.study); };
 ACTIONS.cpBack = () => { App.modal = "card"; setFlow("card"); };
 // Carry the chosen study into the existing Apply flow: straight to its preview, no second pick
-ACTIONS.cpApply = () => { if (cpFind(CP.study).sample) { toast("Sample study: applying isn't part of this demo"); return false; } ST.sel = CP.study; ST.q = ""; ST.open = null; ST.fromBoard = false; ST.fromCompare = true; CP.q = ""; setFlow("study"); ACTIONS.pvApply(); }; // straight to the confirmation, or applied if nothing is lost
+ACTIONS.cpApply = () => { if (cpFind(CP.study).sample) { toast("Sample study: applying isn't part of this demo"); return false; } ST.sel = CP.study; ST.q = ""; ST.open = null; ST.fromBoard = false; ST.fromCompare = true; CP.q = ""; setFlow("study"); ACTIONS.pvApply(); }; // applied straight away; the success screen offers Undo
 
 /* Guide: #compare opens the picker; sub-entries show each state (sample states are labelled as such on screen) */
 JUMP.compare = v => {

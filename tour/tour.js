@@ -61,9 +61,10 @@
     { kick: "New collection", title: "Pick a study: show what is there to take", go: () => { goHome(); openCreate("study"); render(); }, sel: ".o-studies", place: "above", body: `
       ${did("Each study lists the attributes it already has as tags, with how many values each one holds. SS27 merchandising shows a study with six: the first four, then “+2 more”. A study with nothing published is greyed out and says so.")}
       ${why("You pick a study for what's already in it. Tags make that readable at a glance, however many attributes a study has.")}` },
-    { kick: "New collection", title: "The core fix: a checkbox means one thing", go: () => { goPick(); render(); }, sel: ".o-rail.picks", place: "right", body: `
+    { kick: "New collection", title: "Review what goes in", go: () => { goPick(); render(); }, sel: ".cr .o-rail.tree", place: "right", body: `
       ${was("On staging every attribute pill is a checkbox and a tab, and a dropdown filters the list. That is why it reads as a filter.")}
-      ${did("A checkbox means only “this attribute goes into the collection”. The values under it are read-only, with real counts. Each product on the right shows the value it will carry for every ticked attribute.")}` },
+      ${did("Nothing to tick: a collection takes every attribute the study published. This step shows it the way the collection screen will, with attributes and values in the rail and the products on the right, one attribute at a time.")}
+      ${why("Choosing attribute by attribute isn't how collections work. A review step reads the same before and after saving, so there is nothing new to learn.")}` },
     { kick: "New collection", title: "Name it, and know it is private", go: () => { goPick(); CR.step = "name"; CR.name = ""; render(); }, sel: ".o-nameform", place: "right", body: `
       ${did("A name pre-filled from the attributes, an optional description, a preview of the card it will make, and a plain line: private until you share it.")}
       ${why("Sharing is a separate, deliberate step, so it helps to say so at the moment you make something.")}` },
@@ -150,7 +151,7 @@
       <p class="tr-sub"><b>This version (Karla)</b></p>
       <ul>
         <li><b>Compare with a study</b>: an optional, read-only look before applying. Tabs for Removed, Changed, Added and Unchanged, a count per attribute, and search that says what happens to any product.</li>
-        <li><b>No separate preview.</b> Choosing a study opens Compare; Apply asks for confirmation only when values would be lost, and can be undone.</li>
+        <li><b>No separate preview.</b> Choosing a study opens Compare; Apply happens straight away, with no extra confirmation, and can be undone.</li>
         <li><b>Built for many studies:</b> one searchable dropdown that opens on the study that's behind.</li>
         <li><b>A calmer collection screen:</b> one attribute at a time, so each product shows a single value; a rail to switch attribute or pick a value; search right above the grid; version history as a timeline with faces.</li>
         <li><b>A simpler ⋯ menu:</b> one flat list (Update from a study, Update from a CSV, Download CSV, Version history, Rename).</li>
@@ -160,7 +161,7 @@
         <li><b>One language:</b> Attributes and values everywhere, no Label Library.</li>
         <li><b>Figma style guide</b> (icons, text styles, colours), Collagia favicon, and a layout that scales to any screen.</li>
         <li><b>Naming on the board</b> follows the Figma input: Attribute Name and Value Name in a small box next to the attribute tool, each a dropdown of what the study already has, with counts, or a new name to create.</li>
-        <li><b>Choosing attributes updates live:</b> untick one and every product loses that value straight away.</li>
+        <li><b>Nothing to choose when saving:</b> a new collection takes every attribute the study published, and step 3 reviews it in the same rail and grid as the collection screen.</li>
         <li><b>A clearer finish after applying:</b> one button that opens the study by name, with Back to Attributes and Undo apply as quiet links underneath.</li>
         <li><b>This tour:</b> chapters with goals, and red points where you try things yourself. The point scrolls to what you need to click, and its hint stays clear of it.</li>
       </ul>
@@ -172,7 +173,7 @@
      once it's done, confirms what happened. Next is always there as "Skip", so nobody gets stuck. */
   const TASKS = {
     "Two things up top, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b> to see what else you can do with this collection.", done: () => App.menu === "more", ok: "Download, update from a study or a CSV, version history and rename: everything that isn't the main job." },
-    "The core fix: a checkbox means one thing": { at: '.o-cbbtn[data-v="franchise"]', ask: "Untick <b>Franchise</b> and watch the products lose their Franchise value.", done: () => !CR.included.has("franchise"), ok: "Franchise is out of the collection, so the products no longer carry it. Tick it again to bring it back." },
+    "Review what goes in": { beside: ".cr .o-rail.tree", at: '.cr .o-tname[data-v="upper-material"]', ask: "In the rail, click <b>Upper material</b>, then one of its values, like <b>Knit</b>.", done: () => App.modal === "create" && CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Only those products show. It's a view, so the collection still takes everything." },
     "Choosing which study to compare with": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Compare with</b> dropdown to see every study.", done: () => App.menu === "cpstudy", ok: "Studies with an older version come first, each with its version and how many products it shares." },
     "A card shows what is inside": { free: true, at: ".h-grid .ccard", ask: "Open the <b>FA26 line review</b> collection.", done: () => App.modal === "card", ok: "This is the collection screen. Next, a look around it." },
     "Browse by attribute and value": { beside: ".o-rail.tree", at: '.o-tname[data-v="upper-material"]', ask: "In the rail, click <b>Upper material</b>, then one of its values, like <b>Knit</b>.", done: () => CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Only the products with that value are showing. Try other attributes and values, or Show all values to go back." },
@@ -189,11 +190,11 @@
     "Start here": { goal: "Know what Collagia is and what an attribute collection adds.", what: "Two short reads and a look at what's already in this account. Nothing to click yet." },
     "Study board": { goal: "See where attributes come from.", what: "You.ll see a study board, how a group of shoes is framed, and where you name the attribute and value." },
     "Attributes page": { goal: "Find your collections and tell them apart at a glance.", what: "One stop on the Attributes page; you'll open a collection from its card." },
-    "New collection": { goal: "Save a study's attributes as a collection.", what: "Pick a study, choose which attributes go in (you'll untick one), then name it." },
+    "New collection": { goal: "Save a study's attributes as a collection.", what: "Pick a study, review what goes in (you'll browse it by value), then name it." },
     "Open a collection": { goal: "Read a collection: what it holds, who has it, which version.", what: "You'll open the ⋯ menu, look at version history and filter the grid by a value." },
     "Edge states": { goal: "See how the collection screen handles awkward data.", what: "No search match, missing values, a one-product value, slow photos and an empty collection, each saying what's wrong and what to do." },
     "Compare with a study": { goal: "Know exactly what applying would change, before you apply.", what: "You'll open Compare, switch study, open a change line, search a product and go on to apply." },
-    "Apply to a study": { goal: "Apply a collection safely.", what: "Choose a study, see what changes, apply (with a confirmation if anything would be lost, and Undo after)." },
+    "Apply to a study": { goal: "Apply a collection safely.", what: "Choose a study, see what changes, apply, with Undo after." },
     "Share": { goal: "Share a collection with the right people.", what: "One look at the share dialog: who has access and with which role." },
     "Wrap up": { goal: "Recap what changed.", what: "A summary of the earlier version and this one." },
   };

@@ -9,7 +9,10 @@ let EMPTY_COLL = null;
 const emptyColl = () => EMPTY_COLL || (EMPTY_COLL = { id: "__empty", name: "Archive materials", desc: "Material for each archive lot, from the registrar's spreadsheet.",
   attrs: ["stone"], values: { stone: {} }, productIds: [], source: { type: "csv", name: "archive_materials.csv" }, owner: PEOPLE.leyla, shared: [ME], v: "v1",
   created: "Oct 18, 2026", edited: "Oct 18, 2026", sample: true, csvRows: 24 });
-const curColl = () => (CD.id === "__empty" ? emptyColl() : collById(CD.id)) || COLLECTIONS[0];
+// New collection's review step renders this same rail and grid for a collection that isn't saved yet (create.js)
+let CD_PREVIEW = null;
+const curColl = () => CD_PREVIEW || (CD.id === "__empty" ? emptyColl() : collById(CD.id)) || COLLECTIONS[0];
+const cdSelName = () => CD.sel ? (CD.sel.v === NOVAL ? `no ${attrLabel(CD.sel.k)}` : CD.sel.v ? `${attrLabel(CD.sel.k)} · ${CD.sel.v}` : attrLabel(CD.sel.k)) : "";
 // A collection always shows one attribute at a time (the first one to start), so every card carries exactly one value
 const openCard = id => { CD.id = id || CD.id; Object.assign(CD, { view: "grid", sel: null, q: "", histOpen: false, viewV: null, editing: false, closed: new Set(), demo: null, showRows: false }); CD.sel = firstSel(); CD.openA = new Set(CD.sel ? [CD.sel.k] : []); App.modal = "card"; App.menu = null; };
 const firstSel = () => { const c = curColl(); return c && c.attrs.length ? { k: c.attrs[0], v: null } : null; };
@@ -193,7 +196,7 @@ ACTIONS.openStudyFromCard = el => { App.modal = null; setFlow("board"); const c 
 const MODAL_CARD = () => {
   const c = curColl(), list = cardShown(), total = cProducts(c).length, old = CD.viewV && CD.viewV !== c.v;
   const seg = `<div class="o-seg icons" role="radiogroup" aria-label="View"><button class="${CD.view === "grid" ? "on" : ""}" data-a="cardView" data-v="grid" role="radio" aria-checked="${CD.view === "grid"}" title="Grid" aria-label="Grid">${ic.grid}</button><button class="${CD.view === "list" ? "on" : ""}" data-a="cardView" data-v="list" role="radio" aria-checked="${CD.view === "list"}" title="List" aria-label="List">${ic.list}</button></div>`;
-  const selName = CD.sel ? (CD.sel.v === NOVAL ? `no ${attrLabel(CD.sel.k)}` : CD.sel.v ? `${attrLabel(CD.sel.k)} · ${CD.sel.v}` : attrLabel(CD.sel.k)) : "";
+  const selName = cdSelName();
   return `<div class="o-modal xl v2card" role="dialog" aria-modal="true" aria-label="${esc(c.name)}">
     <header class="o-mh v2h">
       <button class="icon-btn" data-a="closeModal" aria-label="Back to Attributes">${ic.back}</button>
