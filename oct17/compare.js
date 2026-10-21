@@ -176,7 +176,7 @@ const cpSide = (c, s, m, foot) => {
   // Study first (which study, which version), then the numbers. No dividers: spacing alone separates the two.
   return `<aside class="cpx-side">
     <section class="cpx-study"><span class="cpx-k">Study</span><div class="cpx-study-t"><b>${esc(s.name)}</b>
-      <span class="cpx-badge${has && has !== c.v ? " behind" : has ? " ok" : ""}">${has ? (has === c.v ? `Has ${c.v} · up to date` : `Has ${has} · this is ${c.v}`) : `Doesn't have it yet`}</span></div></section>
+      <span class="cpx-badge${has && has !== c.v ? " behind" : has ? " ok" : ""}">${has ? (has === c.v ? `Has ${c.v} · up to date` : `${c.v}`) : `Doesn't have it yet`}</span></div></section>
     <section class="cpx-attrs"><span class="cpx-k">Attributes · ${c.attrs.length}</span>
       ${c.attrs.map(k => { const inStudy = s.published.includes(k), n = m.all.reduce((t, r) => t + r.marks.filter(x => x.k === k && x.kind !== "same").length, 0);
         const sq = valueCounts(c, k).slice(0, 4).map(([v]) => `<i ${hue(k, v)}></i>`).join("");

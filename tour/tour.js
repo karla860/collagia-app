@@ -78,7 +78,7 @@
       ${why("Collections change over time. Knowing which version a study has, and what's different, is what makes updating it safe.")}` },
     { kick: "Open a collection", title: "The rail is a view selector, never a checkbox", go: () => { goCard(); render(); }, sel: ".o-rail.tree", place: "right", body: `
       ${was("On staging, attributes are tabs and values are a single dropdown, so you only ever see one value's products and never the whole collection.")}
-      ${did("“Attributes in this collection”: a tree of attribute → values, each value with its colour, a bar for its share and a count. One thing selected at a time, the grid follows.")}` },
+      ${did("“Attributes in this collection”: a tree of attribute → values, each value with its colour and a count. One thing selected at a time, the grid follows.")}` },
     { kick: "Open a collection", title: "Browse by attribute and value", go: () => { goCard(); render(); }, sel: ".o-rail.tree", place: "right", body: `
       ${did("The rail is how you read a collection. Click an attribute and the grid splits into one colour section per value; click a value to see only those products. All products takes you back.")}` },
 
