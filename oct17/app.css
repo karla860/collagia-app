@@ -764,11 +764,6 @@
 .o-rail.checks .o-rail-h .o-clear { font-size: var(--fs-12); font-weight: 500; padding: 0; }
 .o-rail.checks .o-rrow { border-radius: 6px; }
 /* Flow 2 header version button + history panel */
-.o-histbtn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); font-size: var(--fs-13); font-weight: 600; color: var(--text); }
-.o-histbtn svg.i { width: 15px; height: 15px; color: var(--sub); }
-.o-histbtn:hover, .o-histbtn.on { background: var(--hover); }
-.o-histbtn.old { background: var(--alert-soft); border-color: var(--alert-stroke); color: var(--alert); }
-.o-histbtn.old svg.i { color: var(--alert); }
 .o-hist { width: 300px; flex: none; display: flex; flex-direction: column; border-left: 1px solid var(--border); background: var(--surface); min-height: 0; }
 .o-hist-h { display: flex; align-items: center; padding: 12px 12px 8px 20px; font-size: var(--fs-14); }
 .o-hist-h b { font-weight: 600; }

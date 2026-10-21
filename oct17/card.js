@@ -1,5 +1,5 @@
 /* ---------- Open a collection ----------
-   A read-first screen: what is in here, who can see it, which version this is. The left rail is a view
+   A read-first screen: what is in here, under just the name (Share and version history sit in the header and ⋯). The left rail is a view
    selector (one thing selected at a time, never a checkbox). Every product shows the value it carries.
    The four moves (apply / update from a study, download / update from a CSV) are all here, ranked by use. */
 
@@ -87,10 +87,6 @@ const verHistory = c => c.hist || (c.hist = Array.from({ length: +c.v.slice(1) }
   : { v: "v" + (i + 1), date: c.edited, note: i % 2 ? "Updated from a CSV" : `Updated from study ${c.source.name}`, by: (c.shared.find(p => !p.you) || c.owner).name }).reverse());
 const personByName = n => [ME, ...Object.values(PEOPLE)].find(p => p.name === n) || { name: n };
 const nextV = c => "v" + (verHistory(c).length + 1);
-const verBtn = () => {
-  const c = curColl(), shown = CD.viewV || c.v;
-  return `<button class="o-histbtn${CD.histOpen ? " on" : ""}${shown !== c.v ? " old" : ""}" data-a="histToggle" aria-pressed="${!!CD.histOpen}" title="Version history">${ic.history}<span>${shown}</span></button>`;
-};
 // Version history as a timeline (like Figma's): newest on top, the version number leads each entry,
 // the author is a face (name on hover), and the explainer lives behind the ⓘ next to the title
 const histPanel = () => {
@@ -201,9 +197,7 @@ const MODAL_CARD = () => {
     <header class="o-mh v2h">
       <button class="icon-btn" data-a="closeModal" aria-label="Back to Attributes">${ic.back}</button>
       <div class="o-ident">
-        <h2 class="o-title">${CD.editing ? cardTitle() : esc(c.name)}</h2>
-        <div class="o-identrow">${avatar2(c.owner, "s")}<span>${c.owner.you ? "You" : esc(c.owner.name)}</span><i>·</i>${visChip(c, 'data-a="openAccessCur" role="button" tabindex="0" title="Change who can see this"')}<i>·</i>${verBtn()}<i>·</i><span class="o-muted">${srcLine(c)}</span></div>
-      </div>
+        <h2 class="o-title">${CD.editing ? cardTitle() : esc(c.name)}</h2>      </div>
       <span class="sp"></span>
       <button class="btn" data-a="openAccessCur">${ic.share}Share</button>
       <div class="o-dd"><button class="icon-btn o-morebtn${App.menu === "more" ? " open" : ""}" data-a="menu" data-v="more" aria-haspopup="menu" aria-label="More">${ic.more}</button>

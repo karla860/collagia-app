@@ -97,7 +97,6 @@ const valueCounts = (c, k) => { const m = {}; Object.values(c.values[k] || {}).f
 const valHue = (k, v) => { const vs = (ATTRS[k] && ATTRS[k].values) || []; let i = vs.indexOf(v); if (i < 0) i = [...String(v)].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7); return Math.round((i * 137.508 + 210) % 360); };
 const hue = (k, v) => `style="--h:${valHue(k, v)}"`;
 const isPrivate = c => !c.shared.length;
-const visLabel = c => isPrivate(c) ? "Private" : `Shared · ${c.shared.length}`;
 // Snapshot a study's tags into a collection (create) or into a new version (update)
 const snapshot = (s, attrs) => {
   const values = {}; const ids = new Set();

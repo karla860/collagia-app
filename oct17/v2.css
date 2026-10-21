@@ -54,12 +54,6 @@ kbd { font: 600 var(--fs-11) Inter, system-ui, sans-serif; padding: 1px 5px; bor
 .cfoot .cv { padding: 1px 6px; border-radius: 4px; background: var(--sunken); font-size: var(--fs-11); font-weight: 600; color: var(--text); }
 .o-av.s { width: 20px; height: 20px; font-size: var(--fs-11); }
 .o-av.me { background: var(--text); }
-.o-vis { display: inline-flex; align-items: center; gap: 5px; height: 20px; padding: 0 7px; border-radius: 999px; font-size: var(--fs-12); font-weight: 500; }
-.o-vis svg.i { width: 12px; height: 12px; }
-.o-vis.private { background: var(--sunken); color: var(--muted); }
-.o-vis.shared { background: var(--ok-soft); color: var(--ok); }
-.o-vis[role=button] { cursor: pointer; }
-.o-vis[role=button]:hover { outline: 1px solid var(--border-strong); }
 .empty-body { display: grid; justify-items: center; gap: 10px; padding: 48px 24px; text-align: center; max-width: 520px; margin: 0 auto; }
 .empty-body p { margin: 0; color: var(--muted); }
 .empty-icon.big { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
@@ -79,15 +73,8 @@ kbd { font: 600 var(--fs-11) Inter, system-ui, sans-serif; padding: 1px 5px; bor
 .o-mh.v2h { align-items: center; gap: 10px; padding: 12px 16px 12px 12px; min-height: 68px; }
 .o-ident { display: grid; gap: 4px; min-width: 0; }
 .o-title { margin: 0; font-size: var(--fs-20); font-weight: 600; letter-spacing: -.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.o-identrow { display: flex; align-items: center; gap: 6px; font-size: var(--fs-12); color: var(--muted); white-space: nowrap; }
-.o-identrow i { color: var(--border-strong); font-style: normal; }
-.o-identrow .csrc, .o-identrow .o-muted { display: inline-flex; align-items: center; gap: 5px; }
 .icon-btn.o-morebtn { width: 32px; height: 32px; border: 1px solid var(--border); border-radius: var(--radius); }
 .icon-btn.o-morebtn.open { background: var(--hover); }
-.o-histbtn { display: inline-flex; align-items: center; gap: 5px; height: 20px; padding: 0 7px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font-size: var(--fs-12); font-weight: 600; }
-.o-histbtn svg.i { width: 12px; height: 12px; }
-.o-histbtn:hover, .o-histbtn.on { background: var(--sunken); }
-.o-histbtn.old { border-color: var(--warn); color: var(--warn); }
 /* The rail as a tree: attribute = parent, values = children */
 .o-rail.tree { width: 260px; padding: 10px 10px 16px; }
 .o-rail.tree .o-rail-h { display: grid; gap: 2px; padding: 4px 8px 10px; }

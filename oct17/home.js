@@ -37,7 +37,6 @@ ACTIONS.showExplain = () => { H.explain = true; store.set("explain", true); };
 const srcLine = c => c.source.type === "study"
   ? `${ic.studies}<span>From study <b>${esc(c.source.name)}</b></span>`
   : `${ic.csv}<span>From <b>${esc(c.source.name)}</b></span>`;
-const visChip = (c, act = "") => `<span class="o-vis ${isPrivate(c) ? "private" : "shared"}" ${act}>${isPrivate(c) ? ic.lock : ic.people}${visLabel(c)}</span>`;
 const avatar2 = (p, cls = "") => p.photo ? `<img class="o-av photo ${cls}" src="${p.photo}" alt="" title="${esc(p.name)}">` : `<span class="o-av ${cls}${p.you ? " me" : ""}" title="${esc(p.name)}">${p.name.split(/\s+/).map(w => w[0]).join("").slice(0, 2)}</span>`;
 const moreBtn = c => `<button class="more-btn" data-a="menu" data-v="card:${c.id}" aria-haspopup="menu" aria-label="More actions for ${esc(c.name)}">${ic.more}</button>`;
 /* Card (Figma "Card · Apparel by Pattern Style"): a board canvas as the cover, title with a round ⋯,

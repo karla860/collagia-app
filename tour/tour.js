@@ -133,7 +133,7 @@
     /* ---------- Share ---------- */
     { kick: "Share", title: "Sharing is a dialog, reached from the collection", go: () => { goAccess(); render(); }, sel: ".o-invite", place: "left", body: `
       ${was("“Manage” in a card menu opens a separate page with a permissions form.")}
-      ${did("Invite by email with a role, a people list, pending invites, requests and an activity log. It opens from the collection's Share button, its Shared chip, or the card menu.")}` },
+      ${did("Invite by email with a role, a people list, pending invites, requests and an activity log. It opens from the collection's Share button or the card menu.")}` },
 
     /* ---------- Wrap ---------- */
     { kick: "Wrap up", title: "What this version fixes", go: () => goHome(), sel: null, body: `
