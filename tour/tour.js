@@ -361,8 +361,24 @@
   const wantsTour = /[?&#]tour\b/.test(location.href);
   const firstStep = Math.min(STEPS.length, Math.max(1, +(location.href.match(/[?&#]tour=(\d+)/) || [])[1] || 1)) - 1; // ?tour=9 opens on step 9
   let seen = false; try { seen = !!localStorage.getItem(DONE_KEY); } catch {}
+  /* Figma captures: ?shot=N opens step N's screen with no tour on top. Photos outside the first view are dropped,
+     so a capture only carries what is seen when the screen opens. */
+  const shotN = +new URLSearchParams(location.search).get("shot") || 0;
+  const inView = el => {
+    let { top: t, left: l, bottom: b, right: r } = el.getBoundingClientRect();
+    for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+      if (getComputedStyle(p).overflow === "visible") continue;
+      const q = p.getBoundingClientRect(); t = Math.max(t, q.top); l = Math.max(l, q.left); b = Math.min(b, q.bottom); r = Math.min(r, q.right);
+    }
+    return b > t && r > l && b > 0 && r > 0 && t < innerHeight && l < innerWidth;
+  };
+  const shot = n => {
+    document.body.classList.add("shot");
+    const s = STEPS[n - 1]; if (s && s.go) s.go(); render();
+    setTimeout(() => document.querySelectorAll("img").forEach(img => { if (!inView(img)) img.remove(); }), 2500);
+  };
   // The app boots after the catalogue loads; start once it says it is ready
-  document.addEventListener("app:ready", () => { build(); // A plain link always opens on step 1 of the tour; ?tour=N, ?screen= and #flow links still open where they point
+  document.addEventListener("app:ready", () => { if (shotN) return shot(shotN); build(); // A plain link always opens on step 1 of the tour; ?tour=N, ?screen= and #flow links still open where they point
     const deepLink = new URLSearchParams(location.search).has("screen") || location.hash.length > 1;
     if (wantsTour || !deepLink) setTimeout(() => start(wantsTour ? firstStep : 0), 300); });
   window.PrototypeTour = { start, stop, steps: STEPS };

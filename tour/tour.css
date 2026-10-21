@@ -99,3 +99,6 @@
 .tr-toc b { font-size: var(--fs-13); }
 .tr-toc small { font-size: var(--fs-12); color: #6E6D7A; }
 .tr-toc-c { font-size: var(--fs-12); color: #8a8d96; }
+
+/* ?shot=N captures: no guide pill or toasts on the screen */
+body.shot .g-pill, body.shot .toast { display: none !important; }

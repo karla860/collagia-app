@@ -12,10 +12,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="oct17/base.css?v=1792567129">
-  <link rel="stylesheet" href="oct17/app.css?v=1792567129">
-  <link rel="stylesheet" href="oct17/v2.css?v=1792567129">
-  <link rel="stylesheet" href="tour/tour.css?v=1792567129">
+  <link rel="stylesheet" href="oct17/base.css?v=1792570800">
+  <link rel="stylesheet" href="oct17/app.css?v=1792570800">
+  <link rel="stylesheet" href="oct17/v2.css?v=1792570800">
+  <link rel="stylesheet" href="tour/tour.css?v=1792570800">
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -88,23 +88,25 @@
   <div id="o-guide"></div>
   <div class="toast" id="toast" role="status" hidden></div>
 
-  <script src="oct17/core.js?v=1792567129"></script>
-  <script src="oct17/icons.js?v=1792567129"></script>
-  <script src="oct17/icons2.js?v=1792567129"></script>
-  <script src="oct17/data.js?v=1792567129"></script>
-  <script src="oct17/home.js?v=1792567129"></script>
-  <script src="oct17/card.js?v=1792567129"></script>
-  <script src="oct17/create.js?v=1792567129"></script>
-  <script src="oct17/study.js?v=1792567129"></script>
-  <script src="oct17/compare.js?v=1792567129"></script>
-  <script src="oct17/access.js?v=1792567129"></script>
-  <script src="oct17/board.js?v=1792567129"></script>
-  <script src="oct17/settings.js?v=1792567129"></script>
-  <script src="tour/tour.js?v=1792567129"></script>
+  <script src="oct17/core.js?v=1792570800"></script>
+  <script src="oct17/icons.js?v=1792570800"></script>
+  <script src="oct17/icons2.js?v=1792570800"></script>
+  <script src="oct17/data.js?v=1792570800"></script>
+  <script src="oct17/home.js?v=1792570800"></script>
+  <script src="oct17/card.js?v=1792570800"></script>
+  <script src="oct17/create.js?v=1792570800"></script>
+  <script src="oct17/study.js?v=1792570800"></script>
+  <script src="oct17/compare.js?v=1792570800"></script>
+  <script src="oct17/access.js?v=1792570800"></script>
+  <script src="oct17/board.js?v=1792570800"></script>
+  <script src="oct17/settings.js?v=1792570800"></script>
+  <script src="tour/tour.js?v=1792570800"></script>
   <script>
     // Load the Nike catalogue (assets/nike/catalog.json), then open a step from the URL (#board, #card, #study/preview …) or the board
     loadCatalog().then(() => {
       // ?screen=edge/single works like #edge/single, for links whose hash is taken (e.g. Figma captures)
+      // ?shot=N (tour/tour.js) opens tour step N's screen on its own, keeping only the photos seen on opening
+      // ?shot=N (tour/tour.js) opens tour step N's screen alone, with only the photos seen on opening, for Figma captures
       const [hf, ho] = (new URLSearchParams(location.search).get("screen") || location.hash.slice(1)).split("/");
       if (flowById(hf)) { setFlow(hf); JUMP[hf](ho || null); } else JUMP.board(null);
       document.dispatchEvent(new Event("app:ready"));
