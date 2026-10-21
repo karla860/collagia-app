@@ -30,7 +30,7 @@ const MODAL_PICK = () => {
 const MODAL_COLLPICK = () => {
   const s = studyByName(ST.target);
   return `<div class="o-modal collpick" role="dialog" aria-modal="true" aria-label="Apply a collection to ${esc(s.name)}">
-  <header class="o-mh"><button class="icon-btn" data-a="closeModal" aria-label="Close">${ic.close}</button><h2 class="o-h20">Apply a collection to <b>${esc(s.name)}</b></h2></header>
+  <header class="o-mh"><button class="icon-btn" data-a="closeModal" aria-label="Close">${ic.close}</button><h2 class="o-h20">Import a collection to <b>${esc(s.name)}</b></h2></header>
   <div class="o-pickhelp">${ic.info}Only collections that share products with this study's collage can do anything here.</div>
   <div class="o-scroll"><div class="o-colllist">${COLLECTIONS.map(c => { const n = matchCount(c, s), on = s.applied[c.id]; return `
     <button class="o-collrow${n ? "" : " off"}" data-a="pickColl" data-v="${c.id}" ${n ? "" : "disabled"}>
@@ -66,17 +66,17 @@ const MODAL_SUCCESS = () => {
   return `<div class="o-modal o-success" role="alertdialog" aria-modal="true" aria-labelledby="ok-h">
     <div class="o-ok-body">
       <span class="o-ok-badge">${ic.check}</span>
-      <h2 id="ok-h">Applied to ${esc(s.name)}</h2>
+      <h2 id="ok-h">Imported to ${esc(s.name)}</h2>
       <p><b>${esc(c.name)}</b> ${c.v} is now in the study. Its attributes are in the study's filters and group-by.</p>
       <ul class="o-ok-facts">
         <li>${ic.tag}<span><b>${c.attrs.length}</b> attribute${c.attrs.length === 1 ? "" : "s"}: ${c.attrs.map(attrLabel).join(", ")}</span></li>
         <li>${ic.box}<span><b>${r.items}</b> changes · ${r.added} added, ${r.changed} changed, ${r.removed} removed</span></li>
-        <li>${ic.history}<span>The study remembers it has <b>${c.v}</b>; re-apply after an update to catch up</span></li>
+        <li>${ic.history}<span>The study remembers it has <b>${c.v}</b>; import again after an update to catch up</span></li>
       </ul>
     </div>
     <footer class="o-ok-acts">
       <button class="btn primary o-ok-go" data-a="openStudyBoard" id="ok-go">Open ${esc(s.name)}${ic.arrowR}</button>
-      ${ST.undo && ST.undo.study === s.name ? `<div class="o-ok-sec"><button class="o-ok-link" data-a="undoApply" title="Undo">${ic.undo}Undo apply</button></div>` : ""}
+      ${ST.undo && ST.undo.study === s.name ? `<div class="o-ok-sec"><button class="o-ok-link" data-a="undoApply" title="Undo">${ic.undo}Undo import</button></div>` : ""}
     </footer>
   </div>`;
 };
@@ -112,7 +112,7 @@ document.addEventListener("click", e => { if (isBackdrop(e.target) && pressedBac
 
 /* ---------- Actions ---------- */
 ACTIONS.toStudyPick = () => { setFlow("study"); ST.q = ""; ST.sel = null; ST.open = null; ST.fromBoard = false; ST.fromCompare = false; App.modal = "studyPick"; };
-ACTIONS.applyFromMenu = el => { openCard(el.dataset.v); ACTIONS.toStudyPick(); };
+ACTIONS.applyFromMenu = el => { openCard(el.dataset.v); openCompare(); };
 ACTIONS.pickBack = () => { App.modal = "card"; setFlow("card"); };
 ACTIONS.pickStudy = el => { ST.sel = el.dataset.v; };
 INPUTS.stQ = el => { ST.q = el.value; };

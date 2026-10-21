@@ -24,7 +24,7 @@ const shownCollections = () => {
 const explainStrip = (compact = false) => `
   <section class="o-explain${compact ? " compact" : ""}" aria-label="How attributes work">
     <div class="o-ex-node"><span class="o-ex-ic">${ic.studies}</span><b>Study</b><span>Select products on a board and publish a tag: an attribute name and a value, like Upper material = Knit.</span></div>
-    <div class="o-ex-arrow"><i>${ic.swap}</i><small>Apply to a study<br>Update from a study</small></div>
+    <div class="o-ex-arrow"><i>${ic.swap}</i><small>Import to a study<br>Update from a study</small></div>
     <div class="o-ex-node lib"><span class="o-ex-ic">${ic.tag}</span><b>Attribute collection</b><span>The same attributes, lifted out of the study so they can be kept, versioned, shared and used in other studies.</span></div>
     <div class="o-ex-arrow"><i>${ic.swap}</i><small>Download CSV<br>Update from a CSV</small></div>
     <div class="o-ex-node"><span class="o-ex-ic">${ic.csv}</span><b>Spreadsheet</b><span>A CSV of product IDs and values, from the collection or from anywhere else.</span></div>
@@ -98,7 +98,7 @@ RENDER.float = () => {
   const left = Math.max(8, Math.min(r.right - 220, innerWidth / uz() - 228));
   f.innerHTML = `<div class="o-menu o-cardmenu" role="menu" style="top:${r.bottom + 6}px;left:${left}px">
     <button role="menuitem" data-a="openCard" data-v="${c.id}">${ic.open}Open</button>
-    <button role="menuitem" data-a="applyFromMenu" data-v="${c.id}">${ic.importStudy}Apply to a study</button>
+    <button role="menuitem" data-a="applyFromMenu" data-v="${c.id}">${ic.importStudy}Import to a study</button>
     <button role="menuitem" data-a="openAccess" data-v="${c.id}">${ic.share}Share…</button>
     <hr class="o-msep"><div class="o-mgroup">Update this collection</div>
     <button role="menuitem" data-a="updateFromStudy" data-v="${c.id}">${ic.studies}From a study</button>

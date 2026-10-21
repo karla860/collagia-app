@@ -165,7 +165,7 @@ ACTIONS.crCreate = () => {
     verHistory(c).unshift({ v, date: today, note: `Updated from ${from}`, by: ME.name });
     c.v = v; c.edited = today; c.attrs = c0.attrs; c.values = c0.values; c.productIds = c0.productIds;
     App.modal = null; openCard(c.id); setFlow("card");
-    toast(`Updated “${c.name}” from ${from}. It is now ${v}; studies on an older version can re-apply to catch up.`);
+    toast(`Updated “${c.name}” from ${from}. Now ${v}.`);
     return;
   }
   const name = CR.name.trim() || defaultName() || "Untitled collection";
@@ -177,7 +177,7 @@ ACTIONS.crCreate = () => {
   // A CSV has no study yet, so it opens the collection instead.
   if (CR.src === "study") {
     crStudy().applied[c.id] = "v1"; setFlow("board"); Object.assign(BD, { matrix: "group", groupBy: c.attrs[0], show: c.attrs[0] }); JUMP.board(CR.study);
-    toast(`Created “${name}”, applied to ${CR.study}`); return;
+    toast(`Created “${name}”, in ${CR.study}`); return;
   }
   openCard(c.id); setFlow("card"); App.page = "home";
   toast(`Created “${name}”`);

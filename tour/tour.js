@@ -65,9 +65,10 @@
     /* ---------- Open a collection ---------- */
     { kick: "Open a collection", title: "Two things up top, the rest behind ⋯", go: () => { goCard(); render(); }, sel: ".v2h .o-dd", place: "left", body: `
       ${was("Four identical buttons, bottom right.")}
-      ${did("Share up top. Everything else is one short list behind ⋯.")}` },
-    { kick: "Open a collection", title: "The one big action", go: () => { goCard(); render(); }, sel: ".v2card .o-mf", place: "above", body: `
-      ${did("Apply to a study is the one red button. Compare sits beside it.")}` },
+      ${did("Share up top. Version history and Rename behind ⋯.")}` },
+    { kick: "Open a collection", title: "Two directions: studies and your computer", go: () => { goCard(); render(); }, sel: ".v2card .o-mf", place: "above", body: `
+      ${did("Studies: update from one, or import into one. Spreadsheet: download, or update from a CSV.")}
+      ${why("A collection sits between your studies and your computer. Grouping by direction says where each move goes.")}` },
     { kick: "Open a collection", title: "Every version, kept", go: () => { goCard(); CD.histOpen = true; render(); }, sel: ".o-hist", place: "left", body: `
       ${did("Who changed what, when, and which studies use each version. Restore any of them.")}
       ${why("Knowing what changed makes updating a study safe.")}` },
@@ -87,25 +88,24 @@
     { kick: "Edge states", title: "Photos still loading", go: () => { setFlow("edge"); JUMP.edge("nophotos"); }, sel: ".v2card .o-pcard:has(.o-th.loading)", place: "right", body: `
       ${did("Grey cards shimmer; names and values are already there.")}` },
     { kick: "Edge states", title: "A collection with no products", go: () => { setFlow("edge"); JUMP.edge("empty"); }, sel: ".v2card .o-e0-h", place: "left", body: `
-      ${did("One message, one action. Compare and Apply are off.")}` },
+      ${did("One message, one action. Import and Download are off.")}` },
 
-    /* ---------- Compare with a study (optional, right before applying) ---------- */
-    { kick: "Compare with a study", title: "An optional look before you apply", go: () => { goCard(); render(); }, sel: ".v2card .o-mf .o-cmpbtn", place: "above", body: `
-      ${was("You only saw the changes by starting the import.")}
-      ${did("See what applying would change, without starting anything.")}` },
-    { kick: "Compare with a study", title: "Choosing which study to compare with", go: () => { goCompare(); render(); }, sel: ".cpx-pick", place: "below", body: `
-      ${did("Every study in one searchable list. Pick any of them.")}` },
-    { kick: "Compare with a study", title: "Grouped by what happens, riskiest first", go: () => { goCompare(); render(); }, sel: ".cpx-table", place: "left", body: `
+    /* ---------- Import to a study: a preview first, nothing changes until Import ---------- */
+    { kick: "Import to a study", title: "Import is the main move", go: () => { goCard(); render(); }, sel: ".v2card .o-mf .o-cta", place: "above", body: `
+      ${was("Four identical buttons, and changes only showed once an import had started.")}
+      ${did("Import to a study opens a preview of the changes first.")}` },
+    { kick: "Import to a study", title: "Pick any study", go: () => { goCompare(); render(); }, sel: ".cpx-pick", place: "below", body: `
+      ${did("Every study in one searchable list. Look at any of them; nothing changes yet.")}` },
+    { kick: "Import to a study", title: "Grouped by what happens, riskiest first", go: () => { goCompare(); render(); }, sel: ".cpx-table", place: "left", body: `
       ${did("Removed, Changed, Added, Unchanged. Each line reads now → after.")}
       ${why("Removals first, because they're what you'd regret.")}` },
-    { kick: "Compare with a study", title: "Ask about any product", go: () => { goCompare("nike calm"); render(); }, sel: ".cpx-sr", place: "below", body: `
+    { kick: "Import to a study", title: "Ask about any product", go: () => { goCompare("nike calm"); render(); }, sel: ".cpx-sr", place: "below", body: `
       ${did("Search any product to see what happens to it.")}` },
 
-    /* ---------- Apply ---------- */
-    { kick: "Apply to a study", title: "The collage decides whether anything happens", go: () => { goCard(); setFlow("study"); JUMP.study("pick"); }, sel: ".o-studies .o-study:nth-child(2)", place: "left", body: `
-      ${did("Each study shows how many products it shares. One that shares none is greyed out.")}
-      ${why("Attributes only land on products both sides have.")}` },
-    { kick: "Apply to a study", title: "Then tell them where to look", go: () => { goCard(); ST.sel = "Price architecture"; JUMP.study("done"); }, sel: ".o-success", place: "left", body: `
+    { kick: "Import to a study", title: "Nothing changes until you press Import", go: () => { goCompare(); render(); }, sel: ".cpx .o-mf", place: "above", body: `
+      ${did("Import to Price architecture applies it. Back to collection leaves it untouched.")}
+      ${why("Reviewing and importing are one screen, so looking is always safe.")}` },
+    { kick: "Import to a study", title: "Then tell them where to look", go: () => { goCard(); ST.sel = "Price architecture"; JUMP.study("done"); }, sel: ".o-success", place: "left", body: `
       ${did("What changed, a button to open the study, and Undo.")}` },
 
     /* ---------- Share ---------- */
@@ -116,7 +116,8 @@
     /* ---------- Wrap ---------- */
     { kick: "Wrap up", title: "What this version fixes", go: () => goHome(), sel: null, body: `
       <ul>
-        <li><b>Compare before applying</b>, no confirmation after.</li>
+        <li><b>Import shows the changes first</b>, with Undo after.</li>
+        <li><b>Moves grouped by direction:</b> studies, or your computer.</li>
         <li><b>Review, don't pick</b> when saving a collection.</li>
         <li><b>One attribute at a time</b> on the collection screen.</li>
         <li><b>Version history</b> with faces.</li>
@@ -131,14 +132,13 @@
   const TASKS = {
     "Two things up top, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b>.", done: () => App.menu === "more", ok: "Everything that isn't the main job." },
     "Review what goes in": { beside: ".cr .o-rail.tree", at: '.cr .o-tname[data-v="upper-material"]', ask: "Click <b>Upper material</b>, then <b>Knit</b>.", done: () => App.modal === "create" && CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Just a view: everything still goes in." },
-    "Choosing which study to compare with": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Compare with</b> list.", done: () => App.menu === "cpstudy", ok: "Any study can be compared." },
+    "Pick any study": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Into</b> list.", done: () => App.menu === "cpstudy", ok: "Any study works." },
     "A card shows what is inside": { free: true, at: ".h-grid .ccard", ask: "Open the <b>FA26 line review</b> collection.", done: () => App.modal === "card", ok: "This is the collection screen." },
     "Browse by attribute and value": { beside: ".o-rail.tree", at: '.o-tname[data-v="upper-material"]', ask: "Click <b>Upper material</b>, then <b>Knit</b>.", done: () => CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Only those products show." },
     "When search finds nothing": { at: ".o-empty2 [data-a=\"cardQClear\"]", ask: "Press <b>Clear search</b>.", done: () => !CD.q, ok: "All 312 products are back." },
-    "An optional look before you apply": { at: "[data-a=\"cpOpen\"]", ask: "Click <b>Compare with a study</b>.", done: () => App.modal === "compare", ok: "Opened on the study that's behind." },
+    "Import is the main move": { at: ".v2card .o-mf .o-cta", ask: "Click <b>Import to a study</b>.", done: () => App.modal === "compare", ok: "The preview. Nothing has changed." },
     "Grouped by what happens, riskiest first": { under: true, at: ".cpx-t[data-v*=\"Vomero\"]", ask: "Open <b>Running → Vomero</b>.", done: () => CP.open && CP.open.includes("Vomero"), ok: "Each product shows before → after." },
     "Ask about any product": { at: "#cp-q", ask: "Search for <b>Pegasus</b>.", done: () => /pegasus/i.test(CP.q), ok: "Each match says what happens." },
-    "The collage decides whether anything happens": { at: ".o-study[data-v=\"Price architecture\"]", ask: "Choose <b>Price architecture</b>.", done: () => ST.sel === "Price architecture", ok: "Selected." },
   };
   STEPS.forEach(s => { if (TASKS[s.title]) s.task = TASKS[s.title]; });
 
@@ -150,8 +150,7 @@
     "New collection": { goal: "Save a study's attributes as a collection.", what: "Pick, review, name." },
     "Open a collection": { goal: "Read a collection.", what: "Menu, versions, values." },
     "Edge states": { goal: "Awkward data, handled.", what: "Five states, each with a next step." },
-    "Compare with a study": { goal: "See changes before applying.", what: "Open, switch, search." },
-    "Apply to a study": { goal: "Apply a collection safely.", what: "Apply, with Undo." },
+    "Import to a study": { goal: "See the changes, then import.", what: "Pick a study, read the changes, import." },
     "Share": { goal: "Share with the right people.", what: "Who has access, and how." },
     "Wrap up": { goal: "Recap what changed.", what: "What changed." },
   };

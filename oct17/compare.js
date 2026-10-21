@@ -131,7 +131,7 @@ const cpGroups = (c, s, m) => {
   const all = c.attrs.flatMap(k => lines(m.rows, k, false));
   // Open the first line on arrival (removals come first), so the products that matter are already in view
   if (CP.open === null && !CP.touched && all.length) CP.open = all.sort((a, b) => CMP_RANK[a.kind] - CMP_RANK[b.kind])[0].key;
-  const thead = `<div class="cpx-th"><span>Now in ${esc(s.name)}</span><span></span><span>After applying ${esc(c.name)}</span><span></span></div>`;
+  const thead = `<div class="cpx-th"><span>Now in ${esc(s.name)}</span><span></span><span>After importing</span><span></span></div>`;
   const sections = OUTCOMES.map(([kind, g, title]) => {
     const ts = all.filter(t => t.kind === kind).sort((a, b) => c.attrs.indexOf(a.k) - c.attrs.indexOf(b.k) || b.ps.length - a.ps.length);
     if (!ts.length) return "";
@@ -230,16 +230,16 @@ const cpDropdown = (c, list) => {
       <div class="cpx-opts">${hits.map(item).join("") || `<p class="cpx-nohit">No studies match “${esc(CP.sq)}”</p>`}</div>
     </div>` : ""}</div>`;
 };
-const cpPicker = c => { const list = cpStudies(); return `<div class="cpx-pick" role="radiogroup" aria-label="Study to compare with"><span>Compare with</span>${cpDropdown(c, list)}</div>
+const cpPicker = c => { const list = cpStudies(); return `<div class="cpx-pick" role="radiogroup" aria-label="Study to compare with"><span>Into</span>${cpDropdown(c, list)}</div>
   ${CP.demo === "many" ? cpSample(`Sample: ${sampleStudies().length} made-up studies added to show a long list. They only exist on this screen.`) : ""}`; };
 const cpEmpty = (icon, title, body, extra = "") => `<div class="o-empty o-empty2 cpx-empty">${icon}<b>${title}</b><span>${body}</span>${extra}</div>`;
 const cpSample = label => `<span class="cpx-sample" title="Not live prototype data">${label}</span>`;
 const cpBody = (c, s) => {
-  if (!c.attrs.length) return `${cpSample("Sample state")}${cpEmpty(ic.tag, "This collection has no attributes", "There's nothing to compare, so applying it would change nothing in any study.")}`;
-  if (!s) return cpEmpty(`<span class="cpx-legend-g">⇄</span>`, "Pick a study to compare with", `You'll see its ${c.attrs.length === 1 ? esc(attrLabel(c.attrs[0])) : "values"} as they are now, next to how they'd look after applying ${esc(c.name)}. Comparing is optional.`);
+  if (!c.attrs.length) return `${cpSample("Sample state")}${cpEmpty(ic.tag, "This collection has no attributes", "Importing it would change nothing.")}`;
+  if (!s) return cpEmpty(`<span class="cpx-legend-g">⇄</span>`, "Pick a study", "See what importing would change. Nothing changes until you press Import.");
   if (CP.demo === "error") return `${cpSample("Simulated error")}${cpEmpty(ic.warn, `Couldn't compare with ${esc(s.name)}`, "The study's data didn't load. Nothing was changed.", `<button class="btn" data-a="cpRetry">Try again</button>`)}`;
   if (CP.loading) return `${CP.demo === "loading" ? cpSample("Simulated loading") : ""}<div class="cpx-loading" aria-busy="true"><p class="o-muted">Comparing with ${esc(s.name)}…</p>${"<div class=\"cpx-skel\"></div>".repeat(4)}</div>`;
-  if (!matchCount(c, s)) return cpEmpty(ic.box, `${esc(s.name)} has none of these products`, `It's built on ${esc(COLLAGES[s.collage].name)}, so applying ${esc(c.name)} there would change nothing.`);
+  if (!matchCount(c, s)) return cpEmpty(ic.box, `${esc(s.name)} has none of these products`, `It's built on ${esc(COLLAGES[s.collage].name)}, so importing would change nothing.`);
   const m = cpModel(c, s), at = CP.at ? CP.at.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "";
   return cpLayout(c, s, m, "", cpPicker(c)); // picker inside the main column, so the card starts at the top
 };
@@ -247,14 +247,13 @@ const cpBody = (c, s) => {
 const MODAL_COMPARE = () => {
   const c = cpColl(), s = CP.study && cpFind(CP.study);
   const ready = s && !CP.loading && CP.demo !== "error" && c.attrs.length && matchCount(c, s), m = ready ? cpModel(c, s) : null;
-  return `<div class="o-modal xl cpx" role="dialog" aria-modal="true" aria-label="Compare ${esc(c.name)} with a study">
-    <header class="o-mh"><button class="icon-btn" data-a="cpBack" aria-label="Back to collection">${ic.back}</button><h2 class="o-h20">Compare <b>${esc(c.name)}</b> with a study</h2></header>
+  return `<div class="o-modal xl cpx" role="dialog" aria-modal="true" aria-label="Import ${esc(c.name)} to a study">
+    <header class="o-mh"><button class="icon-btn" data-a="cpBack" aria-label="Back to collection">${ic.back}</button><h2 class="o-h20">Import <b>${esc(c.name)}</b> to a study</h2></header>
     <div class="o-scroll grey"><div class="cpx-body">${ready ? "" : cpPicker(c)}${cpBody(c, s)}</div></div>
     <footer class="o-mf"><span class="sp"></span>
       <button class="btn" data-a="cpBack">Back to collection</button>
-      ${!c.attrs.length ? `<button class="btn primary" disabled>Apply to a study</button>`
-        : !s ? `<button class="btn primary" data-a="toStudyPick">Apply to a study</button>`
-        : `<button class="btn primary" data-a="cpApply" ${m && m.changed.length ? "" : "disabled"}>Apply to ${esc(s.name)}</button>`}
+      ${!c.attrs.length || !s ? `<button class="btn primary" disabled>Import</button>`
+        : `<button class="btn primary" data-a="cpApply" ${m && m.changed.length ? "" : "disabled"}>Import to ${esc(s.name)}</button>`}
     </footer>
   </div>`;
 };
@@ -274,7 +273,7 @@ ACTIONS.cpQClear = () => { CP.q = ""; };
 ACTIONS.cpRetry = () => { CP.demo = null; cpLoad(CP.study); };
 ACTIONS.cpBack = () => { App.modal = "card"; setFlow("card"); };
 // Carry the chosen study into the existing Apply flow: straight to its preview, no second pick
-ACTIONS.cpApply = () => { if (cpFind(CP.study).sample) { toast("Sample study: applying isn't part of this demo"); return false; } ST.sel = CP.study; ST.q = ""; ST.open = null; ST.fromBoard = false; ST.fromCompare = true; CP.q = ""; setFlow("study"); ACTIONS.pvApply(); }; // applied straight away; the success screen offers Undo
+ACTIONS.cpApply = () => { if (cpFind(CP.study).sample) { toast("Sample study: importing isn't part of this demo"); return false; } ST.sel = CP.study; ST.q = ""; ST.open = null; ST.fromBoard = false; ST.fromCompare = true; CP.q = ""; setFlow("study"); ACTIONS.pvApply(); }; // applied straight away; the success screen offers Undo
 
 /* Guide: #compare opens the picker; sub-entries show each state (sample states are labelled as such on screen) */
 JUMP.compare = v => {

@@ -100,7 +100,7 @@ const histPanel = () => {
         <span class="o-vt-top"><b class="o-vt-v">${h.v}</b>${isLatest ? `<span class="o-vt-tag">Current</span>` : cur ? `<span class="o-vt-tag view">Viewing</span>` : ""}</span>
         <span class="o-vt-note">${esc(h.note)}</span>
         <span class="o-vt-meta">${face}<span>${h.date}</span></span>
-        ${u.length ? `<span class="o-vt-used">${ic.studies}<span>Applied in ${esc(u.join(", "))}</span></span>` : ""}
+        ${u.length ? `<span class="o-vt-used">${ic.studies}<span>In ${esc(u.join(", "))}</span></span>` : ""}
       </button>
       <div class="o-dd o-vr-more"><button class="icon-btn${App.menu === mid ? " open" : ""}" data-a="menu" data-v="${mid}" aria-label="More for ${h.v}" title="More">${ic.more}</button>
         ${App.menu === mid ? `<div class="o-menu right" role="menu">
@@ -161,7 +161,7 @@ const UNMATCHED = [
 const notices = (c, total, list) => {
   const lab = CD.sel ? esc(attrLabel(CD.sel.k)) : "";
   // Alert (Figma "Alert State"): something will be lost if you apply
-  if (CD.sel && CD.sel.v === NOVAL) return `<div class="o-notice">${ic.warn}<span><b>${list.length} of ${total} products have no ${lab} in this collection.</b> Applying leaves them without one, and removes any ${lab} a study already has on them.</span></div>`;
+  if (CD.sel && CD.sel.v === NOVAL) return `<div class="o-notice">${ic.warn}<span><b>${list.length} of ${total} products have no ${lab} in this collection.</b> Importing leaves them without one, and removes any ${lab} a study already has on them.</span></div>`;
   // Note (neutral): worth a look, nothing is lost
   if (CD.sel && CD.sel.v && list.length === 1 && !CD.q) return `<div class="o-notice note">${ic.info}<span><b>Only 1 product carries ${esc(CD.sel.v)}.</b> A one-product value is often a typo or a one-off, so check it in the study before applying.</span></div>`;
   // Photos still loading: no banner, the shimmering thumbnails say it on their own
@@ -174,7 +174,7 @@ const notices = (c, total, list) => {
 };
 /* A collection with no products at all: say so plainly, one line on why, one way forward */
 const emptyColl0 = c => `<div class="o-empty0">
-    <div class="o-e0-h">${ic.box}<b>This collection has no products</b><span>None of the rows in ${esc(c.source.name)} matched a product ID, so there's nothing to show or apply yet.</span></div>
+    <div class="o-e0-h">${ic.box}<b>This collection has no products</b><span>None of the rows in ${esc(c.source.name)} matched a product ID, so there's nothing to show or import yet.</span></div>
     <button class="btn primary" data-a="cdFixCsv">${ic.upload}Update from a CSV</button>
   </div>`;
 /* Nothing to show: say why, and offer the one way out */
@@ -182,12 +182,24 @@ const emptyState = (c, total, selName) => !total ? emptyColl0(c) : CD.q
   ? `<div class="o-empty o-empty2">${ic.search}<b>No products match “${esc(CD.q)}”</b><span>The search above looks at product names and style codes in this collection only (${total} products)${CD.sel ? `, within ${esc(selName)}` : ""}.</span><button class="btn" data-a="cardQClear">Clear search</button></div>`
   : `<div class="o-empty o-empty2">${ic.box}<b>No products carry ${esc(selName)}</b><span>This version of the collection has nothing here.</span><button class="btn" data-a="cardAll">Show every ${esc(attrLabel(CD.sel ? CD.sel.k : curColl().attrs[0]))}</button></div>`;
 
+/* ---------- The four moves, grouped by direction ----------
+   A collection sits between studies and your computer (Giorgi's Loom): one group each way, Import is the main move.
+   Nothing to import or download while the collection is empty. */
+const syncBar = (c, total) => `
+  <div class="o-syncg" role="group" aria-label="Studies"><span class="o-syncl">${ic.studies}Studies</span>
+    <button class="btn" data-a="updateFromStudy" data-v="${c.id}">Update from a study</button>
+    <button class="btn primary o-cta" data-a="cpOpen" ${total ? "" : "disabled"}>${ic.importStudy}Import to a study</button></div>
+  <span class="sp"></span>
+  <div class="o-syncg" role="group" aria-label="Spreadsheet"><span class="o-syncl">${ic.csv}Spreadsheet</span>
+    <button class="btn" data-a="exportCsv" ${total ? "" : "disabled"}>${ic.download}Download CSV</button>
+    <button class="btn" data-a="updateFromCsv" data-v="${c.id}">${ic.upload}Update from a CSV</button></div>`;
+
 /* ---------- The screen ---------- */
 const appliedDD = c => {
   const used = usedBy(c), id = "applied";
   return `<div class="o-dd"><button class="o-applied-btn${App.menu === id ? " open" : ""}" data-a="menu" data-v="${id}" aria-haspopup="menu" title="Studies that already have this collection">${ic.studies}${used.length ? `Used in ${esc(used[0].name)}${used.length > 1 ? ` + ${used.length - 1} more` : ""}` : "Not in any study yet"}${ic.chev}</button>
     ${App.menu === id ? `<div class="o-menu o-appliedmenu" role="menu">
-      ${used.length ? used.map(s => `<button role="menuitem" data-a="openStudyFromCard" data-v="${esc(s.name)}"><span class="o-amrow"><b>${esc(s.name)}</b><small>${s.name === c.source.name ? "Made from this study · " : ""}${s.applied[c.id]}</small></span>${ic.chevR}</button>`).join("") : `<span class="bd-mnone">Apply it to a study and that study will be listed here.</span>`}
+      ${used.length ? used.map(s => `<button role="menuitem" data-a="openStudyFromCard" data-v="${esc(s.name)}"><span class="o-amrow"><b>${esc(s.name)}</b><small>${s.name === c.source.name ? "Made from this study · " : ""}${s.applied[c.id]}</small></span>${ic.chevR}</button>`).join("") : `<span class="bd-mnone">Import it to a study and that study will be listed here.</span>`}
     </div>` : ""}</div>`;
 };
 ACTIONS.openStudyFromCard = el => { App.modal = null; setFlow("board"); const c = curColl(); BD.matrix = "group"; BD.groupBy = c.attrs[0]; BD.show = c.attrs[0]; JUMP.board(el.dataset.v); return false; };
@@ -205,9 +217,6 @@ const MODAL_CARD = () => {
       <button class="btn" data-a="openAccessCur">${ic.share}Share</button>
       <div class="o-dd"><button class="icon-btn o-morebtn${App.menu === "more" ? " open" : ""}" data-a="menu" data-v="more" aria-haspopup="menu" aria-label="More">${ic.more}</button>
         ${App.menu === "more" ? `<div class="o-menu o-moremenu right" role="menu">
-          <button role="menuitem" data-a="updateFromStudy" data-v="${c.id}">${ic.studies}Update from a study</button>
-          <button role="menuitem" data-a="updateFromCsv" data-v="${c.id}">${ic.upload}Update from a CSV</button>
-          <button role="menuitem" data-a="exportCsv">${ic.download}Download CSV</button>
           <button role="menuitem" data-a="histToggle">${ic.history}Version history</button>
           <button role="menuitem" data-a="cdNameEdit">${ic.pencil}Rename</button>
         </div>` : ""}</div>
@@ -215,20 +224,16 @@ const MODAL_CARD = () => {
     ${old ? oldBar() : ""}
     <div class="o-mb with-rail">${rail()}
       <div class="o-scroll grey">
-        <div class="o-selbar o-selbar2"${total ? "" : " hidden"}><div class="o-selmsg">${CD.sel ? `${selMsg(c, list, total, selName)}${CD.sel.v ? `<button class="o-clear" data-a="cardAll">Show all values</button>` : ""}` : `<span class="o-adds">${ic.plus}Applying this adds <b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) to <b>${total} products</b>. Each product shows the value it gets.</span>`}</div>
+        <div class="o-selbar o-selbar2"${total ? "" : " hidden"}><div class="o-selmsg">${CD.sel ? `${selMsg(c, list, total, selName)}${CD.sel.v ? `<button class="o-clear" data-a="cardAll">Show all values</button>` : ""}` : `<span class="o-adds">${ic.plus}Importing adds <b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) to <b>${total} products</b>. Each product shows the value it gets.</span>`}</div>
           <label class="o-searchbox o-cdsearch${CD.q && !list.length ? " miss" : ""}">${ic.search}<input id="cd-q" data-in="cardQ" value="${esc(CD.q)}" placeholder="Find a product  /" aria-label="Find a product (press /)">${CD.q ? `<button class="icon-btn" data-a="cardQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label><span class="sp"></span>${seg}</div>
         ${notices(c, total, list)}
         ${list.length ? (CD.view === "grid" ? gridView(list) : listView(list)) : emptyState(c, total, selName)}
       </div>
       ${CD.histOpen ? histPanel() : ""}
     </div>
-    <footer class="o-mf">
-      <span class="sp"></span>
-      ${old ? `<button class="btn" data-a="verLatest">Back to latest</button><button class="btn primary" data-a="verRestore">${ic.history}Restore as ${nextV(c)}</button>`
-        : !total ? `<button class="btn o-cmpbtn" disabled title="There are no products to compare yet">${ic.swap}Compare with a study</button>
-          <button class="btn primary o-cta" disabled title="There are no products to apply yet">${ic.importStudy}Apply to a study</button>`
-        : `<button class="btn o-cmpbtn" data-a="cpOpen" title="See what would change">${ic.swap}Compare with a study</button>
-          <button class="btn primary o-cta" data-a="toStudyPick" data-v="apply">${ic.importStudy}Apply to a study</button>`}
+    <footer class="o-mf o-sync">
+      ${old ? `<span class="sp"></span>` : ""}${old ? `<button class="btn" data-a="verLatest">Back to latest</button><button class="btn primary" data-a="verRestore">${ic.history}Restore as ${nextV(c)}</button>`
+        : syncBar(c, total)}
     </footer>
   </div>`;
 };
