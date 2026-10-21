@@ -60,7 +60,6 @@ const MODAL_PREVIEW = () => {
 };
 
 /* ---------- Result ---------- */
-const UNDO_IC = '<svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>';
 const MODAL_SUCCESS = () => {
   const c = stColl(), s = stStudy(), r = ST.result || { items: 0, added: 0, changed: 0, removed: 0 };
   // One clear next step (the study, by name), then two quiet ways out: back, or undo
@@ -77,7 +76,7 @@ const MODAL_SUCCESS = () => {
     </div>
     <footer class="o-ok-acts">
       <button class="btn primary o-ok-go" data-a="openStudyBoard" id="ok-go">Open ${esc(s.name)}${ic.arrowR}</button>
-      <div class="o-ok-sec"><button class="o-ok-link" data-a="successHome">${ic.arrowL}Back to Attributes</button>${ST.undo && ST.undo.study === s.name ? `<i class="o-ok-dot"></i><button class="o-ok-link" data-a="undoApply" title="Puts the study back the way it was">${UNDO_IC}Undo apply</button>` : ""}</div>
+      <div class="o-ok-sec"><button class="o-ok-link" data-a="successHome">${ic.arrowL}Back to Attributes</button>${ST.undo && ST.undo.study === s.name ? `<i class="o-ok-dot"></i><button class="o-ok-link" data-a="undoApply" title="Puts the study back the way it was">${ic.undo}Undo apply</button>` : ""}</div>
     </footer>
   </div>`;
 };

@@ -926,3 +926,32 @@
 .o-ok-link:hover { background: var(--hover); color: var(--text); }
 .o-ok-sec svg.i { width: 15px; height: 15px; }
 .o-ok-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--slider-handle, #C6C6C6); }
+
+/* Version history timeline: a rail with a dot per version, the version number first, the author as a face */
+.o-hist-h { gap: 6px; }
+.o-hist-i { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; color: var(--sub); cursor: help; outline: 0; }
+.o-hist-i:hover, .o-hist-i:focus-visible { color: var(--text); background: var(--hover); }
+.o-hist-i svg.i { width: 14px; height: 14px; }
+.o-hist-body { padding: 4px 8px 12px; }
+.o-vt { position: relative; list-style: none; margin: 0; padding: 0; }
+.o-vt::before { content: ""; position: absolute; left: 15px; top: 18px; bottom: 18px; width: 1px; background: var(--border); }
+.o-vt-i { position: relative; border-radius: 8px; }
+.o-vt-i:hover { background: var(--hover); }
+.o-vt-i.cur { background: #F9FAFB; }
+.o-vt-dot { position: absolute; left: 11px; top: 15px; width: 9px; height: 9px; border-radius: 50%; background: var(--surface); border: 1.5px solid #C6C6C6; z-index: 1; }
+.o-vt-i.cur .o-vt-dot { background: #232121; border-color: #232121; box-shadow: 0 0 0 3px var(--surface); }
+.o-vt-main { display: grid; gap: 3px; width: 100%; padding: 10px 40px 12px 32px; border: 0; background: none; text-align: left; font: inherit; color: inherit; cursor: pointer; border-radius: 8px; }
+.o-vt-top { display: flex; align-items: center; gap: 8px; }
+.o-vt-v { font-size: var(--fs-14); font-weight: 600; font-variant-numeric: tabular-nums; }
+.o-vt-tag { padding: 1px 6px; border-radius: 4px; background: #ECECED; font-size: var(--fs-11); font-weight: 500; color: var(--text); }
+.o-vt-tag.view { background: var(--alert-soft); color: var(--alert); }
+.o-vt-note { font-size: var(--fs-13); color: var(--text); }
+.o-vt-meta { display: flex; align-items: center; gap: 6px; margin-top: 3px; font-size: var(--fs-12); color: var(--sub); }
+.o-vt-av { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; flex: none; display: inline-grid; place-items: center; background: #ECECED; font-size: 9px; font-weight: 600; color: var(--text); }
+.o-vt-used { display: flex; align-items: center; gap: 5px; margin-top: 2px; font-size: var(--fs-12); color: var(--sub); }
+.o-vt-used svg.i { width: 12px; height: 12px; flex: none; }
+.o-vt-used span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.o-vt-i .o-vr-more { position: absolute; top: 6px; right: 6px; }
+.o-vt-i .o-vr-more .icon-btn { width: 28px; height: 28px; border-radius: 6px; opacity: 0; transition: opacity .12s; }
+.o-vt-i:hover .o-vr-more .icon-btn, .o-vt-i .o-vr-more .icon-btn.open, .o-vt-i .o-vr-more .icon-btn:focus-visible { opacity: 1; }
+.o-vt-i .o-vr-more .icon-btn:hover, .o-vt-i .o-vr-more .icon-btn.open { background: var(--surface); box-shadow: 0 0 0 1px var(--border); }

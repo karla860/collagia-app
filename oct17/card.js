@@ -3,20 +3,21 @@
    selector (one thing selected at a time, never a checkbox). Every product shows the value it carries.
    The four moves (apply / update from a study, download / update from a CSV) are all here, ranked by use. */
 
-const CD = { id: "franchise", view: "grid", sel: null, q: "", histOpen: false, viewV: null, editing: false, draft: "", closed: new Set(), demo: null, showRows: false };
+const CD = { openA: new Set(), id: "franchise", view: "grid", sel: null, q: "", histOpen: false, viewV: null, editing: false, draft: "", closed: new Set(), demo: null, showRows: false };
 // Sample collection for the "no products" edge state: a CSV whose rows matched nothing. Never listed on the Attributes page.
 let EMPTY_COLL = null;
 const emptyColl = () => EMPTY_COLL || (EMPTY_COLL = { id: "__empty", name: "Archive materials", desc: "Material for each archive lot, from the registrar's spreadsheet.",
   attrs: ["stone"], values: { stone: {} }, productIds: [], source: { type: "csv", name: "archive_materials.csv" }, owner: PEOPLE.leyla, shared: [ME], v: "v1",
   created: "Oct 18, 2026", edited: "Oct 18, 2026", sample: true, csvRows: 24 });
 const curColl = () => (CD.id === "__empty" ? emptyColl() : collById(CD.id)) || COLLECTIONS[0];
-const openCard = id => { CD.id = id || CD.id; Object.assign(CD, { view: "grid", sel: null, q: "", histOpen: false, viewV: null, editing: false, closed: new Set(), demo: null, showRows: false }); App.modal = "card"; App.menu = null; };
+// A collection always shows one attribute at a time (the first one to start), so every card carries exactly one value
+const openCard = id => { CD.id = id || CD.id; Object.assign(CD, { view: "grid", sel: null, q: "", histOpen: false, viewV: null, editing: false, closed: new Set(), demo: null, showRows: false }); CD.sel = firstSel(); CD.openA = new Set(CD.sel ? [CD.sel.k] : []); App.modal = "card"; App.menu = null; };
+const firstSel = () => { const c = curColl(); return c && c.attrs.length ? { k: c.attrs[0], v: null } : null; };
 
 const sorted = list => [...list].sort((a, b) => a.name.localeCompare(b.name));
 const cardShown = () => {
   const c = curColl(), q = CD.q.trim().toLowerCase(), ps = cProducts(c).filter(p => !q || p.name.toLowerCase().includes(q) || String(p.id).toLowerCase().includes(q));
-  if (!CD.sel) return sorted(ps);
-  if (!CD.sel.v) return sorted(ps.filter(p => cValue(c, CD.sel.k, p.id)));
+  if (!CD.sel || !CD.sel.v) return sorted(ps);
   if (CD.sel.v === NOVAL) return sorted(ps.filter(p => !cValue(c, CD.sel.k, p.id)));
   return sorted(ps.filter(p => cValue(c, CD.sel.k, p.id) === CD.sel.v));
 };
@@ -27,14 +28,13 @@ const usedBy = c => STUDIES.filter(s => s.applied[c.id]);
 
 /* ---------- Rail: a tree. The attribute is the parent, its values are the children. One selection at a time. ---------- */
 const rail = () => {
-  const c = curColl(), all = !CD.sel, ps = cProducts(c), nv = c.attrs.reduce((n, k) => n + valueCounts(c, k).length, 0);
+  const c = curColl(), ps = cProducts(c), nv = c.attrs.reduce((n, k) => n + valueCounts(c, k).length, 0);
   return `<aside class="o-rail tree" aria-label="Show products by attribute">
     <div class="o-rail-h"><span>Attributes in this collection</span><small>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"} · ${nv} value${nv === 1 ? "" : "s"}</small></div>
-    <button class="o-tr all${all ? " on" : ""}" data-a="cardAll" role="radio" aria-checked="${all}">${ic.allProducts}<b>All products</b><span class="n">${ps.length}</span></button>
     ${c.attrs.map(k => {
-      const onA = CD.sel && CD.sel.k === k && !CD.sel.v, n = Object.keys(c.values[k] || {}).length, vals = valueCounts(c, k), closed = CD.closed.has(k);
+      const onA = CD.sel && CD.sel.k === k && !CD.sel.v, n = Object.keys(c.values[k] || {}).length, vals = valueCounts(c, k), closed = !CD.openA.has(k) && !(CD.sel && CD.sel.k === k && CD.sel.v); // the attribute on show opens; click it again to fold it
       return `<div class="o-tnode${closed ? " closed" : ""}">
-        <div class="o-tattr${onA ? " on" : ""}">
+        <div class="o-tattr${onA ? " on" : ""}${CD.sel && CD.sel.k === k && CD.sel.v ? " in" : ""}">
           <button class="o-tchev" data-a="cardFold" data-v="${k}" aria-label="${closed ? "Show" : "Hide"} values" aria-expanded="${!closed}">${ic.chev}</button>
           <button class="o-tname" data-a="cardSel" data-v="${k}" role="radio" aria-checked="${!!onA}">${ic.tag}<b>${esc(attrLabel(k))}</b><small>${vals.length} value${vals.length === 1 ? "" : "s"}</small><span class="n">${n}</span></button>
         </div>
@@ -43,7 +43,8 @@ const rail = () => {
     }).join("")}
   </aside>`;
 };
-ACTIONS.cardFold = el => { const k = el.dataset.v; CD.closed.has(k) ? CD.closed.delete(k) : CD.closed.add(k); };
+// Clicking an attribute opens its values (and shows it on the cards); clicking it again folds them away
+ACTIONS.cardFold = el => { const k = el.dataset.v; CD.openA.has(k) ? CD.openA.delete(k) : CD.openA.add(k); };
 
 /* ---------- Products, each with what this collection adds to it ----------
    Git-diff language, shared with the apply preview: a "+ Attribute: value" chip per tag the collection brings,
@@ -52,11 +53,11 @@ ACTIONS.cardFold = el => { const k = el.dataset.v; CD.closed.has(k) ? CD.closed.
 const addChip = (k, v, short = false) => `<span class="o-addchip hue" ${hue(k, v)} title="Applying this collection adds ${esc(attrLabel(k))} = ${esc(v)}">${ic.plus}${short ? "" : `<small>${esc(attrLabel(k))}:</small>`}${v === "Other" ? "" : `<i class="o-vdot"></i>`}<span class="v">${esc(v)}</span></span>`;
 // At most two attributes per product card (the selected one when an attribute is picked); the rest fold into "+N more"
 const PCHIPS_MAX = 2;
+// One value per card: the value this product carries for the attribute picked in the rail
 const pchips = p => {
-  const c = curColl(), ks = CD.sel ? [CD.sel.k] : c.attrs, shown = ks.slice(0, PCHIPS_MAX), rest = ks.slice(PCHIPS_MAX);
-  const chip = k => cValue(c, k, p.id) ? addChip(k, cValue(c, k, p.id)) : `<span class="o-addchip nov" title="This collection has no ${esc(attrLabel(k))} for this product">No ${esc(attrLabel(k))}</span>`;
-  if (!CD.sel) return `<div class="o-pchips">${swatches(ks.map(k => [k, cValue(c, k, p.id)]))}</div>`;
-  return `<div class="o-pchips">${shown.map(chip).join("")}${rest.length ? `<span class="o-addchip more" title="${esc(rest.map(k => `${attrLabel(k)}: ${cValue(c, k, p.id) || "no value"}`).join(" · "))}">+${rest.length} more</span>` : ""}</div>`;
+  const c = curColl(); if (!CD.sel) return "";
+  const k = CD.sel.k, v = cValue(c, k, p.id);
+  return `<div class="o-pchips">${v ? addChip(k, v, true) : `<span class="o-addchip nov" title="This collection has no ${esc(attrLabel(k))} for this product">No value</span>`}</div>`;
 };
 /* Edge state: photos still loading. The product is already there (name, code, tag); its thumbnail shimmers until the photo arrives. */
 const photoLoading = p => CD.demo === "nophotos" && cProducts(curColl()).findIndex(x => x.id === p.id) % 4 === 1;
@@ -64,20 +65,15 @@ const pthumb = (p, cls) => photoLoading(p) ? `<span class="o-th ${cls} loading" 
 const pcard = p => `<div class="o-pcard">${pthumb(p, "sq")}<div class="nm">${esc(p.name)}</div><div class="o-id">${p.id}${p.price ? ` · ${money(p.price)}` : ""}</div>${pchips(p)}</div>`;
 const gridView = list => {
   const c = curColl();
-  if (!CD.sel || CD.sel.v) return `<div class="o-pgrid">${list.map(pcard).join("")}</div>`;
-  const k = CD.sel.k; // one section per value, in the rail's order
-  return valueCounts(c, k).map(([v]) => { const ps = list.filter(p => cValue(c, k, p.id) === v); return ps.length ? `<section class="o-vsec" ${hue(k, v)}>
-    <button class="o-vsec-h" data-a="cardSel" data-v="${k}|${esc(v)}"><i class="o-vdot"></i><b>${esc(v)}</b><span>${ps.length} product${ps.length === 1 ? "" : "s"}</span>${ic.chevR}</button>
-    <div class="o-pgrid">${ps.map(pcard).join("")}</div></section>` : ""; }).join("");
+  return `<div class="o-pgrid">${list.map(pcard).join("")}</div>`;
 };
 // List: one row per product, every attribute in a single wrapping cell (not one column each), so it scales to any number of attributes
 const LIST_MAX = 3;
 const listView = list => {
-  const c = curColl(), ks = CD.sel ? [CD.sel.k] : c.attrs;
-  const cell = p => { const shown = ks.slice(0, LIST_MAX), rest = ks.slice(LIST_MAX);
-    return `<span class="o-lattrs">${shown.map(k => cValue(c, k, p.id) ? addChip(k, cValue(c, k, p.id)) : `<span class="o-addchip nov">No ${esc(attrLabel(k))}</span>`).join("")}${rest.length ? `<span class="o-addchip more" title="${esc(rest.map(k => `${attrLabel(k)}: ${cValue(c, k, p.id) || "no value"}`).join(" · "))}">+${rest.length} more</span>` : ""}</span>`; };
+  const c = curColl(), k = CD.sel ? CD.sel.k : c.attrs[0];
+  const cell = p => `<span class="o-lattrs">${cValue(c, k, p.id) ? addChip(k, cValue(c, k, p.id), true) : `<span class="o-addchip nov">No value</span>`}</span>`;
   return `<div class="o-ltable o-list2">
-    <div class="o-lhd"><span></span><span>Product</span><span>${ks.length === 1 ? esc(attrLabel(ks[0])) : `Attributes · ${ks.length}`}</span></div>
+    <div class="o-lhd"><span></span><span>Product</span><span>${esc(attrLabel(k))}</span></div>
     ${list.map(p => `<div class="o-lrow">${pthumb(p, "s36")}<span class="o-lp"><span class="nm">${esc(p.name)}</span><span class="o-id">${p.id}</span></span>${cell(p)}</div>`).join("")}
   </div>`;
 };
@@ -85,23 +81,27 @@ const listView = list => {
 /* ---------- Versions ---------- */
 const verHistory = c => c.hist || (c.hist = Array.from({ length: +c.v.slice(1) }, (_, i) => i === 0
   ? { v: "v1", date: c.created, note: c.source.type === "study" ? `Created from study ${c.source.name}` : `Created from ${c.source.name}`, by: c.owner.name }
-  : { v: "v" + (i + 1), date: c.edited, note: i % 2 ? "Updated from a CSV" : `Updated from study ${c.source.name}`, by: c.owner.name }).reverse());
+  : { v: "v" + (i + 1), date: c.edited, note: i % 2 ? "Updated from a CSV" : `Updated from study ${c.source.name}`, by: (c.shared.find(p => !p.you) || c.owner).name }).reverse());
+const personByName = n => [ME, ...Object.values(PEOPLE)].find(p => p.name === n) || { name: n };
 const nextV = c => "v" + (verHistory(c).length + 1);
 const verBtn = () => {
   const c = curColl(), shown = CD.viewV || c.v;
   return `<button class="o-histbtn${CD.histOpen ? " on" : ""}${shown !== c.v ? " old" : ""}" data-a="histToggle" aria-pressed="${!!CD.histOpen}" title="Version history">${ic.history}<span>${shown}</span></button>`;
 };
+// Version history as a timeline (like Figma's): newest on top, the version number leads each entry,
+// the author is a face (name on hover), and the explainer lives behind the ⓘ next to the title
 const histPanel = () => {
-  const c = curColl(), shown = CD.viewV || c.v, [latest, ...older] = verHistory(c);
-  const ini = n => n.split(" ").map(w => w[0]).join("").slice(0, 2);
+  const c = curColl(), shown = CD.viewV || c.v, hist = verHistory(c);
   const row = (h, isLatest) => {
-    const u = STUDIES.filter(s => s.applied[c.id] === h.v).map(s => s.name), cur = h.v === shown, mid = "vrow:" + h.v;
-    return `<li class="o-vr${cur ? " cur" : ""}">
-      <button class="o-vr-main" data-a="verView" data-v="${h.v}" aria-current="${cur}">
-        <span class="o-vr-av" title="${esc(h.by)}">${ini(h.by)}</span>
-        <span class="o-vr-txt"><b>${esc(h.note)}</b><small>${esc(h.by)} · ${h.date}</small>
-          ${u.length ? `<span class="o-vr-used" title="Applied in ${esc(u.join(", "))}">${ic.studies}<span class="t">Applied in ${esc(u.join(", "))}</span></span>` : ""}</span>
-        <span class="o-vr-v">${h.v}</span>
+    const u = STUDIES.filter(s => s.applied[c.id] === h.v).map(s => s.name), cur = h.v === shown, mid = "vrow:" + h.v, p = personByName(h.by);
+    const face = p.photo ? `<img class="o-vt-av" src="${p.photo}" alt="${esc(p.name)}" ${tipAttrs(p.you ? `${p.name} (you)` : p.name)}>` : `<span class="o-vt-av" ${tipAttrs(p.name)}>${p.name.split(" ").map(w => w[0]).join("").slice(0, 2)}</span>`;
+    return `<li class="o-vt-i${cur ? " cur" : ""}${isLatest ? " latest" : ""}">
+      <span class="o-vt-dot" aria-hidden="true"></span>
+      <button class="o-vt-main" data-a="verView" data-v="${h.v}" aria-current="${cur}">
+        <span class="o-vt-top"><b class="o-vt-v">${h.v}</b>${isLatest ? `<span class="o-vt-tag">Current</span>` : cur ? `<span class="o-vt-tag view">Viewing</span>` : ""}</span>
+        <span class="o-vt-note">${esc(h.note)}</span>
+        <span class="o-vt-meta">${face}<span>${h.date}</span></span>
+        ${u.length ? `<span class="o-vt-used">${ic.studies}<span>Applied in ${esc(u.join(", "))}</span></span>` : ""}
       </button>
       <div class="o-dd o-vr-more"><button class="icon-btn${App.menu === mid ? " open" : ""}" data-a="menu" data-v="${mid}" aria-label="More for ${h.v}" title="More">${ic.more}</button>
         ${App.menu === mid ? `<div class="o-menu right" role="menu">
@@ -111,12 +111,8 @@ const histPanel = () => {
     </li>`;
   };
   return `<aside class="o-hist" aria-label="Version history">
-    <div class="o-hist-h"><b>Version history</b><span class="sp"></span><button class="icon-btn" data-a="histToggle" aria-label="Close version history" title="Close">${ic.close}</button></div>
-    <div class="o-hist-body">
-      <div class="o-hist-sec">Current version</div><ol class="o-vlist">${row(latest, true)}</ol>
-      ${older.length ? `<div class="o-hist-sec">Earlier versions</div><ol class="o-vlist">${older.map(h => row(h, false)).join("")}</ol>` : ""}
-    </div>
-    <p class="o-hist-note">${ic.info}Every update saves a new version. Restoring copies an old one forward; nothing is deleted.</p>
+    <div class="o-hist-h"><b>Version history</b><span class="o-hist-i" tabindex="0" aria-label="How versions work" ${tipAttrs("How versions work", "Every update saves a new version. Restoring copies an old one forward; nothing is deleted.")}>${ic.info}</span><span class="sp"></span><button class="icon-btn" data-a="histToggle" aria-label="Close version history" ${tipAttrs("Close")}>${ic.close}</button></div>
+    <div class="o-hist-body"><ol class="o-vt">${hist.map((h, k) => row(h, k === 0)).join("")}</ol></div>
   </aside>`;
 };
 ACTIONS.histToggle = () => { CD.histOpen = !CD.histOpen; };
@@ -150,6 +146,7 @@ const selMsg = (c, list, total, selName) => {
   const k = CD.sel.k, lab = esc(attrLabel(k));
   // Short labels only: the explanation sits in its own row underneath (selNote), so the toolbar stays one tidy line
   if (CD.sel.v === NOVAL) return `<span class="o-adds"><i class="o-vdot none"></i><b>No ${lab}</b><span class="o-muted">· ${list.length} of ${total} products</span></span>`;
+  if (!CD.sel.v) return `<span class="o-adds">Showing <b>${lab}</b> for ${total} products<span class="o-muted">· pick a value to see only its products</span></span>`;
   if (CD.sel.v && list.length === 1 && !CD.q) return `<span class="o-adds"><i class="o-vdot" ${hue(k, CD.sel.v)}></i><b>${esc(CD.sel.v)}</b><span class="o-muted">· 1 product</span></span>`;
   return `<span class="o-adds">${ic.plus}<b>${list.length}</b> of ${total} products get <b>${esc(selName)}</b></span>`;
 };
@@ -180,8 +177,8 @@ const emptyColl0 = c => `<div class="o-empty0">
   </div>`;
 /* Nothing to show: say why, and offer the one way out */
 const emptyState = (c, total, selName) => !total ? emptyColl0(c) : CD.q
-  ? `<div class="o-empty o-empty2">${ic.search}<b>No products match “${esc(CD.q)}”</b><span>Search looks at product names and style codes in this collection only (${total} products)${CD.sel ? `, within ${esc(selName)}` : ""}.</span><button class="btn" data-a="cardQClear">Clear search</button></div>`
-  : `<div class="o-empty o-empty2">${ic.box}<b>No products carry ${esc(selName)}</b><span>This version of the collection has nothing here.</span><button class="btn" data-a="cardAll">Show all products</button></div>`;
+  ? `<div class="o-empty o-empty2">${ic.search}<b>No products match “${esc(CD.q)}”</b><span>The search above looks at product names and style codes in this collection only (${total} products)${CD.sel ? `, within ${esc(selName)}` : ""}.</span><button class="btn" data-a="cardQClear">Clear search</button></div>`
+  : `<div class="o-empty o-empty2">${ic.box}<b>No products carry ${esc(selName)}</b><span>This version of the collection has nothing here.</span><button class="btn" data-a="cardAll">Show every ${esc(attrLabel(CD.sel ? CD.sel.k : curColl().attrs[0]))}</button></div>`;
 
 /* ---------- The screen ---------- */
 const appliedDD = c => {
@@ -207,12 +204,10 @@ const MODAL_CARD = () => {
       <span class="sp"></span>
       <button class="btn" data-a="openAccessCur">${ic.share}Share</button>
       <div class="o-dd"><button class="icon-btn o-morebtn${App.menu === "more" ? " open" : ""}" data-a="menu" data-v="more" aria-haspopup="menu" aria-label="More">${ic.more}</button>
-        ${App.menu === "more" ? `<div class="o-menu o-newmenu right" role="menu">
-          <button role="menuitem" data-a="exportCsv">${ic.download}<span><b>Download CSV</b></span></button>
-          <hr class="o-msep"><div class="o-mgroup">Update this collection</div>
-          <button role="menuitem" data-a="updateFromStudy" data-v="${c.id}">${ic.studies}<span><b>From a study</b></span></button>
-          <button role="menuitem" data-a="updateFromCsv" data-v="${c.id}">${ic.upload}<span><b>From a CSV</b></span></button>
-          <hr class="o-msep">
+        ${App.menu === "more" ? `<div class="o-menu o-moremenu right" role="menu">
+          <button role="menuitem" data-a="updateFromStudy" data-v="${c.id}">${ic.studies}Update from a study</button>
+          <button role="menuitem" data-a="updateFromCsv" data-v="${c.id}">${ic.upload}Update from a CSV</button>
+          <button role="menuitem" data-a="exportCsv">${ic.download}Download CSV</button>
           <button role="menuitem" data-a="histToggle">${ic.history}Version history</button>
           <button role="menuitem" data-a="cdNameEdit">${ic.pencil}Rename</button>
         </div>` : ""}</div>
@@ -220,7 +215,8 @@ const MODAL_CARD = () => {
     ${old ? oldBar() : ""}
     <div class="o-mb with-rail">${rail()}
       <div class="o-scroll grey">
-        <div class="o-selbar"${total ? "" : " hidden"}>${CD.sel ? `${selMsg(c, list, total, selName)}<button class="o-clear" data-a="cardAll">Show all</button>` : `<span class="o-adds">${ic.plus}Applying this adds <b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) to <b>${total} products</b>. Each product shows the value it gets.</span>`}<span class="sp"></span><label class="o-searchbox o-cdsearch">${ic.search}<input id="cd-q" data-in="cardQ" value="${esc(CD.q)}" placeholder="Find a product  /" aria-label="Find a product (press /)">${CD.q ? `<button class="icon-btn" data-a="cardQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label>${seg}</div>
+        <div class="o-selbar o-selbar2"${total ? "" : " hidden"}><div class="o-selmsg">${CD.sel ? `${selMsg(c, list, total, selName)}${CD.sel.v ? `<button class="o-clear" data-a="cardAll">Show all values</button>` : ""}` : `<span class="o-adds">${ic.plus}Applying this adds <b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) to <b>${total} products</b>. Each product shows the value it gets.</span>`}</div>
+          <label class="o-searchbox o-cdsearch${CD.q && !list.length ? " miss" : ""}">${ic.search}<input id="cd-q" data-in="cardQ" value="${esc(CD.q)}" placeholder="Find a product  /" aria-label="Find a product (press /)">${CD.q ? `<button class="icon-btn" data-a="cardQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label><span class="sp"></span>${seg}</div>
         ${notices(c, total, list)}
         ${list.length ? (CD.view === "grid" ? gridView(list) : listView(list)) : emptyState(c, total, selName)}
       </div>
@@ -241,10 +237,15 @@ const MODAL_CARD = () => {
 /* ---------- Actions ---------- */
 ACTIONS.openCard = el => { setFlow("card"); openCard(el.dataset.v); };
 ACTIONS.cardView = el => { CD.view = el.dataset.v; };
-ACTIONS.cardAll = () => { CD.sel = null; };
+// "Show all" keeps the attribute and clears the value
+ACTIONS.cardAll = () => { CD.sel = CD.sel ? { k: CD.sel.k, v: null } : firstSel(); };
 INPUTS.cardQ = el => { CD.q = el.value; };
 ACTIONS.cardQClear = () => { CD.q = ""; };
-ACTIONS.cardSel = el => { const [k, v] = el.dataset.v.split("|"); CD.sel = { k, v: v || null }; };
+ACTIONS.cardSel = el => {
+  const [k, v] = el.dataset.v.split("|");
+  if (!v && CD.sel && CD.sel.k === k && !CD.sel.v) { CD.openA.has(k) ? CD.openA.delete(k) : CD.openA.add(k); return; }
+  CD.sel = { k, v: v || null }; CD.openA.add(k);
+};
 ACTIONS.exportCsv = () => { const c = curColl(); toast(`Downloaded ${c.productIds.length} rows as ${c.name.replace(/\W+/g, "_").toLowerCase()}.csv`); return false; };
 ACTIONS.closeModal = () => { App.modal = null; };
 
@@ -258,7 +259,7 @@ ACTIONS.cdDownloadRows = () => { const c = curColl(); toast(`Downloaded ${c.csvR
 /* Guide entries: the collection screen's edge states (#edge/novalue|single|nomatch|nophotos|unmatched|empty) */
 JUMP.edge = v => {
   App.page = "home";
-  if (v === "single") { openCard("franchise"); const one = valueCounts(curColl(), "franchise").find(([, n]) => n === 1); CD.sel = one ? { k: "franchise", v: one[0] } : null; }
+  if (v === "single") { openCard("franchise"); const one = valueCounts(curColl(), "franchise").find(([, n]) => n === 1); if (one) CD.sel = { k: "franchise", v: one[0] }; }
   else if (v === "nomatch") { openCard("franchise"); CD.q = "Air Max 2099"; }
   else if (v === "nophotos") { openCard("franchise"); CD.demo = "nophotos"; }
   else if (v === "unmatched") { openCard("statues"); CD.demo = "unmatched"; CD.showRows = true; }

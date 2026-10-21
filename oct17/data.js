@@ -64,9 +64,9 @@ const money = n => "£" + (Math.round(n * 100) / 100).toFixed(2).replace(/\.00$/
 /* ---------- People ---------- */
 const ME = { name: "Roo Armande", email: "roo@collagia.com", role: "Head of Product", org: "Collagia", photo: "assets/brand/avatar.png", you: true };
 const PEOPLE = {
-  helen: { name: "Helen Brooms", email: "helen.b@collagia.com" }, leyla: { name: "Leyla Benok", email: "leyla.b@collagia.com" },
-  franklin: { name: "Franklin Forge", email: "franklin.f@collagia.com" }, greg: { name: "Greg Johnson", email: "greg.j@collagia.com" },
-  maya: { name: "Maya Chen", email: "maya.c@collagia.com" }, omar: { name: "Omar Haddad", email: "omar.h@collagia.com" }, sam: { name: "Sam Ortiz", email: "sam.o@collagia.com" },
+  helen: { name: "Helen Brooms", email: "helen.b@collagia.com", photo: "assets/people/helen.jpg" }, leyla: { name: "Leyla Benok", email: "leyla.b@collagia.com", photo: "assets/people/leyla.jpg" },
+  franklin: { name: "Franklin Forge", email: "franklin.f@collagia.com", photo: "assets/people/franklin.jpg" }, greg: { name: "Greg Johnson", email: "greg.j@collagia.com", photo: "assets/people/greg.jpg" },
+  maya: { name: "Maya Chen", email: "maya.c@collagia.com", photo: "assets/people/maya.jpg" }, omar: { name: "Omar Haddad", email: "omar.h@collagia.com", photo: "assets/people/omar.jpg" }, sam: { name: "Sam Ortiz", email: "sam.o@collagia.com", photo: "assets/people/sam.jpg" },
 };
 
 /* ---------- Collages ---------- */

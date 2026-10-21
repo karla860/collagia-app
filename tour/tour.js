@@ -16,7 +16,7 @@
   const goBoardSel = () => { goBoard(); BD.matrix = "freestyle"; BD.tool = "attr"; render(); [...document.querySelectorAll("#bd-canvas .bx-tile")].slice(0, 4).forEach(t => BD.sel.add(t.dataset.id)); BD.tag.attr = "Upper material"; BD.tag.value = "Knit"; render(); };
   const goHome = () => { setFlow("home"); App.modal = null; JUMP.home(); };
   const goPick = () => { const s = STUDIES[0]; setFlow("create"); App.page = "home"; openCreate("study"); CR.study = s.name; CR.included = new Set(s.published); CR.peek = null; CR.step = "pick"; };
-  const goCard = () => { setFlow("card"); App.page = "home"; openCard("franchise"); CD.sel = null; App.menu = null; };
+  const goCard = () => { setFlow("card"); App.page = "home"; openCard("franchise"); App.menu = null; };
   const goCompare = (q = "") => { setFlow("compare"); App.page = "home"; openCard("franchise"); openCompare(); Object.assign(CP, { study: "Price architecture", loading: false, at: new Date(), q, open: null, touched: false }); App.menu = null; };
   const goAccess = () => { setFlow("access"); App.page = "home"; openCard("franchise"); openAccess("franchise"); App.menu = null; };
 
@@ -71,7 +71,7 @@
     /* ---------- Open a collection ---------- */
     { kick: "Open a collection", title: "Two things up top, the rest behind ⋯", go: () => { goCard(); render(); }, sel: ".v2h .o-dd", place: "left", body: `
       ${was("On staging, four identical buttons sit bottom-right: Import Attributes to Study, Update Attributes From Study, Update Attributes from CSV and Export CSV.")}
-      ${did("Share sits in the header because it is the deliberate step everyone has to take. Download CSV, the two update moves, version history and rename live behind ⋯, as short plain labels.")}` },
+      ${did("Share sits in the header because it is the deliberate step everyone has to take. Behind ⋯ is one flat list of short labels: Update from a study, Update from a CSV, Download CSV, Version history and Rename. No headings or dividers, because five actions don't need grouping.")}` },
     { kick: "Open a collection", title: "The one big action", go: () => { goCard(); render(); }, sel: ".v2card .o-mf", place: "above", body: `
       ${did("Apply to a study is the single red button, with Compare with a study beside it as the optional look first. The footer holds nothing else, so the next step is never in doubt.")}
       ${why("One clear primary action keeps the screen calm. Where a collection is already used shows up in Compare and in version history, where it's needed.")}` },
@@ -83,7 +83,8 @@
       ${was("On staging, attributes are tabs and values are a single dropdown, so you only ever see one value's products and never the whole collection.")}
       ${did("“Attributes in this collection”: a tree of attribute → values, each value with its colour and a count. One thing selected at a time, the grid follows.")}` },
     { kick: "Open a collection", title: "Browse by attribute and value", go: () => { goCard(); render(); }, sel: ".o-rail.tree", place: "right", body: `
-      ${did("The rail is how you read a collection. Click an attribute and the grid splits into one colour section per value; click a value to see only those products. All products takes you back.")}` },
+      ${did("The collection shows one attribute at a time, starting with the first. Every product carries just that attribute's value, so a card never stacks four tags. Click another attribute to switch, or a value to see only its products.")}
+      ${why("One attribute and one value per product is how a collection is read: a column in a spreadsheet, not the whole row at once.")}` },
 
     /* ---------- Collection edge states: empty, partial and missing data ---------- */
     { kick: "Edge states", title: "When search finds nothing", go: () => { setFlow("edge"); JUMP.edge("nomatch"); }, sel: ".v2card .o-empty2 > span", place: "left", body: `
@@ -151,7 +152,8 @@
         <li><b>Compare with a study</b>: an optional, read-only look before applying. Tabs for Removed, Changed, Added and Unchanged, a count per attribute, and search that says what happens to any product.</li>
         <li><b>No separate preview.</b> Choosing a study opens Compare; Apply asks for confirmation only when values would be lost, and can be undone.</li>
         <li><b>Built for many studies:</b> one searchable dropdown that opens on the study that's behind.</li>
-        <li><b>A calmer collection screen:</b> colour squares on products with details on hover, a list view with one attributes cell, a rail to browse by attribute and value, and version history.</li>
+        <li><b>A calmer collection screen:</b> one attribute at a time, so each product shows a single value; a rail to switch attribute or pick a value; search right above the grid; version history as a timeline with faces.</li>
+        <li><b>A simpler ⋯ menu:</b> one flat list (Update from a study, Update from a CSV, Download CSV, Version history, Rename).</li>
         <li><b>Edge states:</b> no search match, missing values, one-product values, photos loading, an empty collection.</li>
         <li><b>Cards</b> show a grid of the collection's own products and value-coloured attribute tags, at equal heights.</li>
         <li><b>Share</b> is a quieter dialog that returns you to where you opened it.</li>
@@ -170,10 +172,10 @@
      once it's done, confirms what happened. Next is always there as "Skip", so nobody gets stuck. */
   const TASKS = {
     "Two things up top, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b> to see what else you can do with this collection.", done: () => App.menu === "more", ok: "Download, update from a study or a CSV, version history and rename: everything that isn't the main job." },
-    "The core fix: a checkbox means one thing": { at: '.o-rrow.attr[data-v="franchise"]', ask: "Untick <b>Franchise</b> and watch the products lose their Franchise value.", done: () => !CR.included.has("franchise"), ok: "Franchise is out of the collection, so the products no longer carry it. Tick it again to bring it back." },
+    "The core fix: a checkbox means one thing": { at: '.o-cbbtn[data-v="franchise"]', ask: "Untick <b>Franchise</b> and watch the products lose their Franchise value.", done: () => !CR.included.has("franchise"), ok: "Franchise is out of the collection, so the products no longer carry it. Tick it again to bring it back." },
     "Choosing which study to compare with": { selDone: ".cpx-menu", placeDone: "right", at: ".cpx-select", ask: "Open the <b>Compare with</b> dropdown to see every study.", done: () => App.menu === "cpstudy", ok: "Studies with an older version come first, each with its version and how many products it shares." },
     "A card shows what is inside": { free: true, at: ".h-grid .ccard", ask: "Open the <b>FA26 line review</b> collection.", done: () => App.modal === "card", ok: "This is the collection screen. Next, a look around it." },
-    "Browse by attribute and value": { beside: ".o-rail.tree", at: '.o-tname[data-v="upper-material"]', ask: "In the rail, click <b>Upper material</b>, then one of its values, like <b>Knit</b>.", done: () => CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Only the products with that value are showing. Try other attributes and values, or All products to go back." },
+    "Browse by attribute and value": { beside: ".o-rail.tree", at: '.o-tname[data-v="upper-material"]', ask: "In the rail, click <b>Upper material</b>, then one of its values, like <b>Knit</b>.", done: () => CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Only the products with that value are showing. Try other attributes and values, or Show all values to go back." },
     "When search finds nothing": { at: ".o-empty2 [data-a=\"cardQClear\"]", ask: "Press <b>Clear search</b>.", done: () => !CD.q, ok: "All 312 products are back." },
     "An optional look before you apply": { at: "[data-a=\"cpOpen\"]", ask: "Click <b>Compare with a study</b>.", done: () => App.modal === "compare", ok: "Compare opened on Price architecture, the study that's behind." },
     "Grouped by what happens, riskiest first": { under: true, at: ".cpx-t[data-v*=\"Vomero\"]", ask: "Open the <b>Running → Vomero</b> line to see its 22 products.", done: () => CP.open && CP.open.includes("Vomero"), ok: "Each product shows its own before and after." },

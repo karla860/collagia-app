@@ -1497,3 +1497,32 @@ body.locked .g-pill kbd { display: none; }
 .bx-ip-empty { margin: 0; padding: 6px; font: 400 11px/normal Inter, sans-serif; color: var(--muted); }
 .bx-ip-pub { margin-top: 4px; height: 30px; border: 0; border-radius: 2px; background: var(--accent); color: #fff; font: 500 12px/normal Inter, sans-serif; letter-spacing: -.36px; cursor: pointer; }
 .bx-ip-pub:disabled { background: #ECECED; color: var(--muted); cursor: default; }
+
+/* Collection toolbar: the sentence on its own line, then search and the view switch together right above the grid */
+.o-selbar2 { flex-wrap: wrap; row-gap: 10px; }
+.o-selmsg { flex: 1 1 100%; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.o-selbar2 .o-cdsearch { width: min(320px, 100%); }
+.o-cdsearch.miss { border-color: #232121; box-shadow: 0 0 0 3px #ECECED; }
+
+/* Collection ⋯ menu: one flat list of short actions, no headings or dividers */
+.o-moremenu { min-width: 0; width: max-content; }
+.o-moremenu button { align-items: center; white-space: nowrap; }
+
+/* Rail: the attribute stays marked while one of its values is picked */
+.o-tattr.in .o-tname b { color: var(--text); }
+.o-tattr.in .o-tname { font-weight: 600; }
+
+/* Line icons drawn at 11–12px would fall under a pixel; a hairline outline keeps them at the library's ~1px line */
+.o-addchip svg.ph, .o-adds > svg.ph, .sh-chip svg.ph, .o-vt-used svg.ph, .bx-ip-dd svg.ph, .o-tl-used svg.ph { stroke: currentColor; stroke-width: 8; }
+
+/* Choose attributes: the checkbox includes the attribute, its name opens or closes the values */
+.o-rrow.attr.split { display: flex; align-items: center; gap: 0; padding: 0 0 0 4px; }
+.o-cbbtn { display: grid; place-items: center; width: 28px; height: 32px; border: 0; background: none; cursor: pointer; border-radius: 6px; }
+.o-cbbtn:hover { background: rgba(35,33,33,.05); }
+.o-rname { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px 0 4px; border: 0; background: none; text-align: left; font: inherit; color: inherit; cursor: pointer; border-radius: 6px; }
+.o-rname:hover { background: rgba(35,33,33,.05); }
+.o-rname b { font-weight: 600; }
+.o-rname .n { margin-left: auto; color: var(--sub); font-size: var(--fs-12); }
+.o-rchev { display: grid; place-items: center; color: var(--sub); transition: transform .12s; }
+.o-rchev svg.i { width: 14px; height: 14px; }
+.o-rname[aria-expanded="false"] .o-rchev { transform: rotate(-90deg); }

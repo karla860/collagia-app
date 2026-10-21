@@ -3,7 +3,7 @@
    Choosing is the only place a checkbox appears, and it means one thing: this attribute goes into the collection.
    Every value of a chosen attribute comes with it, so values are shown read-only; clicking one only previews products. */
 
-const CR = { step: "source", src: null, study: null, included: new Set(), peek: null, name: "", desc: "", csv: null, dzOver: false, dzErr: "", mode: "create", target: null };
+const CR = { folded: new Set(), step: "source", src: null, study: null, included: new Set(), peek: null, name: "", desc: "", csv: null, dzOver: false, dzErr: "", mode: "create", target: null };
 const resetCreate = (mode = "create", target = null) => Object.assign(CR, { step: "source", src: null, study: null, included: new Set(), peek: null, name: "", desc: "", csv: null, dzOver: false, dzErr: "", mode, target });
 const openCreate = (src, mode = "create", target = null) => {
   resetCreate(mode, target); setFlow(mode === "create" ? "create" : "card"); App.menu = null; App.modal = "create";
@@ -68,8 +68,8 @@ const STEP_PICK = () => {
     <aside class="o-rail picks" aria-label="Attributes published in this study">
       <div class="o-rail-h"><span>Published in ${esc(s.name)}</span><small>Tick what goes into the collection</small></div>
       ${s.published.map(k => { const on = CR.included.has(k), vals = studyValueCounts(s, k); return `<div class="o-rg${on ? " inc" : ""}">
-        <button class="o-rrow attr" data-a="crInclude" data-v="${k}" role="checkbox" aria-checked="${on}"><span class="o-cb ${on ? "on" : ""}">${on ? ic.check : ""}</span><b>${esc(attrLabel(k))}</b><span class="n">${vals.length} value${vals.length === 1 ? "" : "s"}</span></button>
-        <div class="o-vpills">${vals.map(([v, n]) => { const pk = CR.peek && CR.peek.k === k && CR.peek.v === v; return `<button class="o-vpill${pk ? " on" : ""}" data-a="crPeek" data-v="${k}|${esc(v)}" title="Preview the products tagged ${esc(v)}">${esc(v)}<span class="n">${n}</span></button>`; }).join("")}</div>
+        <div class="o-rrow attr split" data-v="${k}"><button class="o-cbbtn" data-a="crInclude" data-v="${k}" role="checkbox" aria-checked="${on}" aria-label="Include ${esc(attrLabel(k))}"><span class="o-cb ${on ? "on" : ""}">${on ? ic.check : ""}</span></button><button class="o-rname" data-a="crFold" data-v="${k}" aria-expanded="${!CR.folded.has(k)}"><b>${esc(attrLabel(k))}</b><span class="n">${vals.length} value${vals.length === 1 ? "" : "s"}</span><span class="o-rchev">${ic.chev}</span></button></div>
+        ${CR.folded.has(k) ? "" : `<div class="o-vpills">${vals.map(([v, n]) => { const pk = CR.peek && CR.peek.k === k && CR.peek.v === v; return `<button class="o-vpill${pk ? " on" : ""}" data-a="crPeek" data-v="${k}|${esc(v)}" title="Preview the products tagged ${esc(v)}">${esc(v)}<span class="n">${n}</span></button>`; }).join("")}</div>`}
       </div>`; }).join("")}
     </aside>
     <div class="o-scroll grey">
@@ -208,3 +208,5 @@ ACTIONS.updateFromStudy = el => { openCreate("study", "update", el.dataset.v || 
 ACTIONS.updateFromCsv = el => { openCreate("csv", "update", el.dataset.v || CD.id); };
 
 JUMP.create = () => { App.page = "home"; openCreate(null); render(); };
+// Clicking an attribute's name folds or opens its values; the checkbox alone decides whether it goes in
+ACTIONS.crFold = el => { const k = el.dataset.v; CR.folded.has(k) ? CR.folded.delete(k) : CR.folded.add(k); };
