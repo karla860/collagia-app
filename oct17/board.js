@@ -22,14 +22,17 @@ const L = d => `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentCo
 const fi = n => `<img class="fi" src="assets/icons/${n}.svg" alt="">`;
 
 /* The app's tools, in its order, with its own tooltip copy */
+// Tool rail icons: line icons at the same weight as the rest of the board (Phosphor regular, a 1px line at 16–18px),
+// drawn on a 24px grid with a 1.5 stroke so they render at about 1.1px in the 18px rail
+const tIcon = d => `<svg class="i ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const TOOLS = {
-  select: { key: "V", name: "Select", tip: "Select and move items", icon: fi("tool-select") },
-  swap: { key: "I", name: "Swap images", tip: "Show a different angle", icon: fi("tool-swap"), flyout: true },
-  magnify: { key: "M", name: "Magnify", tip: "See detail without zooming", icon: fi("tool-magnify") },
-  highlight: { key: "H", name: "Highlight", tip: "Focus on chosen items", icon: fi("tool-highlight") },
-  stats: { key: "S", name: "Statistics", tip: "Calculations and labels", icon: fi("tool-stats") },
-  attr: { key: "F", name: "Create custom attribute", tip: "Frame items, then name them", icon: fi("tool-attributes") },
-  comment: { key: "C", name: "Comment", tip: "Click to drop a pin", icon: fi("tool-notes") },
+  select: { key: "V", name: "Select", tip: "Select and move items", icon: tIcon('<path d="M5 4.5 10.6 19.8l2.4-6.8 6.8-2.4Z"/>') },
+  swap: { key: "I", name: "Swap images", tip: "Show a different angle", icon: tIcon('<rect x="7.5" y="3.5" width="13" height="13" rx="1.5"/><path d="M4 7.5v11A2 2 0 0 0 6 20.5h11"/><circle cx="12" cy="8" r="1.25"/><path d="m7.5 14.5 3.5-3.5 3 3 2-2 4.5 4.5"/>') },
+  magnify: { key: "M", name: "Magnify", tip: "See detail without zooming", icon: tIcon('<circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.2 15.2 5.3 5.3M10.5 8v5M8 10.5h5"/>') },
+  highlight: { key: "H", name: "Highlight", tip: "Focus on chosen items", icon: tIcon('<path d="M20 11.5v-6A1.5 1.5 0 0 0 18.5 4h-13A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20h6"/><path d="m14.5 14.5 2.2 6.5 1.5-3 3-1.5Z"/>') },
+  stats: { key: "S", name: "Statistics", tip: "Calculations and labels", icon: tIcon('<path d="M5 20v-5M10 20v-8M15 20v-5M20 20V5M4 10.5l5.5-5 5 4L20 5"/>') },
+  attr: { key: "F", name: "Create custom attribute", tip: "Frame items, then name them", icon: tIcon('<path d="M3.5 4.7v6.1c0 .4.2.8.5 1.1l8.3 8.3a1.5 1.5 0 0 0 2.1 0l5.8-5.8a1.5 1.5 0 0 0 0-2.1L11.9 4a1.6 1.6 0 0 0-1.1-.5H4.7c-.7 0-1.2.5-1.2 1.2Z"/><circle cx="8" cy="8" r="1.25"/>') },
+  comment: { key: "C", name: "Comment", tip: "Click to drop a pin", icon: tIcon('<path d="M12 3.5a8.5 8.5 0 0 0-7.5 12.5L3.5 20.5l4.5-1a8.5 8.5 0 1 0 4-16Z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/>') },
 };
 const VIEWS = { full: { name: "Side view", hint: "The product shot as supplied" }, close: { name: "Close-up", hint: "Cropped in on the upper and logo" }, mono: { name: "Silhouette", hint: "Shape only, colour removed" } };
 
@@ -169,7 +172,7 @@ const showBar = () => {
   const byMatrix = {
     pareto: `${metricDD}<span class="bx-by">by</span>${bucketSlider()}
       <button class="bx-ib" data-a="bdCount" ${tipAttrs("# / %", "Count or percentage")}><b class="bx-cm">${BD.countMode}</b></button>
-      <button class="bx-ib${BD.orient === "h" ? " on" : ""}" data-a="bdOrient" ${tipAttrs("Orientation", "Horizontal or vertical")}>${sv('<path d="M3 5.5h10M3 10.5h10M8 2.5l3 3-3 3M8 7.5l-3 3 3 3"/>', 'stroke-width="1.3"')}</button>`,
+      <button class="bx-ib${BD.orient === "h" ? " on" : ""}" data-a="bdOrient" ${tipAttrs("Orientation", "Horizontal or vertical")}>${ic.swap}</button>`,
     rank: `${metricDD}
       <button class="bx-bb plain" data-a="bdRankDir" ${tipAttrs("Direction", "Highest or lowest first")}>${BD.rankDir === "top" ? "Top" : "Bottom"}${sv(BD.rankDir === "top" ? '<path d="M8 12.5v-9M4.5 7 8 3.5 11.5 7"/>' : '<path d="M8 3.5v9M4.5 9 8 12.5 11.5 9"/>')}</button>
       <label class="bx-num" ${tipAttrs("Number of images", "How many to show")}><input type="number" min="1" max="${total}" value="${BD.rankN}" data-in="bdRankN" id="bd-rankn"><span>items</span></label>`,
