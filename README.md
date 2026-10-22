@@ -8,7 +8,13 @@ Clickable prototype of the Collagia Attributes feature (today's Label Library). 
 python3 -m http.server 8765
 ```
 
-Then open http://localhost:8765. It needs a server (not file://) because the Nike catalogue loads from JSON.
+Then open http://localhost:8765. Double-clicking `index.html` works too: the Nike catalogue also ships as `assets/nike/catalog.js`, because browsers block loading JSON from file://.
+
+If you edit `assets/nike/catalog.json`, regenerate the script copy:
+
+```bash
+ruby -e 'j=File.read("assets/nike/catalog.json"); File.write("assets/nike/catalog.js", "window.NIKE_CATALOG = " + j.strip + ";\n")'
+```
 
 ## What's where
 

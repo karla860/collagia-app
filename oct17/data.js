@@ -12,7 +12,8 @@ const PRODUCTS = {};                       // id → product
 const PRODUCT_LIST = [];
 const NIKE_IDS = [];
 const loadCatalog = async () => {
-  const d = await (await fetch("assets/nike/catalog.json")).json();
+  // assets/nike/catalog.js sets NIKE_CATALOG, so this works from file:// too; fetch is the fallback when it's missing
+  const d = window.NIKE_CATALOG || await (await fetch("assets/nike/catalog.json")).json();
   d.items.forEach(p => { p.img = p.image; PRODUCTS[p.id] = p; PRODUCT_LIST.push(p); NIKE_IDS.push(p.id); });
   CATALOG_META = d.meta;
   buildStudies();
