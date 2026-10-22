@@ -79,7 +79,7 @@ const COLLAGES = {
    tags: { attrKey: { productId: value } }   published: attribute keys this study has tags for
    applied: { collectionId: version }        boards: saved board settings */
 const STUDIES = [];
-const mkStudy = (name, collage, extra = {}) => ({ name, collage, img: collage === "nike" ? "assets/preview-apparel.png" : "assets/preview-statues.png", edited: "Edited today", tags: {}, published: [], applied: {}, ...extra });
+const mkStudy = (name, collage, extra = {}) => ({ name, collage, board: "pareto", img: collage === "nike" ? "assets/preview-apparel.png" : "assets/preview-statues.png", edited: "Edited today", tags: {}, published: [], applied: {}, ...extra });
 const studyProducts = s => COLLAGES[s.collage].productIds.map(id => PRODUCTS[id]);
 const studyByName = n => STUDIES.find(s => s.name === n);
 const publishTag = (s, k, pid, v) => { (s.tags[k] = s.tags[k] || {})[pid] = v; ensureValue(k, v); if (!s.published.includes(k)) s.published.push(k); };
@@ -134,7 +134,7 @@ const buildStudies = () => {
   const isSlide = id => PRODUCTS[id].type === "Sandals & Slides"; // v2 stopped tagging slides: they aren't a franchise
   NIKE_IDS.filter(id => !isSlide(id)).forEach(id => publishTag(review, "franchise", id, franchiseOf(PRODUCTS[id])));
   // Price architecture still has v1, which lumped runners together and tagged slides, so applying v2 changes and removes values
-  const pricing = mkStudy("Price architecture", "nike", { edited: "Edited 3 weeks ago" });
+  const pricing = mkStudy("Price architecture", "nike", { edited: "Edited 3 weeks ago", board: "rank" });
   NIKE_IDS.forEach(id => { const f = franchiseOf(PRODUCTS[id]); publishTag(pricing, "franchise", id, isSlide(id) ? "Slides" : ["Vomero", "Structure"].includes(f) ? "Running" : f); });
   pricing.applied.franchise = "v1";
   // The line review also judges upper, silhouette and colour story. Price architecture has the older v1 of those too:
@@ -148,10 +148,10 @@ const buildStudies = () => {
       else if (label === "Colour story" && hsh(id + "v1") % 12 === 0) return;
       else publishTag(pricing, k, id, v); });
     return k; });
-  const christies = mkStudy("Antiquities sale 2026", "christies", { edited: "Edited 2 weeks ago" });
+  const christies = mkStudy("Antiquities sale 2026", "christies", { edited: "Edited 2 weeks ago", board: "freestyle" });
   // A study with many attributes, to show what that looks like when choosing a study. Franchise is read off the name;
   // the rest are spread deterministically over the catalogue (made-up but stable).
-  const merch = mkStudy("SS27 merchandising", "nike", { edited: "Edited 5 days ago" });
+  const merch = mkStudy("SS27 merchandising", "nike", { edited: "Edited 5 days ago", board: "group" });
   const MERCH = [["Season", ["SP27", "SU27", "Carryover"]], ["Hero product", ["Yes", "No"]], ["Upper material", ["Knit", "Mesh", "Leather", "Suede", "Synthetic"]],
     ["Silhouette", ["Low", "Mid", "High"]], ["Colour story", ["Core neutrals", "Seasonal brights", "Earth tones"]]];
   NIKE_IDS.forEach(id => publishTag(merch, "franchise", id, franchiseOf(PRODUCTS[id])));

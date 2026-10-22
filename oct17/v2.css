@@ -1417,7 +1417,7 @@ body.locked .g-pill kbd { display: none; }
 .cpx-studies { padding: 24px 40px; }
 
 /* Study card (studyCard in home.js): one strip of products, icon + name, one line of plain tags. Unlike attribute cards. */
-.o-sstrip { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 12px; background: #F5F5F5; }
+.o-sstrip { flex: none; position: relative; display: grid; /* three rows of six */ grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 12px; background: #F5F5F5; }
 .o-sstrip .o-th.s56 { width: 100%; height: auto; aspect-ratio: 1; }
 .o-study .o-sbody { display: grid; gap: 4px; padding: 12px 16px 14px; }
 .o-shead { display: flex; align-items: center; gap: 6px; min-width: 0; }
@@ -1429,3 +1429,112 @@ body.locked .g-pill kbd { display: none; }
 .o-stag { flex: none; height: 22px; padding: 0 8px; display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 999px; font-size: var(--fs-12); color: var(--text); }
 .o-stag.more, .o-stag.none { color: var(--muted); }
 .o-study .o-sbody > .o-shead { display: flex; flex: none; gap: 6px; }
+
+/* ---------- New collection · Review attributes (create.js STEP_SELECT): tick what goes in, values preview ---------- */
+.o-rail.cr-rail { width: 260px; padding: 12px 8px 16px; }
+.cr-rail-h { display: grid; gap: 2px; padding: 4px 6px 10px; margin-bottom: 6px; border-bottom: 1px solid var(--border); }
+.cr-rail-h b { font-size: var(--fs-12); font-weight: 600; }
+.cr-rail-h small { font-size: var(--fs-11); color: var(--muted); }
+.cr-attr { border-radius: 6px; padding: 4px 4px 6px; margin-bottom: 4px; }
+.cr-attr.on { background: var(--accent-soft); }
+.cr-attr-h { display: flex; align-items: center; gap: 2px; }
+.cr-tick { display: grid; place-items: center; width: 24px; height: 28px; flex: none; background: none; border: 0; cursor: pointer; padding: 0; }
+.cr-aname { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; background: none; border: 0; padding: 6px 4px; cursor: pointer; text-align: left; border-radius: 4px; font: inherit; color: var(--text); }
+.cr-aname b { font-size: var(--fs-13); font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cr-aname small { font-size: var(--fs-11); color: var(--muted); flex: none; }
+.cr-aname:hover b { text-decoration: underline; text-underline-offset: 3px; }
+.cr-attr:not(.on) .cr-aname b { color: var(--muted); font-weight: 500; }
+.cr-vals { display: flex; flex-wrap: wrap; gap: 4px; padding: 2px 4px 2px 28px; }
+.cr-val { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px; border: 1px dashed var(--border-strong); border-radius: 11px; background: var(--surface); font: 500 var(--fs-11)/1 Inter, system-ui, sans-serif; color: var(--text); cursor: pointer; }
+.cr-val em { font-style: normal; color: var(--muted); font-weight: 400; }
+.cr-val:hover { border-style: solid; }
+.cr-val.sel { background: var(--text); border: 1px solid var(--text); color: #fff; }
+.cr-val.sel em { color: rgba(255,255,255,.7); }
+.cr-attr:not(.on) .cr-val { opacity: .6; }
+.cr-msg { margin: 0; padding: 14px 20px 0; font-size: var(--fs-12); color: var(--muted); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.cr-msg b { color: var(--text); font-weight: 600; }
+.cr-ptag { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border-radius: 4px; background: var(--chip); font-size: var(--fs-11); font-weight: 500; white-space: nowrap; cursor: default; }
+.cr-ptag.more { background: none; box-shadow: inset 0 0 0 1px var(--border); color: var(--muted); }
+/* Collection footer: Update from a study matches Import to a study (.o-cta) */
+.v2card .o-mf .btn { height: 36px; padding: 0 16px; }
+.cr-ptags { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 4px; min-height: 44px; } /* room for two lines, so every card is the same height */
+.cr-empty { padding: 60px 20px; text-align: center; color: var(--muted); font-size: var(--fs-13); }
+
+/* ---------- Sidebar: 20px icons, 40px rows, 12px between icon and label ---------- */
+.sidebar { padding: 20px 12px 12px 16px; }
+.logo { margin: 6px 12px 28px; }
+.nav { gap: 4px; }
+.nav li { height: 40px; gap: 12px; padding: 0 12px; font-size: var(--fs-14); }
+.nav li img.i { width: 20px; height: 20px; }
+.nav-bottom { padding-bottom: 8px; }
+.profile { gap: 12px; padding: 8px 12px; }
+.avatar-img { width: 32px; height: 32px; }
+
+/* Dropdowns in a modal that would be cut off at the bottom open upward (flipMenus in core.js) */
+.o-menu.up { top: auto; bottom: calc(100% + 4px); }
+
+/* Photos loading: visible on any card (product cards sit on #F4F4F5, so the base is darker than that).
+   With Reduce motion on, the sweep becomes a gentle fade in place: still says "loading", without movement. */
+.o-pcard .o-th.sq.loading, .o-th.loading { background: #E6E6E8; }
+.o-th.loading::after { background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,.9) 50%, transparent 75%); }
+@media (prefers-reduced-motion: reduce) {
+  .o-th.loading::after { transform: none; background: rgba(255,255,255,.65); animation: o-pulse 1.4s ease-in-out infinite alternate !important; animation-duration: 1.4s !important; animation-iteration-count: infinite !important; }
+}
+@keyframes o-pulse { from { opacity: 0; } to { opacity: 1; } }
+/* Study card: the board type sits on the product preview's corner, like a file type */
+.o-sboard { position: absolute; left: 8px; bottom: 8px; display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 8px; border-radius: 4px;
+  background: rgba(255,255,255,.94); box-shadow: 0 0 0 1px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.08); font: 500 var(--fs-11)/1 Inter, system-ui, sans-serif; color: var(--text); }
+.o-sboard svg.i { width: 12px; height: 12px; color: var(--muted); }
+/* Board value list: a product has one value per attribute, so say when picking one replaces a value */
+.bx-ip-note { margin: 2px 2px 4px; padding: 6px 8px; border-radius: 4px; background: var(--alert-soft); color: var(--alert); font: 400 11px/1.4 Inter, sans-serif; }
+/* Board section header: attribute (white) | value + count (black) */
+.bx-fh code .bx-fv { margin-right: 8px; font: 500 var(--fs-12)/1 Inter, sans-serif; letter-spacing: 0; }
+.bx-sublab b { font-weight: 500; color: var(--text); }
+
+/* ---------- Board polish: one type scale and one icon scale across the top bar, tool rail and bottom bar ----------
+   Text: 13px medium for every control label, 12px for values inside controls (metric, percentages, zoom),
+   11px for captions. Icons: 16px in the bars, 12px for chevrons, 18px in the tool rail. Controls are 32px tall. */
+.bx-top .bx-bb, .bx-nav .bx-bb, .bx-nav .bx-bb.plain { font: 500 var(--fs-13)/1 Inter, sans-serif; letter-spacing: -.1px; }
+.bx-top .bx-bb b { font-weight: 600; }
+.bx-top .bx-bb svg.i:not(:last-child), .bx-top .bx-bb .fi, .bx-nav .bx-bb .fi, .bx-nav .bx-ib .fi, .bx-top .bx-ib .fi, .bx-nav .bx-sq .fi,
+.bx-nav .bx-sec.grow > .bx-bb .fi, .bx-nav .bx-bb > svg.i:first-child, .bx-nav .bx-ib svg.i, .bx-zoom .bx-ib svg.i, .bx-nav .bx-plus svg.i { width: 16px; height: 16px; }
+.bx-top .bx-bb > svg.i:last-child, .bx-nav .bx-bb > svg.i:last-child:not(:first-child), .bx-metric svg.i { width: 12px; height: 12px; color: var(--muted); }
+.bx-top .bx-ib { padding: 0 12px; }
+.bx-top .bx-logo img { height: 20px; }
+/* Bottom bar: 48px bar, 32px controls */
+.bx-nav .bx-box { height: 48px; }
+.bx-nav .bx-bb, .bx-nav .bx-bb.cur, .bx-metric, .bx-nav .bx-bucketbar, .bx-zoom, .bx-nav .bx-sq { height: 32px; }
+.bx-zoom .bx-ib { height: 30px; } .bx-zoom .bx-zoomv { line-height: 30px; }
+.bx-nav .bx-ib { width: 28px; height: 28px; color: var(--text); }
+.bx-nav .bx-sq { width: 32px; }
+/* Current board: a readable caption over the board name (was 7px) */
+.bx-nav .bx-cur { gap: 10px; }
+.bx-nav .bx-cur > svg.i { width: 16px; height: 16px; }
+.bx-nav .bx-cur > span { gap: 1px; font: 600 var(--fs-13)/1.1 Inter, sans-serif; letter-spacing: -.1px; }
+.bx-nav .bx-cur small { font: 500 9px/1 Inter, sans-serif; letter-spacing: .06em; }
+.bx-nav .bx-bb.cur { gap: 16px; }
+/* "by" reads as a connective, not a control */
+.bx-nav .bx-by { font: 400 var(--fs-13)/1 Inter, sans-serif; letter-spacing: 0; color: var(--muted); }
+/* Values inside controls */
+.bx-metric .o-dd:first-child .bx-bb { font: 500 var(--fs-12)/1 var(--mono); }
+.bx-metric code { font: 500 var(--fs-13)/1 Inter, sans-serif; letter-spacing: -.1px; }
+.bx-nav .bx-rlab { font: 500 var(--fs-12)/1 Inter, sans-serif; letter-spacing: 0; padding: 3px 8px; }
+.bx-nav .bx-cm { font: 600 var(--fs-13)/1 Inter, sans-serif; }
+.bx-zoom .bx-zoomv { font: 500 var(--fs-12)/30px Inter, sans-serif; color: var(--text); }
+.bx-nav .bx-glab { font-weight: 400; color: var(--muted); }
+/* Info toggle next to Filter: a quiet icon until it's on */
+.bx-nav .bx-sec.pad .bx-ib svg.i { color: var(--muted); }
+.bx-nav .bx-sec.pad .bx-ib.on svg.i { color: var(--text); }
+/* Stats card: numbers lead, captions follow */
+.bx-stats b { font: 600 var(--fs-14)/1.2 Inter, sans-serif; letter-spacing: -.2px; }
+.bx-stats small { font: 400 var(--fs-11)/1.3 Inter, sans-serif; letter-spacing: 0; }
+/* Tool rail: 32px buttons, 18px icons, an even 4px rhythm and a hairline between the view tools and the making tools */
+.bx-tools { gap: 4px; padding: 4px; }
+.bx-tools button { width: 32px; height: 32px; }
+.bx-tools .fi, .bx-tools .fi[src$="tool-highlight.svg"] { width: 18px; height: 18px; }
+.bx-tools > i { display: block; height: 1px; margin: 2px 4px; background: #E4E4E4; }
+/* Pareto bucket column and frame stat lines */
+.bx-tier aside b { font: 600 var(--fs-13)/1 Inter, sans-serif; }
+.bx-tier aside small { font: 500 var(--fs-12)/1 Inter, sans-serif; color: var(--muted); }
+.bx-statline, .bx-fh .bx-fstat { font: 400 var(--fs-12)/1.3 Inter, sans-serif; color: var(--muted); }
+.bx-nav .bx-bb > svg.i:first-child, .bx-nav .bx-plus svg.i, .bx-zoom .bx-ib svg.i { color: var(--text); }

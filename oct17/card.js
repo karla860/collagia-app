@@ -49,11 +49,11 @@ const rail = () => {
 // Clicking an attribute opens its values (and shows it on the cards); clicking it again folds them away
 ACTIONS.cardFold = el => { const k = el.dataset.v; CD.openA.has(k) ? CD.openA.delete(k) : CD.openA.add(k); };
 
-/* ---------- Products, each with what this collection adds to it ----------
-   Git-diff language, shared with the apply preview: a "+ Attribute: value" chip per tag the collection brings,
-   tinted with that value's colour so the grid reads at a glance. Picking an attribute groups the grid by value. */
-// Attribute tag (style guide): grey chip, "+ Attribute:" in grey, the value in black, colour only in the value's dot
-const addChip = (k, v, short = false) => `<span class="o-addchip hue" ${hue(k, v)} title="${esc(attrLabel(k))}: ${esc(v)}">${ic.plus}${short ? "" : `<small>${esc(attrLabel(k))}:</small>`}${v === "Other" ? "" : `<i class="o-vdot"></i>`}<span class="v">${esc(v)}</span></span>`;
+/* ---------- Products, each with the value it carries ----------
+   Viewing a collection is just reading it, so the chip is the value alone: no "+", no added / changed / removed.
+   That language belongs to the import preview (compare.js), where something is about to change. */
+// Attribute tag (style guide): grey chip, the value in black, colour only in the value's dot
+const addChip = (k, v, short = false) => `<span class="o-addchip hue" ${hue(k, v)} title="${esc(attrLabel(k))}: ${esc(v)}">${short ? "" : `<small>${esc(attrLabel(k))}:</small>`}${v === "Other" ? "" : `<i class="o-vdot"></i>`}<span class="v">${esc(v)}</span></span>`;
 // At most two attributes per product card (the selected one when an attribute is picked); the rest fold into "+N more"
 const PCHIPS_MAX = 2;
 // One value per card: the value this product carries for the attribute picked in the rail
@@ -147,10 +147,8 @@ const selMsg = (c, list, total, selName) => {
   if (CD.sel.v === NOVAL) return `<span class="o-adds"><i class="o-vdot none"></i><b>No ${lab}</b><span class="o-muted">· ${list.length} of ${total} products</span></span>`;
   if (!CD.sel.v) return `<span class="o-adds">Showing <b>${lab}</b> for ${total} products<span class="o-muted">· pick a value to see only its products</span></span>`;
   if (CD.sel.v && list.length === 1 && !CD.q) return `<span class="o-adds"><b>${lab}</b><span class="o-muted">· ${esc(CD.sel.v)} · 1 product</span></span>`;
-  // The attribute leads; the value is secondary. On the collection screen this is what importing it into a study would do.
-  const v = esc(CD.sel.v), n = `${list.length} of ${total} products`;
-  return CD_PREVIEW ? `<span class="o-adds"><b>${lab}</b><span class="o-muted">· ${v} · ${n}</span></span>`
-    : `<span class="o-adds">Importing sets <b>${lab}</b> to ${v} on ${n}</span>`;
+  // The attribute leads; the value is secondary
+  return `<span class="o-adds"><b>${lab}</b><span class="o-muted">· ${esc(CD.sel.v)} · ${list.length} of ${total} products</span></span>`;
 };
 /* Partial results stay on screen; what's wrong is flagged above them with one way to fix it */
 const UNMATCHED = [
@@ -220,7 +218,7 @@ const MODAL_CARD = () => {
     ${old ? oldBar() : ""}
     <div class="o-mb with-rail">${rail()}
       <div class="o-scroll grey">
-        <div class="o-selbar o-selbar2"${total ? "" : " hidden"}><div class="o-selmsg">${CD.sel ? `${selMsg(c, list, total, selName)}${CD.sel.v ? `<button class="o-clear" data-a="cardAll">Show all values</button>` : ""}` : `<span class="o-adds">${ic.plus}Importing adds <b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) to <b>${total} products</b>. Each product shows the value it gets.</span>`}</div>
+        <div class="o-selbar o-selbar2"${total ? "" : " hidden"}><div class="o-selmsg">${CD.sel ? `${selMsg(c, list, total, selName)}${CD.sel.v ? `<button class="o-clear" data-a="cardAll">Show all values</button>` : ""}` : `<span class="o-adds"><b>${c.attrs.length} attribute${c.attrs.length === 1 ? "" : "s"}</b> (${c.attrs.map(k => esc(attrLabel(k))).join(", ")}) on <b>${total} products</b>. Each product shows the value it carries.</span>`}</div>
           <label class="o-searchbox o-cdsearch${CD.q && !list.length ? " miss" : ""}">${ic.search}<input id="cd-q" data-in="cardQ" value="${esc(CD.q)}" placeholder="Find a product  /" aria-label="Find a product (press /)">${CD.q ? `<button class="icon-btn" data-a="cardQClear" aria-label="Clear search">${ic.close}</button>` : ""}</label><span class="sp"></span>${seg}</div>
         ${notices(c, total, list)}
         ${list.length ? (CD.view === "grid" ? gridView(list) : listView(list)) : emptyState(c, total, selName)}

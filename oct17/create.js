@@ -1,10 +1,10 @@
 /* ---------- New collection ----------
    One modal, three steps either way: Pick a study (or Upload a file) → Review attributes (or Check the file) → Name; the New collection menu picks which.
-   Nothing is chosen attribute by attribute: a collection takes everything the study published. The review step shows it
-   exactly as the collection screen will, so it reads the same before and after saving. */
+   From a study, the review step is where attributes are chosen: every one the study published starts ticked, and unticking
+   leaves it out. A CSV has no choice to make, so its review shows it exactly as the collection screen will. */
 
-const CR = { step: "study", src: "study", study: null, included: new Set(), reviewed: null, name: "", desc: "", csv: null, dzOver: false, dzErr: "", mode: "create", target: null };
-const resetCreate = (mode = "create", target = null) => Object.assign(CR, { step: "study", src: "study", study: null, included: new Set(), reviewed: null, name: "", desc: "", csv: null, dzOver: false, dzErr: "", mode, target });
+const CR = { step: "study", src: "study", study: null, included: new Set(), reviewed: null, focus: null, openA: new Set(), val: null, name: "", desc: "", csv: null, dzOver: false, dzErr: "", mode: "create", target: null };
+const resetCreate = (mode = "create", target = null) => Object.assign(CR, { step: "study", src: "study", study: null, included: new Set(), reviewed: null, focus: null, openA: new Set(), val: null, name: "", desc: "", csv: null, dzOver: false, dzErr: "", mode, target });
 const openCreate = (src, mode = "create", target = null) => {
   resetCreate(mode, target); setFlow(mode === "create" ? "create" : "card"); App.menu = null; App.modal = "create";
   if (src === "csv") { CR.src = "csv"; CR.step = "csv"; }
@@ -29,13 +29,57 @@ const crTitle = () => CR.mode === "update" ? `Update <b>${esc(collById(CR.target
 const STEP_STUDY = () => `<div class="o-scroll grey"><div class="o-studies">${STUDIES.map(s => { const ok = s.published.length > 0;
   return studyCard(s, { act: ok ? `data-a="crPickStudy" data-v="${esc(s.name)}"` : 'aria-disabled="true" title="No attributes yet"', on: CR.study === s.name, off: !ok, role: "radio" }); }).join("")}</div></div>`;
 
-/* ---------- Step 3a · Review attributes ----------
+/* ---------- Step 3a · Review attributes (from a study) ----------
+   The study's attributes on the left, each with a tick and its values; the study's products on the right. The tick decides
+   what goes in (all of an attribute's values come with it), and the grid follows it as it changes: only products that carry a
+   ticked attribute, each showing just the ticked attributes' values. Clicking a value only previews its products. */
+const crShown = () => { const ps = sorted(crTagged()); return CR.val ? ps.filter(p => crTag(CR.val.k, p) === CR.val.v) : ps; };
+const crRail = () => {
+  const s = crStudy();
+  return `<aside class="o-rail cr-rail" aria-label="Attributes to include">
+    <div class="cr-rail-h"><b>Published in ${esc(s.name)}</b><small>Tick what goes into the collection</small></div>
+    ${s.published.map(k => {
+      const on = CR.included.has(k), vals = studyValueCounts(s, k), open = CR.openA.has(k);
+      return `<div class="cr-attr${on ? " on" : ""}">
+        <div class="cr-attr-h">
+          <button class="cr-tick" data-a="crTick" data-v="${k}" role="checkbox" aria-checked="${on}" aria-label="Include ${esc(attrLabel(k))}"><span class="o-cb${on ? " on" : ""}">${on ? ic.check : ""}</span></button>
+          <button class="cr-aname${CR.focus === k ? " focus" : ""}" data-a="crFocus" data-v="${k}" aria-expanded="${open}"><b>${esc(attrLabel(k))}</b><small>${vals.length} value${vals.length === 1 ? "" : "s"}</small></button>
+        </div>
+        ${open && on ? `<div class="cr-vals">${vals.map(([v, n]) => { const sel = CR.val && CR.val.k === k && CR.val.v === v;
+          return `<button class="cr-val${sel ? " sel" : ""}" data-a="crVal" data-v="${k}|${esc(v)}" aria-pressed="${sel}" title="Preview the ${n} products with ${esc(v)}">${esc(v)}<em>${n}</em></button>`; }).join("")}</div>` : ""}
+      </div>`;
+    }).join("")}
+  </aside>`;
+};
+// Each product names the ticked attributes it carries (values stay on hover, so the grid doesn't become a wall of text):
+// two pills on one line, the rest as "+N more", in the study's order
+const CR_PTAGS = 2;
+const crPcard = p => {
+  const tags = [...CR.included].map(k => [k, crTag(k, p)]).filter(([, v]) => v), rest = tags.slice(CR_PTAGS);
+  return `<div class="o-pcard">${thumb(p, "sq")}<div class="nm">${esc(p.name)}</div><div class="o-id">${p.id}</div>
+    <div class="o-pchips cr-ptags">${tags.slice(0, CR_PTAGS).map(([k, v]) => `<span class="cr-ptag" title="${esc(attrLabel(k))}: ${esc(v)}">${esc(attrLabel(k))}</span>`).join("")}${rest.length ? `<span class="cr-ptag more" title="${rest.map(([k, v]) => `${esc(attrLabel(k))}: ${esc(v)}`).join("&#10;")}">+${rest.length} more</span>` : ""}</div></div>`;
+};
+const STEP_SELECT = () => {
+  const s = crStudy();
+  // Start on the first attribute, its values open, each time a study is reviewed
+  if (CR.reviewed !== CR.study) { CR.reviewed = CR.study; CR.focus = s.published[0] || null; CR.openA = new Set(CR.focus ? [CR.focus] : []); CR.val = null; }
+  const list = crShown(), tagged = crTagged().length, total = crProducts().length;
+  const msg = !CR.included.size ? ""
+    : CR.val ? `Previewing <b>${esc(attrLabel(CR.val.k))} · ${esc(CR.val.v)}</b>: ${list.length} of ${tagged} products. Previewing changes nothing.<button class="o-clear" data-a="crValAll">Show all products</button>`
+    : `<span><b>${tagged}</b> of ${total} products in this study carry the ticked attributes. Every value of a ticked attribute comes with it; previewing a value changes nothing.</span>`;
+  return `<div class="o-mb with-rail">${crRail()}
+    <div class="o-scroll grey">${CR.included.size ? `<p class="cr-msg">${msg}</p><div class="o-pgrid">${list.map(crPcard).join("")}</div>`
+      : `<p class="cr-empty">Nothing is ticked, so the collection would be empty. Tick an attribute to see its products.</p>`}</div>
+  </div>`;
+};
+
+/* ---------- Step 3b · A new collection from a CSV ----------
    The collection screen's own rail and grid (card.js), drawn for the collection this will save: one attribute at a time,
    a value narrows the grid. Nothing here changes what goes in. */
 const STEP_PICK = () => {
   const c = previewColl();
-  // Start on the first attribute each time a study is reviewed (the selection state is shared with the collection screen)
-  const key = CR.src === "csv" ? CR.csv.name : CR.study;
+  // Start on the first attribute each time a file is reviewed (the selection state is shared with the collection screen)
+  const key = CR.csv.name;
   if (CR.reviewed !== key) { CR.reviewed = key; Object.assign(CD, { sel: { k: c.attrs[0], v: null }, openA: new Set([c.attrs[0]]), q: "", view: "grid", demo: null }); }
   CD_PREVIEW = c;
   try {
@@ -94,7 +138,12 @@ const crFooter = () => {
   const back = step === "study" || step === "csv" ? "" : `<button class="btn" data-a="crBack">${ic.back}Back</button>`;
   let note = "", next = "";
   if (step === "study") { next = `<button class="btn primary" data-a="crNext" ${CR.study ? "" : "disabled"}>Continue${ic.chevR}</button>`; }
-  if (step === "pick") { const vals = [...CR.included].reduce((t, k) => t + studyValueCounts(crStudy(), k).length, 0); note = `<span class="o-showing">All <b>${n}</b> attribute${n === 1 ? "" : "s"} · ${vals} values · ${crTagged().length} tagged products</span>`; next = `<button class="btn primary" data-a="crNext">Continue${ic.chevR}</button>`; }
+  if (step === "pick") {
+    const all = crStudy().published.length, vals = [...CR.included].reduce((t, k) => t + studyValueCounts(crStudy(), k).length, 0);
+    note = !n ? `<span class="o-showing">Tick at least one attribute</span>`
+      : `<span class="o-showing">${n === all ? `All <b>${n}</b>` : `<b>${n}</b> of ${all}`} attribute${all === 1 ? "" : "s"} · ${vals} values · ${crTagged().length} tagged products</span>`;
+    next = `<button class="btn primary" data-a="crNext" ${n ? "" : "disabled"}>Continue${ic.chevR}</button>`;
+  }
   if (step === "check") { next = `<button class="btn primary" data-a="crNext">Continue${ic.chevR}</button>`; }
   if (step === "name") { next = CR.mode === "update" ? `<button class="btn primary" data-a="crCreate">${ic.history}Save as ${nextV(collById(CR.target))}</button>` : `<button class="btn primary" data-a="crCreate">${ic.plus}Create collection</button>`; }
   return `<footer class="o-mf">${back}${note}<span class="sp"></span>${next}</footer>`;
@@ -103,7 +152,7 @@ const crFooter = () => {
 const MODAL_CREATE = () => `<div class="o-modal xl cr" role="dialog" aria-modal="true" aria-label="New attribute collection">
   <header class="o-mh"><button class="icon-btn" data-a="closeModal" aria-label="Close">${ic.close}</button><h2 class="o-h20">${crTitle()}</h2></header>
   ${stepper()}
-  ${{ study: STEP_STUDY, pick: STEP_PICK, csv: STEP_CSV, check: STEP_CHECK, name: STEP_NAME }[CR.step]()}
+  ${{ study: STEP_STUDY, pick: STEP_SELECT, csv: STEP_CSV, check: STEP_CHECK, name: STEP_NAME }[CR.step]()}
   ${crFooter()}
 </div>`;
 
@@ -111,7 +160,13 @@ const MODAL_CREATE = () => `<div class="o-modal xl cr" role="dialog" aria-modal=
 ACTIONS.newFromStudy = () => openCreate("study");
 ACTIONS.newFromCsv = () => openCreate("csv");
 ACTIONS.crPickStudy = el => { CR.study = el.dataset.v; CR.included = new Set(crStudy().published); };
-ACTIONS.crBack = () => { CR.step = { pick: "study", check: "csv", name: CR.src === "csv" ? "check" : "pick" }[CR.step]; };
+// Ticks keep the study's order, so the default name and the collection list attributes the way the study does
+ACTIONS.crTick = el => { const k = el.dataset.v; CR.included.has(k) ? CR.included.delete(k) : CR.included.add(k); CR.included = new Set(crStudy().published.filter(x => CR.included.has(x))); if (CR.val && !CR.included.has(CR.val.k)) CR.val = null; };
+// Clicking an attribute shows it on the cards and opens its values; clicking it again folds them
+ACTIONS.crFocus = el => { const k = el.dataset.v; if (CR.focus === k) { CR.openA.has(k) ? CR.openA.delete(k) : CR.openA.add(k); return; } CR.focus = k; CR.openA.add(k); };
+ACTIONS.crVal = el => { const [k, v] = el.dataset.v.split("|"); CR.val = CR.val && CR.val.k === k && CR.val.v === v ? null : { k, v }; CR.focus = k; };
+ACTIONS.crValAll = () => { CR.val = null; };
+ACTIONS.crBack =() => { CR.step = { pick: "study", check: "csv", name: CR.src === "csv" ? "check" : "pick" }[CR.step]; };
 ACTIONS.crNext = () => { CR.step = { study: "pick", pick: "name", check: "name" }[CR.step]; if (CR.step === "name") setTimeout(() => { const i = $("#cr-name"); if (i) i.focus(); }); };
 INPUTS.crName = el => { CR.name = el.value; };
 INPUTS.crDesc = el => { CR.desc = el.value; return false; };

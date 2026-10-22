@@ -1,7 +1,7 @@
 /* ---------- Study board ----------
    Modelled on the live app (tool names and tooltips are the app's own, read from its bundle) and the Phase 1 Figma
    redesign. A board is a MATRIX: Pareto (buckets by a metric), Rank (top or bottom N), Group (frames per value, with
-   an optional second grouping) or Freestyle (frames for published attributes, the rest loose).
+   an optional second grouping) or Freeform (frames for published attributes, the rest loose).
    Items never move by hand. What a click does depends on the TOOL in the left rail:
    Select (V) pan and inspect · Swap images (I) · Magnify (M) · Highlight (H) · Statistics (S)
    Create custom attribute (F) select and tag · Comment (C) drop a pin. +/- or ⌘-scroll to zoom. */
@@ -12,8 +12,8 @@ const AGGS = { avg: "Avg", sum: "Sum" };
 const MATRICES = {
   pareto: { label: "Pareto", hint: "Buckets by a metric", icon: '<path d="M4 20V9M10 20V4M16 20v-6M22 20H2" stroke-width="2.4"/>' },
   rank: { label: "Rank", hint: "Top or bottom items by a metric", icon: '<rect x="3" y="3" width="5" height="5" fill="currentColor" stroke="none"/><rect x="9.5" y="3" width="5" height="5" fill="currentColor" stroke="none"/><rect x="16" y="3" width="5" height="5" fill="currentColor" stroke="none"/><rect x="3" y="9.5" width="5" height="5" fill="currentColor" stroke="none"/><rect x="9.5" y="9.5" width="5" height="5" fill="currentColor" stroke="none"/><rect x="16" y="9.5" width="5" height="5" fill="currentColor" stroke="none"/><rect x="3" y="16" width="5" height="5" fill="currentColor" stroke="none"/><rect x="9.5" y="16" width="5" height="5" fill="currentColor" stroke="none"/>' },
-  group: { label: "Group", hint: "Frames per value", icon: '<rect x="3" y="3" width="7" height="7" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="3" width="7" height="7" rx="1" fill="currentColor" stroke="none" opacity=".45"/><rect x="3" y="14" width="7" height="7" rx="1" fill="currentColor" stroke="none" opacity=".45"/><rect x="14" y="14" width="7" height="7" rx="1" fill="currentColor" stroke="none"/>' },
-  freestyle: { label: "Freestyle", hint: "Frame what you see", icon: '<rect x="4" y="3" width="4" height="4" fill="currentColor" stroke="none"/><rect x="15" y="5" width="4" height="4" fill="currentColor" stroke="none"/><rect x="9" y="10" width="4" height="4" fill="currentColor" stroke="none"/><rect x="3" y="16" width="4" height="4" fill="currentColor" stroke="none"/><rect x="16" y="15" width="4" height="4" fill="currentColor" stroke="none"/>' },
+  group: { label: "Group by", hint: "Frames per value", icon: '<rect x="3" y="3" width="7" height="7" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="3" width="7" height="7" rx="1" fill="currentColor" stroke="none" opacity=".45"/><rect x="3" y="14" width="7" height="7" rx="1" fill="currentColor" stroke="none" opacity=".45"/><rect x="14" y="14" width="7" height="7" rx="1" fill="currentColor" stroke="none"/>' },
+  freestyle: { label: "Freeform", hint: "Frame what you see", icon: '<rect x="4" y="3" width="4" height="4" fill="currentColor" stroke="none"/><rect x="15" y="5" width="4" height="4" fill="currentColor" stroke="none"/><rect x="9" y="10" width="4" height="4" fill="currentColor" stroke="none"/><rect x="3" y="16" width="4" height="4" fill="currentColor" stroke="none"/><rect x="16" y="15" width="4" height="4" fill="currentColor" stroke="none"/>' },
 };
 const mIcon = k => `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${MATRICES[k].icon}</svg>`;
 const L = d => `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
@@ -88,24 +88,26 @@ const RANK = list => {
   return `<div class="bx-world bx-rank"><div class="bx-rankhead">${BD.rankDir === "top" ? "Top" : "Bottom"} <b>${picked.length}</b> by <code>${METRICS[BD.metric]}</code> · ${statLine(picked)}</div><div class="bx-grid" style="grid-template-columns:repeat(${cols},${t}px);gap:${GAP}px">${picked.map((p, i) => `<div class="bx-ranked">${tile(p, t)}<small>${i + 1}</small></div>`).join("")}</div></div>`;
 };
 const groupsBy = (list, k) => { const m = new Map(); list.forEach(p => { const v = bdVal(p, k) || "—"; if (!m.has(v)) m.set(v, []); m.get(v).push(p); }); return [...m.entries()].sort((a, b) => a[0] === "—" ? 1 : b[0] === "—" ? -1 : b[1].length - a[1].length); };
-const frame = (label, ps, t, cls = "", sub = null) => {
+// Section header: the attribute in the white part, the value and its item count in the black box (as staging labels
+// Freeform frames, "Visible Tech Features: True | 13"). label stays the frame's id for selecting it.
+const frame = (label, ps, t, cls = "", sub = null, head = null) => {
   const allSel = BD.tool === "attr" && ps.length && ps.every(p => BD.sel.has(p.id));
-  const body = sub ? `<div class="bx-sub">${groupsBy(ps, sub).map(([v, sp]) => `<div class="bx-subrow"><span class="bx-sublab">${esc(v === "—" ? "None" : v)} <code>${sp.length}</code></span>${grid(sp, t, colsFor(sp.length, 10))}</div>`).join("")}</div>` : grid(ps, t, colsFor(ps.length, 12));
+  const body = sub ? `<div class="bx-sub">${groupsBy(ps, sub).map(([v, sp]) => `<div class="bx-subrow"><span class="bx-sublab">${esc(dimLabel(sub))} · <b>${esc(v === "—" ? "None" : v)}</b> <code>${sp.length}</code></span>${grid(sp, t, colsFor(sp.length, 10))}</div>`).join("")}</div>` : grid(ps, t, colsFor(ps.length, 12));
   return `<section class="bx-frame${allSel ? " sel" : ""} ${cls}" data-gid="${esc(label)}">
-    <header class="bx-fh"><span class="bx-fname">${esc(label)}</span><code>${ps.length}</code>${statLine(ps) ? `<span class="bx-fstat">${statLine(ps).replace(/^\d+ items · ?/, "")}</span>` : ""}${BD.tool === "attr" ? `<button class="bx-fsel${allSel ? " on" : ""}" data-a="bdSelGroup" data-v="${esc(label)}" ${tipAttrs(allSel ? "Deselect frame" : "Select frame", `All ${ps.length} items`)}>${allSel ? ic.check : ic.frame}</button>` : ""}</header>
+    <header class="bx-fh">${head ? `<span class="bx-fname">${esc(head.attr)}</span><code><span class="bx-fv">${esc(head.value)}</span>${ps.length}</code>` : `<span class="bx-fname">${esc(label)}</span><code>${ps.length}</code>`}${statLine(ps) ? `<span class="bx-fstat">${statLine(ps).replace(/^\d+ items · ?/, "")}</span>` : ""}${BD.tool === "attr" ? `<button class="bx-fsel${allSel ? " on" : ""}" data-a="bdSelGroup" data-v="${esc(label)}" ${tipAttrs(allSel ? "Deselect frame" : "Select frame", `All ${ps.length} items`)}>${allSel ? ic.check : ic.frame}</button>` : ""}</header>
     ${body}
     <i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i>
   </section>`;
 };
 const GROUP = list => {
   const t = TILE(), k = BD.groupBy;
-  return `<div class="bx-world bx-groups">${groupsBy(list, k).map(([v, ps]) => frame(v === "—" ? `No ${dimLabel(k).toLowerCase()}` : v, ps, t, v === "—" ? "none" : "", BD.group2)).join("")}</div>`;
+  return `<div class="bx-world bx-groups">${groupsBy(list, k).map(([v, ps]) => frame(v === "—" ? `No ${dimLabel(k).toLowerCase()}` : v, ps, t, v === "—" ? "none" : "", BD.group2, { attr: dimLabel(k), value: v === "—" ? "None" : v })).join("")}</div>`;
 };
 const FREESTYLE = list => {
   const t = TILE(), s = bdStudy(), k = BD.show && s.published.includes(BD.show) ? BD.show : null;
   const framed = k ? groupsBy(list.filter(p => (s.tags[k] || {})[p.id]), k) : [], loose = k ? list.filter(p => !(s.tags[k] || {})[p.id]) : list;
   return `<div class="bx-world bx-free">
-    ${framed.length ? `<div class="bx-framed">${framed.map(([v, ps]) => frame(`${attrLabel(k)}: ${v}`, ps, t)).join("")}</div>` : ""}
+    ${framed.length ? `<div class="bx-framed">${framed.map(([v, ps]) => frame(`${attrLabel(k)}: ${v}`, ps, t, "", null, { attr: attrLabel(k), value: v })).join("")}</div>` : ""}
     ${loose.length ? `<div class="bx-loose">${framed.length ? `<div class="bx-loosehead">${loose.length} not framed yet${BD.tool !== "attr" ? ` · press <kbd>F</kbd> to frame some` : ""}</div>` : ""}${grid(loose, t, Math.min(40, fullW()))}</div>` : ""}
   </div>`;
 };
@@ -126,7 +128,7 @@ const initials2 = n => n.split(/\s+/).map(w => w[0]).join("").slice(0, 2);
 
 /* ---------- Bars ---------- */
 const dd = (id, label, inner, cls = "", up = true, tip = "") => `<div class="o-dd"><button class="bx-bb${App.menu === id ? " open" : ""}${cls}" data-a="menu" data-v="${id}" aria-haspopup="menu" ${tip}>${label}</button>${App.menu === id ? `<div class="o-menu bx-menu${up ? " up" : ""}" role="menu"${id === "filters" ? " data-keep" : ""}>${inner}</div>` : ""}</div>`;
-const summaryText = () => ({ pareto: `Pareto distribution · ${BD.buckets.length + 1} buckets by ${AGGS[BD.agg].toLowerCase()} ${METRICS[BD.metric]} at ${[...BD.buckets].sort((a, b) => a - b).join("% · ")}%`, rank: `Rank · ${BD.rankDir} ${BD.rankN} by ${METRICS[BD.metric]}`, group: `Group · one frame per ${dimLabel(BD.groupBy).toLowerCase()}${BD.group2 ? `, split by ${dimLabel(BD.group2).toLowerCase()}` : ""}`, freestyle: `Freestyle · frames follow published attributes` })[BD.matrix];
+const summaryText = () => ({ pareto: `Pareto distribution · ${BD.buckets.length + 1} buckets by ${AGGS[BD.agg].toLowerCase()} ${METRICS[BD.metric]} at ${[...BD.buckets].sort((a, b) => a - b).join("% · ")}%`, rank: `Rank · ${BD.rankDir} ${BD.rankN} by ${METRICS[BD.metric]}`, group: `Group by · one frame per ${dimLabel(BD.groupBy).toLowerCase()}${BD.group2 ? `, split by ${dimLabel(BD.group2).toLowerCase()}` : ""}`, freestyle: `Freeform · frames follow published attributes` })[BD.matrix];
 const topBar = () => {
   const s = bdStudy(), c = COLLAGES[s.collage];
   return `<div class="bx-top">
@@ -187,7 +189,7 @@ const showBar = () => {
   // Layout follows the app's bottom nav (Figma 4342:1295): sections split by full-height lines, ⋮ in a grey end cap
   return `<div class="bx-show bx-nav">
     <div class="bx-box bx-navl">
-      <div class="bx-sec">${dd("matrix", `<span class="bx-cur">${mIcon(BD.matrix)}<span><small>Current board</small>${MATRICES[BD.matrix].label}</span></span>${ic.sortI}`, matrixMenu, " cur", true, tipAttrs("Change matrix", "Pareto, Rank, Group or Freestyle"))}</div>
+      <div class="bx-sec">${dd("matrix", `<span class="bx-cur">${mIcon(BD.matrix)}<span><small>Current board</small>${MATRICES[BD.matrix].label}</span></span>${ic.sortI}`, matrixMenu, " cur", true, tipAttrs("Change matrix", "Pareto, Rank, Group by or Freeform"))}</div>
       <div class="bx-sec pad">${dd("filters", `${fi("bot-filter")}Filter${active.length ? `<em>${active.reduce((n, [, set]) => n + set.size, 0)}</em>` : ""}`, filterMenu, active.length ? " on" : " plain", true, tipAttrs("Filter", "Narrow what shows"))}
         <button class="bx-ib${BD.pct ? " on" : ""}" data-a="bdPct" ${tipAttrs("Toggle image percentage", "Show % on each image")}>${ic.info}</button></div>
       <div class="bx-sec grow">${byMatrix[BD.matrix]}${addGroup[BD.matrix] || ""}</div>
@@ -217,13 +219,20 @@ const ipOptions = which => {
   const exact = all.some(([l]) => l.toLowerCase() === ql);
   return { list: exact || !ql ? all : all.filter(([l]) => l.toLowerCase().includes(ql)), create: ql && !exact ? typed : null };
 };
+// A product has one value per attribute, so tagging a product that already has one replaces it. Say so before it happens.
+const selHaving = k => { const s = bdStudy(), own = s.tags[k] || {}; return [...BD.sel].filter(id => own[id]); };
+const ipReplaceNote = () => {
+  if (!BD.tag.attr.trim()) return "";
+  const k = ensureKey(BD.tag.attr), n = selHaving(k).length, lab = esc(attrLabel(k));
+  return n ? `<p class="bx-ip-note">${n === BD.sel.size ? (n === 1 ? "It already has" : `All ${n} already have`) : `${n} of ${BD.sel.size} already have`} a value for ${lab}. Picking one replaces it.</p>` : "";
+};
 const ipField = (which, label, ph) => {
   const open = BD.dd === which, val = which === "attr" ? BD.tag.attr : BD.tag.value, o = open ? ipOptions(which) : null;
   const cur = val.trim().toLowerCase();
   return `<div class="bx-ip-l">${label}</div>
     <div class="bx-ip-f${open ? " open" : ""}"><input id="${which === "attr" ? "bd-attr" : "bd-val"}" data-in="${which === "attr" ? "bdAttr" : "bdValue"}" data-a="bdDD" data-v="${which}" data-enter="${which === "attr" ? "bdAttrNext" : "bdPublish"}" role="combobox" aria-expanded="${open}" aria-label="${label}" placeholder="${ph}" value="${esc(val)}" autocomplete="off">
       <button class="bx-ip-cbtn" data-a="bdDD" data-v="${which}!" tabindex="-1" aria-label="Show options">${IP_CHEV}</button>
-      ${open ? `<div class="bx-ip-dd" role="listbox">${o.list.length ? `<div class="bx-ip-dh">${which === "attr" ? "In this study" : `${esc(attrLabel(ensureKey(BD.tag.attr)))} values`}</div>` : ""}${o.list.map(([l, n]) => `<button role="option" aria-selected="${l.toLowerCase() === cur}" class="${l.toLowerCase() === cur ? "on" : ""}" data-a="bdOpt" data-v="${which}|${esc(l)}"><span>${esc(l)}</span><small>${n}</small>${l.toLowerCase() === cur ? ic.check : ""}</button>`).join("")}
+      ${open ? `<div class="bx-ip-dd" role="listbox">${o.list.length ? `<div class="bx-ip-dh">${which === "attr" ? "In this study" : `${esc(attrLabel(ensureKey(BD.tag.attr)))} values`}</div>` : ""}${which === "val" ? ipReplaceNote() : ""}${o.list.map(([l, n]) => `<button role="option" aria-selected="${l.toLowerCase() === cur}" class="${l.toLowerCase() === cur ? "on" : ""}" data-a="bdOpt" data-v="${which}|${esc(l)}"><span>${esc(l)}</span><small>${n}</small>${l.toLowerCase() === cur ? ic.check : ""}</button>`).join("")}
         ${o.create ? `<button class="bx-ip-new" data-a="bdOpt" data-v="${which}|${esc(o.create)}">${ic.plus}<span>Create “<b>${esc(o.create)}</b>”</span></button>` : ""}
         ${!o.list.length && !o.create ? `<p class="bx-ip-empty">${which === "attr" ? "Type a name, e.g. Upper material" : "Type a value, e.g. Knit"}</p>` : ""}</div>` : ""}
     </div>`;
@@ -381,17 +390,20 @@ ACTIONS.bdZoomStep = el => { setZoom(BD.zoom * (el.dataset.v === "in" ? 1.2 : 1 
 ACTIONS.bdZoomFit = () => { setZoom(1); return false; };
 ACTIONS.bdTable = () => { BD.table = !BD.table; };
 ACTIONS.bdAddGroup = () => { setTool("attr"); if (!BD.sel.size) toast("Drag a frame around the products that belong together, then name the attribute and value."); };
-ACTIONS.bdStudy = el => { BD.study = el.dataset.v; BD.sel.clear(); BD.hl.clear(); BD.filters = {}; BD.peek = null; const s = bdStudy(); BD.show = s.published[0] || null; BD.matrix = "pareto"; BD.resetScroll = true; };
+ACTIONS.bdStudy = el => { BD.study = el.dataset.v; BD.sel.clear(); BD.hl.clear(); BD.filters = {}; BD.peek = null; const s = bdStudy(); BD.show = s.published[0] || null; BD.matrix = s.board || "pareto"; BD.resetScroll = true; };
 INPUTS.bdAttr = el => { BD.tag.attr = el.value; };
 INPUTS.bdValue = el => { BD.tag.value = el.value; };
 ACTIONS.bdPickVal = el => { BD.tag.value = el.dataset.v; setTimeout(() => { const i = $("#bd-val"); if (i) i.focus(); }); };
 ACTIONS.bdPublish = () => {
   const label = BD.tag.attr.trim(), v = BD.tag.value.trim(); if (!label || !v || !BD.sel.size) return false;
   const s = bdStudy(), k = ensureKey(label); ensureAttr(label, k);
+  // One value per attribute: count the products whose old value this replaces, before publishing over it
+  const own = s.tags[k] || {}, moved = [...BD.sel].filter(id => own[id] && own[id] !== v).length;
   BD.sel.forEach(id => publishTag(s, k, id, v));
   const n = BD.sel.size; BD.sel.clear(); BD.show = k; BD.tag.value = ""; BD.dd = null;
-  if (BD.matrix === "freestyle") toast(`Published ${attrLabel(k)} = ${v} on ${n} product${n === 1 ? "" : "s"}. They're framed now.`);
-  else toast(`Published ${attrLabel(k)} = ${v} on ${n} product${n === 1 ? "" : "s"}. Switch to Freestyle to see the frame, or Group by ${attrLabel(k)}.`);
+  const replaced = moved ? ` ${moved} had another ${attrLabel(k)}, now replaced.` : "";
+  if (BD.matrix === "freestyle") toast(`Published ${attrLabel(k)} = ${v} on ${n} product${n === 1 ? "" : "s"}.${replaced} They're framed now.`);
+  else toast(`Published ${attrLabel(k)} = ${v} on ${n} product${n === 1 ? "" : "s"}.${replaced} Switch to Freeform to see the frame, or Group by ${attrLabel(k)}.`);
 };
 ACTIONS.bdToast = el => { toast(`Prototype: ${el.dataset.v} isn't part of this prototype`); return false; };
 // Comments

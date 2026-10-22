@@ -40,8 +40,8 @@
       ${did("New collection, from a study or a CSV.")}` },
     { kick: "New collection", title: "Pick a study", go: () => { goHome(); openCreate("study"); render(); }, sel: ".o-studies", place: "above", body: `
       ${did("Each study shows the attributes it has.")}` },
-    { kick: "New collection", title: "Review what goes in", go: () => { goPick(); render(); }, sel: ".cr .o-rail.tree", place: "right", body: `
-      ${did("Every attribute goes in. Browse it as the collection will show it.")}` },
+    { kick: "New collection", title: "Choose what goes in", go: () => { goPick(); render(); }, sel: ".cr .cr-rail", place: "right", body: `
+      ${did("Every attribute starts ticked. Untick one to leave it out; click a value to preview its products.")}` },
     { kick: "New collection", title: "Name it", go: () => { goPick(); CR.step = "name"; CR.name = ""; render(); }, sel: ".o-nameform", place: "right", body: `
       ${did("A suggested name, and a preview of its card. Private until you share it.")}` },
     { kick: "New collection", title: "Back on the board", go: () => goMade(), sel: null, body: `
@@ -73,7 +73,7 @@
      once it's done, confirms what happened. Next is always there as "Skip", so nobody gets stuck. */
   const TASKS = {
     "Start a collection": { selDone: ".o-newmenu", placeDone: "left", at: '[data-v="newmenu"]', ask: "Click <b>New collection</b>.", done: () => App.menu === "newmenu", ok: "From a study, or from a CSV." },
-    "Review what goes in": { beside: ".cr .o-rail.tree", at: '.cr .o-tname[data-v="upper-material"]', ask: "Click <b>Upper material</b>, then <b>Knit</b>.", done: () => App.modal === "create" && CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Just a view: everything still goes in." },
+    "Choose what goes in": { beside: ".cr .cr-rail", at: '.cr .cr-tick[data-v="upper-material"]', ask: "Untick <b>Upper material</b>.", done: () => App.modal === "create" && CR.step === "pick" && !CR.included.has("upper-material"), ok: "It stays in the study, but not in this collection." },
     "A card shows what is inside": { free: true, at: ".h-grid .ccard", ask: "Open the <b>FA26 line review</b> collection.", done: () => App.modal === "card", ok: "This is the collection." },
     "Browse by attribute and value": { beside: ".o-rail.tree", at: '.o-tname[data-v="upper-material"]', ask: "Click <b>Upper material</b>, then <b>Knit</b>.", done: () => App.modal === "card" && CD.sel && CD.sel.k === "upper-material" && CD.sel.v, ok: "Only those products show." },
     "Two buttons, the rest behind ⋯": { selDone: ".v2h .o-menu", placeDone: "left", at: ".v2h .o-morebtn", ask: "Click <b>⋯</b>.", done: () => App.menu === "more", ok: "Everything else." },

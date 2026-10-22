@@ -29,9 +29,11 @@ const studyTags = s => {
   const shown = 2, more = s.published.length - shown;
   return `<span class="o-stags">${s.published.slice(0, shown).map(k => `<span class="o-stag">${esc(attrLabel(k))}</span>`).join("")}${more > 0 ? `<span class="o-stag more" title="${esc(s.published.slice(shown).map(attrLabel).join(", "))}">+${more} more</span>` : ""}</span>`;
 };
+// Three rows of six products, with the study's board type (Pareto, Rank, Group by, Freeform) labelled on the preview
 const studyCard = (s, { act = "", on = false, off = false, badge = "", role = "button" } = {}) => `
   <div class="o-study${on ? " on" : ""}${off ? " off" : ""}" ${act} tabindex="${off ? -1 : 0}" role="${role}"${role === "radio" ? ` aria-checked="${on}"` : ""}>
-    <div class="o-sstrip">${studyProducts(s).slice(0, 6).map(p => thumb(p, "s56")).join("")}</div>
+    <div class="o-sstrip">${studyProducts(s).slice(0, 18).map(p => thumb(p, "s56")).join("")}
+      <span class="o-sboard" title="${MATRICES[s.board].label} board">${mIcon(s.board)}${MATRICES[s.board].label}</span></div>
     <div class="o-sbody"><div class="o-shead">${ic.studies}<b>${esc(s.name)}</b>${badge}</div>
       <span class="o-smeta">${esc(COLLAGES[s.collage].name)} · ${s.edited}</span>
       ${studyTags(s)}</div>
@@ -157,7 +159,7 @@ RENDER.studies = () => {
     ${list.length ? `<div class="o-studies in-page">${list.map(s => studyCard(s, { act: `data-a="openStudy" data-v="${esc(s.name)}"`, role: "link" })).join("")}</div>` : `<div class="no-match"><b>No studies match “${esc(S_PAGE.q)}”</b><span>Try another name.</span></div>`}`;
 };
 INPUTS.studySearch = el => { S_PAGE.q = el.value; };
-ACTIONS.openStudy = el => { setFlow("board"); JUMP.board(el.dataset.v); return false; };
+ACTIONS.openStudy = el => { setFlow("board"); const s = studyByName(el.dataset.v); if (s) BD.matrix = s.board; JUMP.board(el.dataset.v); return false; };
 const markNav = () => { document.querySelectorAll(".sidebar .nav li").forEach(li => li.classList.toggle("active", li.dataset.v === (App.page === "studies" ? "studies" : App.page === "settings" ? "settings" : "attributes"))); const pr = $(".sidebar .profile"); if (pr) pr.classList.toggle("active", App.page === "settings"); };
 
 /* ---------- Actions ---------- */

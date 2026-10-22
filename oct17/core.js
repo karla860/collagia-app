@@ -113,6 +113,14 @@ ACTIONS.guideTour = () => { if (window.PrototypeTour) { G.open = false; store.se
 // ⌘K toggles the guide; ⌘J does too, for browsers where an extension already owns ⌘K
 document.addEventListener("keydown", e => { if ((e.metaKey || e.ctrlKey) && ["k", "j"].includes(e.key.toLowerCase())) { e.preventDefault(); e.stopPropagation(); G.open = !G.open; store.set("guideOpen", G.open); render(); } }, true);
 
+// A dropdown in a modal opens upward when the scrolling area it sits in would cut it off at the bottom (and there's room above)
+const flipMenus = () => document.querySelectorAll("#o-ov .o-dd > .o-menu").forEach(m => {
+  let clip = m.parentElement.parentElement;
+  while (clip && clip !== document.body && !/(auto|hidden|scroll)/.test(getComputedStyle(clip).overflowY)) clip = clip.parentElement;
+  if (!clip || clip === document.body) return;
+  const r = m.getBoundingClientRect(), box = clip.getBoundingClientRect(), dd = m.parentElement.getBoundingClientRect();
+  if (r.bottom > box.bottom && dd.top - box.top > r.height) m.classList.add("up");
+});
 const render = () => {
   const ae = document.activeElement, fid = ae && ae.id && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA") ? ae.id : null;
   const pos = fid ? ae.selectionStart : null;
@@ -123,6 +131,7 @@ const render = () => {
   if (App.page === "board") RENDER.board(); else if (App.page === "studies") RENDER.studies(); else if (App.page === "settings") RENDER.settings(); else RENDER.home();
   RENDER.modal();
   RENDER.float();
+  flipMenus();
   if (fid) { const el = document.getElementById(fid); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch {} } }
 };
 

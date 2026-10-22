@@ -199,8 +199,8 @@ const sampleStudies = () => {
     ["Lifestyle sneakers audit", "none", 19], ["Trail & outdoor edit", "v2", 23], ["Women's running SS27", "v1", 28], ["Price architecture 2025", "v1", 40],
     ["Markdown candidates", "partial", 47], ["Store grading: A stores", "v2", 55], ["Collab drops tracker", "none", 63], ["Sustainability shortlist", "partial", 70],
     ["Asia Pacific range", "v2", 84], ["Golf footwear review", "none", 96], ["Christie's Old Masters", "christies", 5], ["Christie's design sale", "christies", 33]];
-  SAMPLE_STUDIES = defs.map(([name, kind, days]) => {
-    const s = mkStudy(name, kind === "christies" ? "christies" : "nike", { edited: `Edited ${days < 7 ? `${days} day${days === 1 ? "" : "s"}` : `${Math.round(days / 7)} week${Math.round(days / 7) === 1 ? "" : "s"}`} ago`, sample: true });
+  SAMPLE_STUDIES = defs.map(([name, kind, days], i) => {
+    const s = mkStudy(name, kind === "christies" ? "christies" : "nike", { board: ["pareto", "group", "freestyle", "rank"][i % 4], edited: `Edited ${days < 7 ? `${days} day${days === 1 ? "" : "s"}` : `${Math.round(days / 7)} week${Math.round(days / 7) === 1 ? "" : "s"}`} ago`, sample: true });
     if (kind === "v1") { s.tags = copy(pricing.tags); s.published = ["franchise"]; s.applied = { franchise: "v1" }; }
     if (kind === "v2") { s.tags = copy(review.tags); s.published = ["franchise"]; s.applied = { franchise: "v2" }; }
     if (kind === "partial") { s.tags = { franchise: Object.fromEntries(Object.entries(review.tags.franchise).filter((_, i) => i % 3 === 0)) }; s.published = ["franchise"]; }
@@ -245,14 +245,15 @@ const cpBody = (c, s) => {
 
 const MODAL_COMPARE = () => {
   const c = cpColl(), s = CP.study && cpFind(CP.study);
-  const ready = s && !CP.loading && CP.demo !== "error" && c.attrs.length && matchCount(c, s), m = ready ? cpModel(c, s) : null;
+  const ready = s && !CP.loading && CP.demo !== "error" && c.attrs.length && matchCount(c, s);
   return `<div class="o-modal xl cpx" role="dialog" aria-modal="true" aria-label="Import ${esc(c.name)} to a study">
     <header class="o-mh"><button class="icon-btn" data-a="cpBack" aria-label="Back to collection">${ic.back}</button><h2 class="o-h20">Import <b>${esc(c.name)}</b> to a study</h2></header>
     <div class="o-scroll grey"><div class="cpx-body">${ready || !s ? "" : cpPicker(c)}${cpBody(c, s)}</div></div>
     <footer class="o-mf"><span class="sp"></span>
       <button class="btn" data-a="cpBack">Back to collection</button>
       ${!c.attrs.length || !s ? `<button class="btn primary" disabled>Import</button>`
-        : `<button class="btn primary" data-a="cpApply" ${m && m.changed.length ? "" : "disabled"}>Import to ${esc(s.name)}</button>`}
+        // Any study can be imported to, even when nothing would change: the study still records which version it has
+        : `<button class="btn primary" data-a="cpApply" ${CP.demo === "error" ? "disabled" : ""}>Import to ${esc(s.name)}</button>`}
     </footer>
   </div>`;
 };
