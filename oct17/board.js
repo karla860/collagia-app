@@ -31,8 +31,8 @@ const TOOLS = {
   swap: { key: "I", name: "Swap images", tip: "Show a different angle", icon: tIcon('<path d="M8.11 7.22a.89.89 0 1 1 0-1.78.89.89 0 0 1 0 1.78Z"/><path d="M13.21 6.79a1.56 1.56 0 0 0-2.2 0l-4.87 4.87c.26.14.55.23.86.23h6.67c.98 0 1.78-.8 1.78-1.78V9.02l-2.24-2.23Z"/><path d="M10.89 15.22H4.33a2.45 2.45 0 0 1-2.44-2.44V7a.67.67 0 0 1 1.33 0v5.78c0 .61.5 1.11 1.11 1.11h6.56a.67.67 0 0 1 0 1.33Z"/><path d="M13.67 12.56H7a2.45 2.45 0 0 1-2.44-2.45V5.22A2.45 2.45 0 0 1 7 2.78h6.67a2.45 2.45 0 0 1 2.44 2.44v4.89a2.45 2.45 0 0 1-2.44 2.45ZM7 4.11c-.61 0-1.11.5-1.11 1.11v4.89c0 .61.5 1.11 1.11 1.11h6.67c.61 0 1.11-.5 1.11-1.11V5.22c0-.61-.5-1.11-1.11-1.11H7Z"/>') },
   magnify: { key: "M", name: "Magnify", tip: "See detail without zooming", icon: tIcon('<path d="M7.88 2.97a4.99 4.99 0 0 1 3.97 8.23l-.3.35-.35.29A4.99 4.99 0 0 1 2.98 7.87a4.99 4.99 0 0 1 4.9-4.9ZM8 5a1 1 0 0 0-1 1v1H6a1 1 0 0 0 0 2h1v1a1 1 0 0 0 2 0V9h1a1 1 0 0 0 0-2H9V6a1 1 0 0 0-1-1Z" stroke="currentColor"/><rect x="10" y="11.32" width="1.87" height="6.6" rx=".93" transform="rotate(-45 10 11.32)"/>') },
   highlight: { key: "H", name: "Highlight", tip: "Focus on chosen items", icon: tIcon('<path d="M15 9V4.33C15 3.6 14.4 3 13.67 3H4.33C3.6 3 3 3.6 3 4.33v9.34C3 14.4 3.6 15 4.33 15H9" fill="none" stroke="currentColor" stroke-linecap="round"/><path d="M14.92 12.28c.33.2.31.7-.03.73l-1.71.2-.77 1.54c-.15.3-.62.15-.7-.22l-.84-4.08c-.07-.32.22-.52.5-.35l3.55 2.18Z" stroke="currentColor"/>') },
-  stats: { key: "S", name: "Statistics", tip: "Calculations and labels", icon: tIcon('<rect x="12.11" y="2.78" width="3.56" height="12.44" rx="1.56"/><rect x="7.22" y="7.22" width="3.56" height="8" rx="1.56"/><rect x="2.33" y="10.78" width="3.56" height="4.44" rx="1.56"/><path d="M3.44 9.44a.67.67 0 0 0 .47-.2l4.2-4.19v.61a.67.67 0 0 0 1.33 0V3.44a.67.67 0 0 0-.66-.66H6.56a.67.67 0 0 0 0 1.33h.61L2.97 8.31a.67.67 0 0 0 .47 1.13Z"/>') },
   attr: { key: "F", name: "Create custom attribute", tip: "Frame items, then name them", icon: tIcon('<circle cx="5.68" cy="5.68" r=".64"/><path d="m15.19 9.53-1.69-1.69h-1.25l2.32 2.32-4.4 4.4-6.5-6.49V3.67h4.41l1.51 1.51.45-.79-1.34-1.33a.9.9 0 0 0-.63-.28H3.67a.89.89 0 0 0-.89.89v4.41c0 .23.1.46.26.62l6.49 6.49a.89.89 0 0 0 1.26 0l4.4-4.4a.89.89 0 0 0 0-1.26Z"/><path d="m12.93 1.51-2.54 4.38a.58.58 0 0 0 .49.89h5.09a.58.58 0 0 0 .49-.89l-2.54-4.38a.57.57 0 0 0-.99 0Z"/>') },
+  stats: { key: "S", name: "Statistics", tip: "Calculations and labels", icon: tIcon('<rect x="12.11" y="2.78" width="3.56" height="12.44" rx="1.56"/><rect x="7.22" y="7.22" width="3.56" height="8" rx="1.56"/><rect x="2.33" y="10.78" width="3.56" height="4.44" rx="1.56"/><path d="M3.44 9.44a.67.67 0 0 0 .47-.2l4.2-4.19v.61a.67.67 0 0 0 1.33 0V3.44a.67.67 0 0 0-.66-.66H6.56a.67.67 0 0 0 0 1.33h.61L2.97 8.31a.67.67 0 0 0 .47 1.13Z"/>') },
   comment: { key: "C", name: "Comment", tip: "Click to drop a pin", icon: tIcon('<path d="M9 2.5a6.5 6.5 0 0 0-5.74 9.55l-.71 2.13a.94.94 0 0 0 1.27 1.27l2.13-.71A6.5 6.5 0 1 0 9 2.5Zm2 8H7a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1Zm0-2H7a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1Z"/>') },
 };
 const VIEWS = { full: { name: "Side view", hint: "The product shot as supplied" }, close: { name: "Close-up", hint: "Cropped in on the upper and logo" }, mono: { name: "Silhouette", hint: "Shape only, colour removed" } };
@@ -98,7 +98,7 @@ const frame = (label, ps, t, cls = "", sub = null, head = null) => {
   const allSel = BD.tool === "attr" && ps.length && ps.every(p => BD.sel.has(p.id));
   const body = sub ? `<div class="bx-sub">${groupsBy(ps, sub).map(([v, sp]) => `<div class="bx-subrow"><span class="bx-sublab">${esc(dimLabel(sub))} · <b>${esc(v === "—" ? "None" : v)}</b> <code>${sp.length}</code></span>${grid(sp, t, colsFor(sp.length, 10))}</div>`).join("")}</div>` : grid(ps, t, colsFor(ps.length, 12));
   return `<section class="bx-frame${allSel ? " sel" : ""} ${cls}" data-gid="${esc(label)}">
-    <header class="bx-fh">${head ? `<span class="bx-fname">${esc(head.attr)}</span><code><span class="bx-fv">${esc(head.value)}</span>${ps.length}</code>` : `<span class="bx-fname">${esc(label)}</span><code>${ps.length}</code>`}${statLine(ps) ? `<span class="bx-fstat">${statLine(ps).replace(/^\d+ items · ?/, "")}</span>` : ""}${BD.tool === "attr" ? `<button class="bx-fsel${allSel ? " on" : ""}" data-a="bdSelGroup" data-v="${esc(label)}" ${tipAttrs(allSel ? "Deselect frame" : "Select frame", `All ${ps.length} items`)}>${allSel ? ic.check : ic.frame}</button>` : ""}</header>
+    <header class="bx-fh">${head ? `<span class="bx-fname">${esc(head.attr)}</span><code><span class="bx-fv">${esc(head.value)}</span>${ps.length}</code>` : `<span class="bx-fname">${esc(label)}</span><code>${ps.length}</code>`}${BD.tool === "attr" ? `<button class="bx-fsel${allSel ? " on" : ""}" data-a="bdSelGroup" data-v="${esc(label)}" ${tipAttrs(allSel ? "Deselect frame" : "Select frame", `All ${ps.length} items`)}>${allSel ? ic.check : ic.frame}</button>` : ""}</header>
     ${body}
     <i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i>
   </section>`;
@@ -179,7 +179,13 @@ const showBar = () => {
   const s = bdStudy(), shown = bdShown().length, total = bdProducts().length, active = Object.entries(BD.filters).filter(([, set]) => set.size);
   const matrixMenu = Object.entries(MATRICES).map(([k, m]) => `<button role="menuitemradio" aria-checked="${BD.matrix === k}" class="${BD.matrix === k ? "cur" : ""}" data-a="bdMatrix" data-v="${k}">${mIcon(k)}<span class="o-amrow"><b>${m.label}</b><small>${m.hint}</small></span></button>`).join("");
   const dimMenu = (act, cur, skip) => `<div class="o-mgroup">Catalogue</div>${Object.entries(COLS).filter(([k]) => k !== skip).map(([k, l]) => `<button role="menuitemradio" aria-checked="${cur === k}" class="${cur === k ? "cur" : ""}" data-a="${act}" data-v="${k}">${l}</button>`).join("")}<div class="o-mgroup">Attributes</div>${s.published.filter(k => k !== skip).length ? s.published.filter(k => k !== skip).map(k => `<button role="menuitemradio" aria-checked="${cur === k}" class="${cur === k ? "cur" : ""}" data-a="${act}" data-v="${k}">${ic.tag}${esc(attrLabel(k))}</button>`).join("") : `<span class="bx-mnone">Publish an attribute to use it here</span>`}`;
-  const filterMenu = dims().map(([k, l, kind]) => `<div class="bx-fsec"><div class="o-mgroup">${kind === "attr" ? ic.tag : ""}${esc(l)}${BD.filters[k] && BD.filters[k].size ? `<button class="o-clear" data-a="bdFilterClear" data-v="${esc(k)}">Clear</button>` : ""}</div>${valuesOf(k).slice(0, 8).map(([v, n]) => { const on = BD.filters[k] && BD.filters[k].has(v); return `<button role="menuitemcheckbox" aria-checked="${!!on}" data-a="bdFilter" data-v="${esc(k)}|${esc(v)}"><span class="o-cb ${on ? "on" : ""}">${on ? ic.check : ""}</span>${esc(v === "—" ? "No value" : v)}<span class="n">${n}</span></button>`; }).join("")}${valuesOf(k).length > 8 ? `<span class="bx-mnone">+${valuesOf(k).length - 8} more</span>` : ""}</div>`).join("") + (active.length ? `<button class="bx-mclear" data-a="bdClearFilters">Clear all filters</button>` : "");
+  const fsec = ([k, l, kind]) => `<div class="bx-fsec"><div class="o-mgroup">${kind === "attr" ? ic.tag : ""}${esc(l)}${BD.filters[k] && BD.filters[k].size ? `<button class="o-clear" data-a="bdFilterClear" data-v="${esc(k)}">Clear</button>` : ""}</div>${valuesOf(k).slice(0, 8).map(([v, n]) => { const on = BD.filters[k] && BD.filters[k].has(v); return `<button role="menuitemcheckbox" aria-checked="${!!on}" data-a="bdFilter" data-v="${esc(k)}|${esc(v)}"><span class="o-cb ${on ? "on" : ""}">${on ? ic.check : ""}</span>${esc(v === "—" ? "No value" : v)}<span class="n">${n}</span></button>`; }).join("")}${valuesOf(k).length > 8 ? `<span class="bx-mnone">+${valuesOf(k).length - 8} more</span>` : ""}</div>`;
+  const filterMenu = dims().map(fsec).join("") + (active.length ? `<button class="bx-mclear" data-a="bdClearFilters">Clear all filters</button>` : "");
+  // Freeform bar (Figma 4781:18124): one chip per published attribute, then Add Filter. A chip filters by that attribute's
+  // values and can set which attribute the frames follow; Add Filter offers the catalogue columns.
+  const attrChip = k => { const n = BD.filters[k] ? BD.filters[k].size : 0;
+    return dd(`fchip:${k}`, `${TOOLS.attr.icon}${esc(attrLabel(k))}${n ? `<em>${n}</em>` : ""}`, `<button role="menuitemradio" aria-checked="${BD.show === k}" class="${BD.show === k ? "cur" : ""}" data-a="bdShow" data-v="${k}">${ic.frame}Show as frames</button><hr class="o-msep">${fsec([k, attrLabel(k), "attr"])}`, ` bx-achip${n ? " on" : ""}`, true, tipAttrs(attrLabel(k), "Filter or frame by this attribute")); };
+  const freeBar = `${s.published.map(attrChip).join("")}${dd("addfilter", `${ic.plus}Add Filter`, dims().filter(([, , kind]) => kind === "data").map(fsec).join(""), " bx-achip", true, tipAttrs("Add filter", "Narrow by a catalogue column"))}`;
   const metricDD = `<span class="bx-metric">${dd("agg", `${AGGS[BD.agg]}${ic.chev}`, Object.entries(AGGS).map(([k, l]) => `<button role="menuitemradio" aria-checked="${BD.agg === k}" class="${BD.agg === k ? "cur" : ""}" data-a="bdAgg" data-v="${k}">${l}</button>`).join(""), " pill", true, tipAttrs("Aggregation"))}
       ${dd("metric", `<code>${METRICS[BD.metric]}</code>${ic.chev}`, Object.entries(METRICS).map(([k, l]) => `<button role="menuitemradio" aria-checked="${BD.metric === k}" class="${BD.metric === k ? "cur" : ""}" data-a="bdMetric" data-v="${k}"><code>${l}</code>${k !== "price" ? `<span class="n">simulated</span>` : ""}</button>`).join(""), " plain", true, tipAttrs("Metric", "The data column shown"))}</span>`;
   const byMatrix = {
@@ -206,9 +212,9 @@ const showBar = () => {
   return `<div class="bx-show bx-nav">
     <div class="bx-box bx-navl">
       <div class="bx-sec">${dd("matrix", `<span class="bx-cur">${mIcon(BD.matrix)}<span><small>Current board</small>${esc(s.name)}</span></span>${ic.sortI}`, matrixMenu, " cur", true, tipAttrs("Change matrix", "Pareto, Rank, Group by or Freeform"))}</div>
-      <div class="bx-sec pad">${dd("filters", `${fi("bot-filter")}Filter${active.length ? `<em>${active.reduce((n, [, set]) => n + set.size, 0)}</em>` : ""}`, filterMenu, active.length ? " on" : " plain", true, tipAttrs("Filter", "Narrow what shows"))}
+      ${BD.matrix === "freestyle" ? `<div class="bx-sec grow">${freeBar}</div>` : `<div class="bx-sec pad">${dd("filters", `${fi("bot-filter")}Filter${active.length ? `<em>${active.reduce((n, [, set]) => n + set.size, 0)}</em>` : ""}`, filterMenu, active.length ? " on" : " plain", true, tipAttrs("Filter", "Narrow what shows"))}
         <button class="bx-ib${BD.pct ? " on" : ""}" data-a="bdPct" ${tipAttrs("Toggle image percentage", "Show % on each image")}>${ic.info}</button></div>
-      <div class="bx-sec grow">${byMatrix[BD.matrix]}${addGroup[BD.matrix] || ""}</div>
+      <div class="bx-sec grow">${byMatrix[BD.matrix]}${addGroup[BD.matrix] || ""}</div>`}
       <div class="bx-sec cap">${dd("more", fi("bot-more"), more, " plain icon", true, tipAttrs("More"))}</div>
     </div>
     <div class="bx-box bx-navr">
@@ -217,12 +223,11 @@ const showBar = () => {
       <div class="bx-sec"><button class="bx-bb${BD.table ? " on" : ""}" data-a="bdTable" ${tipAttrs(BD.table ? "Hide data table" : "Show data table", "", "D")}>${fi("bot-table")}Data table</button></div>
     </div>
   </div>
+  <div class="bx-drawer"><button class="bx-handle" data-a="bdTable" aria-label="${BD.table ? "Close" : "Open"} the data table" ${tipAttrs(BD.table ? "Hide data table" : "Show data table", "", "D")}></button></div>
   <div class="bx-stats"><span><b>${shown}</b><small>Items in view</small></span><span><b>1</b><small>Avg images per item</small></span><span><b>100%</b><small>Items with images</small></span>${BD.tool === "attr" ? (BD.sel.size ? `<span class="sel"><b>${BD.sel.size}</b><small>Selected</small><button class="o-clear" data-a="bdClearSel">Clear</button></span>` : `<span class="sel"><button class="o-clear" data-a="bdSelAll">Select all in view</button></span>`) : ""}${BD.hl.size ? `<span class="sel"><b>${BD.hl.size}</b><small>Highlighted</small><button class="o-clear" data-a="bdClearHl">Clear</button></span>` : ""}</div>`;
 };
-// As on staging, "Create custom attribute" only exists on Freeform boards (hidden on Pareto, Rank and Group by)
-const attrTool = () => BD.matrix === "freestyle";
-const railTools = () => Object.entries(TOOLS).filter(([k]) => k !== "attr" || attrTool());
-const toolRail = () => `<div class="bx-tools">${railTools().map(([k, t], i) => `${i === 5 ? "<i></i>" : ""}<button class="${BD.tool === k || (k === "swap" && BD.flyout === "swap") ? "on" : ""}${k === "swap" && BD.view !== "full" ? " dot" : ""}" data-a="bdTool" data-v="${k}" ${tipAttrs(t.name, t.tip, t.key)}>${t.icon}</button>`).join("")}</div>
+// Rail order and spacing follow Figma 4781:17559: Select, Swap, Magnify, Highlight, Attributes, Statistics, Comment, no divider
+const toolRail = () => `<div class="bx-tools">${Object.entries(TOOLS).map(([k, t]) => `<button class="${BD.tool === k || (k === "swap" && BD.flyout === "swap") ? "on" : ""}${k === "swap" && BD.view !== "full" ? " dot" : ""}" data-a="bdTool" data-v="${k}" ${tipAttrs(t.name, t.tip, t.key)}>${t.icon}</button>`).join("")}</div>
   ${BD.flyout === "swap" ? `<div class="bx-flyout"><div class="o-mgroup">Swap images</div>${Object.entries(VIEWS).map(([k, v]) => `<button class="${BD.view === k ? "cur" : ""}" data-a="bdView" data-v="${k}"><span class="bx-vthumb v-${k}"><img src="${bdProducts()[0].img}" alt=""></span><span class="o-amrow"><b>${v.name}</b><small>${v.hint}</small></span></button>`).join("")}<p class="bx-mnone">This catalogue has one photo per product, so the angles are stand-ins.</p></div>` : ""}`;
 
 /* ---------- Right panel: only for the statistics tool. Attributes are named in the input popover alone. ---------- */
@@ -334,7 +339,6 @@ RENDER.board = () => {
 /* ---------- Actions ---------- */
 const setTool = k => {
   if (k === "swap") { BD.flyout = BD.flyout === "swap" ? null : "swap"; return; }
-  if (k === "attr" && !attrTool()) { toast("Attributes are made on a Freeform board. Switch the board to Freeform to frame and name products."); return; }
   BD.flyout = null; BD.peek = null; BD.draft = null;
   BD.tool = BD.tool === k && k !== "select" ? "select" : k;
   if (BD.tool !== "attr") BD.sel.clear();
@@ -364,7 +368,7 @@ ACTIONS.bdClearHl = () => { BD.hl.clear(); };
 ACTIONS.bdFilter = el => { const [k, v] = el.dataset.v.split("|"); const set = BD.filters[k] = BD.filters[k] || new Set(); set.has(v) ? set.delete(v) : set.add(v); };
 ACTIONS.bdFilterClear = el => { delete BD.filters[el.dataset.v]; };
 ACTIONS.bdClearFilters = () => { BD.filters = {}; };
-ACTIONS.bdMatrix = el => { BD.matrix = el.dataset.v; BD.resetScroll = true; if (!attrTool() && BD.tool === "attr") { BD.tool = "select"; BD.sel.clear(); } if (BD.matrix === "group" && !BD.groupBy) BD.groupBy = "type"; toast(`Changed matrix to ${MATRICES[BD.matrix].label}`); };
+ACTIONS.bdMatrix = el => { BD.matrix = el.dataset.v; BD.resetScroll = true; if (BD.matrix === "group" && !BD.groupBy) BD.groupBy = "type"; toast(`Changed matrix to ${MATRICES[BD.matrix].label}`); };
 ACTIONS.bdGroup = el => { BD.groupBy = el.dataset.v; if (BD.group2 === BD.groupBy) BD.group2 = null; BD.matrix = "group"; BD.resetScroll = true; };
 ACTIONS.bdGroup2 = el => { BD.group2 = el.dataset.v; };
 ACTIONS.bdGroup2Clear = () => { BD.group2 = null; };

@@ -1551,8 +1551,22 @@ body.locked .g-pill kbd { display: none; }
 .bx-nav .bx-cur small { color: #6E6D7A; }
 .bx-nav .bx-bb.cur > svg.i:last-child { color: #6E6D7A; }
 .bx-nav .bx-cur > svg.i { width: 16px; height: 16px; color: var(--accent); }
-/* Bottom bar sits on a white band, so tiles never show between or under the bars */
-.bx-show::before { content: ""; position: absolute; left: -10px; right: -10px; top: -8px; bottom: -22px; background: #fff; z-index: -1; }
+/* Under the bottom bar (Figma 4781:18124): a 16px strip fading to 20% dark, with a handle that opens the data table */
+.bx-drawer { position: absolute; left: 0; right: 0; bottom: 0; height: 16px; z-index: 5; background: linear-gradient(to bottom, rgba(30,30,30,0), rgba(30,30,30,.2)); display: flex; justify-content: center; }
+.bx-handle { width: 72px; height: 4px; margin-top: 6px; padding: 0; border: 0; border-radius: 72px; background: #232121; cursor: pointer; }
+.bx-handle::after { content: ""; position: absolute; inset: -6px -12px; }
+.bx-handle { position: relative; }
+/* Freeform bar chips (Figma Frame 25/31/32/33/30): white, hairline, icon + label, hugging their text */
+.bx-nav .bx-achip { height: 34px; padding: 0 10px; gap: 10px; border: 1px solid #E4E4E4; border-radius: 4px; background: #fff; font: 400 var(--fs-13)/1 Inter, sans-serif; color: #232121; white-space: nowrap; }
+.bx-nav .bx-achip svg.i { width: 16px; height: 16px; color: #232121; }
+.bx-nav .bx-achip.on { border-color: var(--accent); }
+.bx-nav .bx-achip em { font-style: normal; font-size: var(--fs-11); color: #fff; background: var(--accent); border-radius: 999px; padding: 1px 6px; }
+.bx-nav .bx-sec.grow:has(.bx-achip) { gap: 8px; }
+/* Frame headers hug their text: attribute, value and count stay on one line */
+.bx-fh { width: max-content; }
+.bx-fh code, .bx-fh .bx-fv { white-space: nowrap; }
 /* Freeform: unframed products lie loose on the board */
 .bx-scatter { position: relative; }
 .bx-scat { position: absolute; }
+/* Tool rail spacing per Figma 4781:17559: 32px buttons, 8px apart, 4px inset */
+.bx-tools { gap: 8px; padding: 4px; }
