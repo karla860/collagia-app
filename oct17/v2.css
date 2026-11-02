@@ -1586,3 +1586,19 @@ body.locked .g-pill kbd { display: none; }
 .bx-stats:empty { display: none; }
 .bx-show .bx-bb.cur .bx-cur small { color: #6E6D7A; }
 .bx-show .bx-bb.cur .bx-cur > span { color: #232121; }
+/* Input popover: bigger field text; options are names only (no "In this study" header, no counts) */
+.bx-ip-f input { height: 32px; font: 400 var(--fs-13)/normal Inter, sans-serif; letter-spacing: 0; }
+/* New collection: value pills read at body size */
+.cr-vals { gap: 6px; }
+.cr-val { height: 26px; padding: 0 10px; gap: 5px; border-radius: 13px; font: 500 var(--fs-13)/1 Inter, sans-serif; }
+.cr-val em { font-size: var(--fs-12); }
+/* Import: products inside an opened line follow Figma 4776:29689 (Ps / Prod): two columns 24px apart, inset 9/15/12/40,
+   28px thumbs, name and code on one line, the before → after compact on the right, "also changes" under the thumb */
+.cpx-ps { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 0 24px; padding: 9px 15px 12px 40px; }
+.cpx-prod { grid-template-columns: 28px minmax(0, 1fr) auto; column-gap: 8px; row-gap: 6px; padding: 4px 0; align-items: center; }
+.cpx-prod-t b { font: 500 var(--fs-12)/16px Inter, sans-serif; }
+.cpx-prod-t .o-id { font-size: var(--fs-11); }
+.cpx-mini { font: 400 var(--fs-12)/16px Inter, sans-serif; }
+.cpx-mini .none.rm, .cpx-ps .cpx-mini .none.rm { height: 20px; padding: 0 6px; font-size: var(--fs-12); }
+.cpx-also { grid-column: 1 / -1; margin: 0; font: 400 var(--fs-11)/14px Inter, sans-serif; color: var(--muted); }
+.cpx-also { line-height: 20px; }
