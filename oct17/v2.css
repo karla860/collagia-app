@@ -1617,3 +1617,5 @@ body.locked .g-pill kbd { display: none; }
 .bx-spb .bx-bb { height: 32px; }
 /* The fading strip under the bottom bar blurs whatever sits behind it (Figma: background blur 8) */
 .bx-drawer { -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+/* Current board: the board-type icon is always the primary red */
+.bx-nav .bx-cur > svg.i, .bx-show .bx-cur > svg.i, .bx-show .bx-bb.cur .bx-cur > svg.i { color: var(--accent); }
