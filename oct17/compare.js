@@ -72,8 +72,11 @@ const cpSummary = (c, s, m) => {
    Removed (riskiest) first, then Changed, then Added, then one quiet row of what stays the same.
    Every section says what happens in words, with the same mark everywhere: − removed, ⇄ changed, + added, = same. */
 const OUTCOMES = [["remove", "−", "Removed"], ["change", "⇄", "Changed"], ["add", "+", "Added"]];
-const outcomeLine = (c, kind, n) => {
+// The tabs count values, the section line counts products: when they differ, say both so the numbers tie up
+// ("8 products lose 31 values" under Removed 31)
+const outcomeLine = (c, kind, n, v = n) => {
   const lab = c.attrs.length === 1 ? esc(attrLabel(c.attrs[0])) : null, p = plural(n, "product");
+  if (!lab && v !== n) return { remove: `${p} lose ${v} values`, change: `${p} get ${v} different values`, add: `${p} get ${v} values for the first time` }[kind];
   return { remove: `${p} lose ${lab ? `their ${lab}` : "a value"}`, change: `${p} get a different ${lab || "value"}`, add: `${p} get ${lab ? `a ${lab}` : "a value"} for the first time` }[kind];
 };
 // One product inside an opened line: its own before → after, and anything else it changes
@@ -131,9 +134,9 @@ const cpGroups = (c, s, m) => {
   const sections = OUTCOMES.map(([kind, g, title]) => {
     const ts = all.filter(t => t.kind === kind).sort((a, b) => c.attrs.indexOf(a.k) - c.attrs.indexOf(b.k) || b.ps.length - a.ps.length);
     if (!ts.length) return "";
-    const n = new Set(ts.flatMap(t => t.ps.map(p => p.id))).size, more = CP.more.has(kind) || CP.q, list = more ? ts : ts.slice(0, LINES_SHOWN);
+    const n = new Set(ts.flatMap(t => t.ps.map(p => p.id))).size, nv = ts.reduce((s, t) => s + t.ps.length, 0), more = CP.more.has(kind) || CP.q, list = more ? ts : ts.slice(0, LINES_SHOWN);
     return `<section class="cpx-sec cpx-block ${kind}">
-      <div class="cpx-sh"><span class="cpx-g">${g}</span><b>${title}</b><span>${outcomeLine(c, kind, n)}</span></div>
+      <div class="cpx-sh"><span class="cpx-g">${g}</span><b>${title}</b><span>${outcomeLine(c, kind, n, nv)}</span></div>
       ${thead}
       ${list.map(t => cpLine(c, s, t, byId)).join("")}
       ${ts.length > list.length ? `<button class="cpx-more" data-a="cpMore" data-v="${kind}">Show ${ts.length - list.length} more</button>` : ""}

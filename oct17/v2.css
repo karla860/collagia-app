@@ -1545,3 +1545,14 @@ body.locked .g-pill kbd { display: none; }
 .bx-ph svg.ti { width: 16px; height: 16px; }
 /* Value tag on a zoomed-in tile: white with dark text, a hairline so it still reads on white photos */
 .bx-tag { background: #fff; color: var(--text); font: 500 var(--fs-12)/1.4 Inter, sans-serif; letter-spacing: 0; padding: 1px 6px; box-shadow: -1px 1px 0 #E4E4E4, 0 1px 2px rgba(0,0,0,.08); }
+/* Current board (Figma Board bar button 11): white with a hairline, grey caption, the study's name, the board-type icon in the accent */
+.bx-nav .bx-bb.cur, .bx-show .bx-bb.cur { border: 1px solid #E4E4E4; background: #fff; }
+.bx-nav .bx-cur > span { color: #232121; }
+.bx-nav .bx-cur small { color: #6E6D7A; }
+.bx-nav .bx-bb.cur > svg.i:last-child { color: #6E6D7A; }
+.bx-nav .bx-cur > svg.i { width: 16px; height: 16px; color: var(--accent); }
+/* Bottom bar sits on a white band, so tiles never show between or under the bars */
+.bx-show::before { content: ""; position: absolute; left: -10px; right: -10px; top: -8px; bottom: -22px; background: #fff; z-index: -1; }
+/* Freeform: unframed products lie loose on the board */
+.bx-scatter { position: relative; }
+.bx-scat { position: absolute; }

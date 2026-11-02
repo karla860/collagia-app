@@ -9,30 +9,31 @@
 const COLS = { type: "Category", color: "Colour", priceBand: "Price band", onSale: "Sale status" };
 const METRICS = { price: "price_gbp", units4w: "units_4w", sellThrough: "sell_through_pct" };
 const AGGS = { avg: "Avg", sum: "Sum" };
+// Board-type icons from the Figma "Matrix" set (4781:19756): solid squares and bars in three tones (100%, 70%, 50%)
+const mSq = (x, y, op, rot = "", s = 3.66, rx = 0.91) => `<rect x="${x}" y="${y}" width="${s}" height="${s}" rx="${rx}"${op < 1 ? ` opacity="${op}"` : ""}${rot ? ` transform="rotate(${rot})"` : ""}/>`;
 const MATRICES = {
-  pareto: { label: "Pareto", hint: "Buckets by a metric", icon: '<path d="M4 20V9M10 20V4M16 20v-6M22 20H2" stroke-width="2.4"/>' },
-  rank: { label: "Rank", hint: "Top or bottom items by a metric", icon: '<rect x="3" y="3" width="5" height="5" fill="currentColor" stroke="none"/><rect x="9.5" y="3" width="5" height="5" fill="currentColor" stroke="none"/><rect x="16" y="3" width="5" height="5" fill="currentColor" stroke="none"/><rect x="3" y="9.5" width="5" height="5" fill="currentColor" stroke="none"/><rect x="9.5" y="9.5" width="5" height="5" fill="currentColor" stroke="none"/><rect x="16" y="9.5" width="5" height="5" fill="currentColor" stroke="none"/><rect x="3" y="16" width="5" height="5" fill="currentColor" stroke="none"/><rect x="9.5" y="16" width="5" height="5" fill="currentColor" stroke="none"/>' },
-  group: { label: "Group by", hint: "Frames per value", icon: '<rect x="3" y="3" width="7" height="7" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="3" width="7" height="7" rx="1" fill="currentColor" stroke="none" opacity=".45"/><rect x="3" y="14" width="7" height="7" rx="1" fill="currentColor" stroke="none" opacity=".45"/><rect x="14" y="14" width="7" height="7" rx="1" fill="currentColor" stroke="none"/>' },
-  freestyle: { label: "Freeform", hint: "Frame what you see", icon: '<rect x="4" y="3" width="4" height="4" fill="currentColor" stroke="none"/><rect x="15" y="5" width="4" height="4" fill="currentColor" stroke="none"/><rect x="9" y="10" width="4" height="4" fill="currentColor" stroke="none"/><rect x="3" y="16" width="4" height="4" fill="currentColor" stroke="none"/><rect x="16" y="15" width="4" height="4" fill="currentColor" stroke="none"/>' },
+  pareto: { label: "Pareto", hint: "Buckets by a metric", icon: '<rect x="13.62" y="2.5" width="3.89" height="15" rx="1.25"/><rect x="8.06" y="7.08" width="3.89" height="10.42" rx="1.25" opacity=".7"/><rect x="2.5" y="11.67" width="3.89" height="5.83" rx="1.25" opacity=".5"/>' },
+  rank: { label: "Rank", hint: "Top or bottom items by a metric", icon: [[2.5, 14.17, .5], [14.17, 2.5, 1], [14.17, 8.33, .7], [14.17, 14.17, .5], [8.33, 8.33, .7], [8.33, 14.17, .5]].map(([x, y, o]) => mSq(x, y, o)).join("") },
+  group: { label: "Group by", hint: "Frames per value", icon: [[2.5, 2.5, .5], [7.82, 2.5, .5], [5.16, 6.94, .5], [13.66, 13.6, 1], [8.33, 13.6, 1], [11, 9.17, 1]].map(([x, y, o]) => mSq(x, y, o, "", 3.9, .97)).join("") },
+  freestyle: { label: "Freeform", hint: "Frame what you see", icon: [[2.5, 2.5, 1], [2.96, 8.07, .7], [7.99, 10.81, .7], [2.5, 13.56, .5], [13.33, 2.5, 1], [12.5, 8.33, .7], [13.97, 13.1, .5, "15 13.97 13.1"], [7.07, 5.82, 1, "-15 7.07 5.82"]].map(([x, y, o, r]) => mSq(x, y, o, r)).join("") },
 };
-const mIcon = k => `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${MATRICES[k].icon}</svg>`;
+const mIcon = k => `<svg class="i" viewBox="0 0 20 20" fill="currentColor" stroke="none" aria-hidden="true">${MATRICES[k].icon}</svg>`;
 const L = d => `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 
 // The app's own icons, from the Figma style guide (assets/icons)
 const fi = n => `<img class="fi" src="assets/icons/${n}.svg" alt="">`;
 
 /* The app's tools, in its order, with its own tooltip copy */
-// Tool rail icons: line icons at the same weight as the rest of the board (Phosphor regular, a 1px line at 16–18px),
-// drawn on a 24px grid with a 1.5 stroke so they render at about 1.1px in the 18px rail
-const tIcon = d => `<svg class="i ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+// Tool rail icons: the solid set from the Figma toolbar (4778:16777), drawn on an 18px grid
+const tIcon = d => `<svg class="i ti" viewBox="0 0 18 18" fill="currentColor" fill-rule="evenodd" stroke="none" aria-hidden="true">${d}</svg>`;
 const TOOLS = {
-  select: { key: "V", name: "Select", tip: "Select and move items", icon: tIcon('<path d="M5 4.5 10.6 19.8l2.4-6.8 6.8-2.4Z"/>') },
-  swap: { key: "I", name: "Swap images", tip: "Show a different angle", icon: tIcon('<rect x="7.5" y="3.5" width="13" height="13" rx="1.5"/><path d="M4 7.5v11A2 2 0 0 0 6 20.5h11"/><circle cx="12" cy="8" r="1.25"/><path d="m7.5 14.5 3.5-3.5 3 3 2-2 4.5 4.5"/>') },
-  magnify: { key: "M", name: "Magnify", tip: "See detail without zooming", icon: tIcon('<circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.2 15.2 5.3 5.3M10.5 8v5M8 10.5h5"/>') },
-  highlight: { key: "H", name: "Highlight", tip: "Focus on chosen items", icon: tIcon('<path d="M20 11.5v-6A1.5 1.5 0 0 0 18.5 4h-13A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20h6"/><path d="m14.5 14.5 2.2 6.5 1.5-3 3-1.5Z"/>') },
-  stats: { key: "S", name: "Statistics", tip: "Calculations and labels", icon: tIcon('<path d="M5 20v-5M10 20v-8M15 20v-5M20 20V5M4 10.5l5.5-5 5 4L20 5"/>') },
-  attr: { key: "F", name: "Create custom attribute", tip: "Frame items, then name them", icon: tIcon('<path d="M3.5 4.7v6.1c0 .4.2.8.5 1.1l8.3 8.3a1.5 1.5 0 0 0 2.1 0l5.8-5.8a1.5 1.5 0 0 0 0-2.1L11.9 4a1.6 1.6 0 0 0-1.1-.5H4.7c-.7 0-1.2.5-1.2 1.2Z"/><circle cx="8" cy="8" r="1.25"/>') },
-  comment: { key: "C", name: "Comment", tip: "Click to drop a pin", icon: tIcon('<path d="M12 3.5a8.5 8.5 0 0 0-7.5 12.5L3.5 20.5l4.5-1a8.5 8.5 0 1 0 4-16Z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/>') },
+  select: { key: "V", name: "Select", tip: "Select and move items", icon: tIcon('<path d="M4.05 3.29l.09.03 10.16 3.71c.26.1.43.34.42.62 0 .25-.14.46-.35.56l-.1.04-4.32 1.38-.25.08-.08.25-1.38 4.32c-.09.27-.32.44-.6.45h-.01c-.28 0-.51-.16-.6-.42L3.32 4.14l-.03-.09c-.05-.21.02-.43.17-.59.16-.16.38-.22.59-.17Z" stroke="currentColor"/>') },
+  swap: { key: "I", name: "Swap images", tip: "Show a different angle", icon: tIcon('<path d="M8.11 7.22a.89.89 0 1 1 0-1.78.89.89 0 0 1 0 1.78Z"/><path d="M13.21 6.79a1.56 1.56 0 0 0-2.2 0l-4.87 4.87c.26.14.55.23.86.23h6.67c.98 0 1.78-.8 1.78-1.78V9.02l-2.24-2.23Z"/><path d="M10.89 15.22H4.33a2.45 2.45 0 0 1-2.44-2.44V7a.67.67 0 0 1 1.33 0v5.78c0 .61.5 1.11 1.11 1.11h6.56a.67.67 0 0 1 0 1.33Z"/><path d="M13.67 12.56H7a2.45 2.45 0 0 1-2.44-2.45V5.22A2.45 2.45 0 0 1 7 2.78h6.67a2.45 2.45 0 0 1 2.44 2.44v4.89a2.45 2.45 0 0 1-2.44 2.45ZM7 4.11c-.61 0-1.11.5-1.11 1.11v4.89c0 .61.5 1.11 1.11 1.11h6.67c.61 0 1.11-.5 1.11-1.11V5.22c0-.61-.5-1.11-1.11-1.11H7Z"/>') },
+  magnify: { key: "M", name: "Magnify", tip: "See detail without zooming", icon: tIcon('<path d="M7.88 2.97a4.99 4.99 0 0 1 3.97 8.23l-.3.35-.35.29A4.99 4.99 0 0 1 2.98 7.87a4.99 4.99 0 0 1 4.9-4.9ZM8 5a1 1 0 0 0-1 1v1H6a1 1 0 0 0 0 2h1v1a1 1 0 0 0 2 0V9h1a1 1 0 0 0 0-2H9V6a1 1 0 0 0-1-1Z" stroke="currentColor"/><rect x="10" y="11.32" width="1.87" height="6.6" rx=".93" transform="rotate(-45 10 11.32)"/>') },
+  highlight: { key: "H", name: "Highlight", tip: "Focus on chosen items", icon: tIcon('<path d="M15 9V4.33C15 3.6 14.4 3 13.67 3H4.33C3.6 3 3 3.6 3 4.33v9.34C3 14.4 3.6 15 4.33 15H9" fill="none" stroke="currentColor" stroke-linecap="round"/><path d="M14.92 12.28c.33.2.31.7-.03.73l-1.71.2-.77 1.54c-.15.3-.62.15-.7-.22l-.84-4.08c-.07-.32.22-.52.5-.35l3.55 2.18Z" stroke="currentColor"/>') },
+  stats: { key: "S", name: "Statistics", tip: "Calculations and labels", icon: tIcon('<rect x="12.11" y="2.78" width="3.56" height="12.44" rx="1.56"/><rect x="7.22" y="7.22" width="3.56" height="8" rx="1.56"/><rect x="2.33" y="10.78" width="3.56" height="4.44" rx="1.56"/><path d="M3.44 9.44a.67.67 0 0 0 .47-.2l4.2-4.19v.61a.67.67 0 0 0 1.33 0V3.44a.67.67 0 0 0-.66-.66H6.56a.67.67 0 0 0 0 1.33h.61L2.97 8.31a.67.67 0 0 0 .47 1.13Z"/>') },
+  attr: { key: "F", name: "Create custom attribute", tip: "Frame items, then name them", icon: tIcon('<circle cx="5.68" cy="5.68" r=".64"/><path d="m15.19 9.53-1.69-1.69h-1.25l2.32 2.32-4.4 4.4-6.5-6.49V3.67h4.41l1.51 1.51.45-.79-1.34-1.33a.9.9 0 0 0-.63-.28H3.67a.89.89 0 0 0-.89.89v4.41c0 .23.1.46.26.62l6.49 6.49a.89.89 0 0 0 1.26 0l4.4-4.4a.89.89 0 0 0 0-1.26Z"/><path d="m12.93 1.51-2.54 4.38a.58.58 0 0 0 .49.89h5.09a.58.58 0 0 0 .49-.89l-2.54-4.38a.57.57 0 0 0-.99 0Z"/>') },
+  comment: { key: "C", name: "Comment", tip: "Click to drop a pin", icon: tIcon('<path d="M9 2.5a6.5 6.5 0 0 0-5.74 9.55l-.71 2.13a.94.94 0 0 0 1.27 1.27l2.13-.71A6.5 6.5 0 1 0 9 2.5Zm2 8H7a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1Zm0-2H7a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1Z"/>') },
 };
 const VIEWS = { full: { name: "Side view", hint: "The product shot as supplied" }, close: { name: "Close-up", hint: "Cropped in on the upper and logo" }, mono: { name: "Silhouette", hint: "Shape only, colour removed" } };
 
@@ -106,12 +107,24 @@ const GROUP = list => {
   const t = TILE(), k = BD.groupBy;
   return `<div class="bx-world bx-groups">${groupsBy(list, k).map(([v, ps]) => frame(v === "—" ? `No ${dimLabel(k).toLowerCase()}` : v, ps, t, v === "—" ? "none" : "", BD.group2, { attr: dimLabel(k), value: v === "—" ? "None" : v })).join("")}</div>`;
 };
+// Freeform keeps unframed products loose, as staging does: spaced out with a small, stable offset per product
+// (seeded by its id, so nothing jumps between renders), alternate rows shifted
+const jitter = (id, salt) => { let h = 2166136261 ^ salt; for (const ch of String(id)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return ((h >>> 0) % 1000) / 1000 - 0.5; };
+const scatter = (list, t) => {
+  const sx = Math.round(t * 1.45), sy = Math.round(t * 1.35), cols = Math.max(4, Math.floor((fullW() * (t + GAP)) / sx) - 1);
+  const rows = Math.ceil(list.length / cols), spread = n => n - t - 8;
+  return `<div class="bx-scatter" style="width:${cols * sx + Math.round(sx * .4) + t}px;height:${(rows - 1) * sy + t + 8}px">${list.map((p, i) => {
+    const r = Math.floor(i / cols), c = i % cols;
+    const x = Math.round(c * sx + (r % 2 ? sx * .4 : 0) + jitter(p.id, 1) * spread(sx) + spread(sx) / 2), y = Math.round(r * sy + jitter(p.id, 2) * spread(sy) + spread(sy) / 2);
+    return `<div class="bx-scat" style="left:${x}px;top:${y}px">${tile(p, t)}</div>`;
+  }).join("")}</div>`;
+};
 const FREESTYLE = list => {
   const t = TILE(), s = bdStudy(), k = BD.show && s.published.includes(BD.show) ? BD.show : null;
   const framed = k ? groupsBy(list.filter(p => (s.tags[k] || {})[p.id]), k) : [], loose = k ? list.filter(p => !(s.tags[k] || {})[p.id]) : list;
   return `<div class="bx-world bx-free">
     ${framed.length ? `<div class="bx-framed">${framed.map(([v, ps]) => frame(`${attrLabel(k)}: ${v}`, ps, t, "", null, { attr: attrLabel(k), value: v })).join("")}</div>` : ""}
-    ${loose.length ? `<div class="bx-loose">${framed.length ? `<div class="bx-loosehead">${loose.length} not framed yet${BD.tool !== "attr" ? ` · press <kbd>F</kbd> to frame some` : ""}</div>` : ""}${grid(loose, t, Math.min(40, fullW()))}</div>` : ""}
+    ${loose.length ? `<div class="bx-loose">${framed.length ? `<div class="bx-loosehead">${loose.length} not framed yet${BD.tool !== "attr" ? ` · press <kbd>F</kbd> to frame some` : ""}</div>` : ""}${scatter(loose, t)}</div>` : ""}
   </div>`;
 };
 const canvas = () => {
@@ -192,7 +205,7 @@ const showBar = () => {
   // Layout follows the app's bottom nav (Figma 4342:1295): sections split by full-height lines, ⋮ in a grey end cap
   return `<div class="bx-show bx-nav">
     <div class="bx-box bx-navl">
-      <div class="bx-sec">${dd("matrix", `<span class="bx-cur">${mIcon(BD.matrix)}<span><small>Current board</small>${MATRICES[BD.matrix].label}</span></span>${ic.sortI}`, matrixMenu, " cur", true, tipAttrs("Change matrix", "Pareto, Rank, Group by or Freeform"))}</div>
+      <div class="bx-sec">${dd("matrix", `<span class="bx-cur">${mIcon(BD.matrix)}<span><small>Current board</small>${esc(s.name)}</span></span>${ic.sortI}`, matrixMenu, " cur", true, tipAttrs("Change matrix", "Pareto, Rank, Group by or Freeform"))}</div>
       <div class="bx-sec pad">${dd("filters", `${fi("bot-filter")}Filter${active.length ? `<em>${active.reduce((n, [, set]) => n + set.size, 0)}</em>` : ""}`, filterMenu, active.length ? " on" : " plain", true, tipAttrs("Filter", "Narrow what shows"))}
         <button class="bx-ib${BD.pct ? " on" : ""}" data-a="bdPct" ${tipAttrs("Toggle image percentage", "Show % on each image")}>${ic.info}</button></div>
       <div class="bx-sec grow">${byMatrix[BD.matrix]}${addGroup[BD.matrix] || ""}</div>
@@ -206,7 +219,10 @@ const showBar = () => {
   </div>
   <div class="bx-stats"><span><b>${shown}</b><small>Items in view</small></span><span><b>1</b><small>Avg images per item</small></span><span><b>100%</b><small>Items with images</small></span>${BD.tool === "attr" ? (BD.sel.size ? `<span class="sel"><b>${BD.sel.size}</b><small>Selected</small><button class="o-clear" data-a="bdClearSel">Clear</button></span>` : `<span class="sel"><button class="o-clear" data-a="bdSelAll">Select all in view</button></span>`) : ""}${BD.hl.size ? `<span class="sel"><b>${BD.hl.size}</b><small>Highlighted</small><button class="o-clear" data-a="bdClearHl">Clear</button></span>` : ""}</div>`;
 };
-const toolRail = () => `<div class="bx-tools">${Object.entries(TOOLS).map(([k, t], i) => `${i === 5 ? "<i></i>" : ""}<button class="${BD.tool === k || (k === "swap" && BD.flyout === "swap") ? "on" : ""}${k === "swap" && BD.view !== "full" ? " dot" : ""}" data-a="bdTool" data-v="${k}" ${tipAttrs(t.name, t.tip, t.key)}>${t.icon}</button>`).join("")}</div>
+// As on staging, "Create custom attribute" only exists on Freeform boards (hidden on Pareto, Rank and Group by)
+const attrTool = () => BD.matrix === "freestyle";
+const railTools = () => Object.entries(TOOLS).filter(([k]) => k !== "attr" || attrTool());
+const toolRail = () => `<div class="bx-tools">${railTools().map(([k, t], i) => `${i === 5 ? "<i></i>" : ""}<button class="${BD.tool === k || (k === "swap" && BD.flyout === "swap") ? "on" : ""}${k === "swap" && BD.view !== "full" ? " dot" : ""}" data-a="bdTool" data-v="${k}" ${tipAttrs(t.name, t.tip, t.key)}>${t.icon}</button>`).join("")}</div>
   ${BD.flyout === "swap" ? `<div class="bx-flyout"><div class="o-mgroup">Swap images</div>${Object.entries(VIEWS).map(([k, v]) => `<button class="${BD.view === k ? "cur" : ""}" data-a="bdView" data-v="${k}"><span class="bx-vthumb v-${k}"><img src="${bdProducts()[0].img}" alt=""></span><span class="o-amrow"><b>${v.name}</b><small>${v.hint}</small></span></button>`).join("")}<p class="bx-mnone">This catalogue has one photo per product, so the angles are stand-ins.</p></div>` : ""}`;
 
 /* ---------- Right panel: only for the statistics tool. Attributes are named in the input popover alone. ---------- */
@@ -318,6 +334,7 @@ RENDER.board = () => {
 /* ---------- Actions ---------- */
 const setTool = k => {
   if (k === "swap") { BD.flyout = BD.flyout === "swap" ? null : "swap"; return; }
+  if (k === "attr" && !attrTool()) { toast("Attributes are made on a Freeform board. Switch the board to Freeform to frame and name products."); return; }
   BD.flyout = null; BD.peek = null; BD.draft = null;
   BD.tool = BD.tool === k && k !== "select" ? "select" : k;
   if (BD.tool !== "attr") BD.sel.clear();
@@ -347,7 +364,7 @@ ACTIONS.bdClearHl = () => { BD.hl.clear(); };
 ACTIONS.bdFilter = el => { const [k, v] = el.dataset.v.split("|"); const set = BD.filters[k] = BD.filters[k] || new Set(); set.has(v) ? set.delete(v) : set.add(v); };
 ACTIONS.bdFilterClear = el => { delete BD.filters[el.dataset.v]; };
 ACTIONS.bdClearFilters = () => { BD.filters = {}; };
-ACTIONS.bdMatrix = el => { BD.matrix = el.dataset.v; BD.resetScroll = true; if (BD.matrix === "group" && !BD.groupBy) BD.groupBy = "type"; toast(`Changed matrix to ${MATRICES[BD.matrix].label}`); };
+ACTIONS.bdMatrix = el => { BD.matrix = el.dataset.v; BD.resetScroll = true; if (!attrTool() && BD.tool === "attr") { BD.tool = "select"; BD.sel.clear(); } if (BD.matrix === "group" && !BD.groupBy) BD.groupBy = "type"; toast(`Changed matrix to ${MATRICES[BD.matrix].label}`); };
 ACTIONS.bdGroup = el => { BD.groupBy = el.dataset.v; if (BD.group2 === BD.groupBy) BD.group2 = null; BD.matrix = "group"; BD.resetScroll = true; };
 ACTIONS.bdGroup2 = el => { BD.group2 = el.dataset.v; };
 ACTIONS.bdGroup2Clear = () => { BD.group2 = null; };
