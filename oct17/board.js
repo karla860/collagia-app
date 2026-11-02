@@ -38,6 +38,12 @@ const TOOLS = {
   stats: { key: "S", name: "Statistics", tip: "Calculations and labels", icon: tIcon('<rect x="12.11" y="2.78" width="3.56" height="12.44" rx="1.56"/><rect x="7.22" y="7.22" width="3.56" height="8" rx="1.56"/><rect x="2.33" y="10.78" width="3.56" height="4.44" rx="1.56"/><path d="M3.44 9.44a.67.67 0 0 0 .47-.2l4.2-4.19v.61a.67.67 0 0 0 1.33 0V3.44a.67.67 0 0 0-.66-.66H6.56a.67.67 0 0 0 0 1.33h.61L2.97 8.31a.67.67 0 0 0 .47 1.13Z"/>') },
   comment: { key: "C", name: "Comment", tip: "Click to drop a pin", icon: tIcon('<path d="M9 2.5a6.5 6.5 0 0 0-5.74 9.55l-.71 2.13a.94.94 0 0 0 1.27 1.27l2.13-.71A6.5 6.5 0 1 0 9 2.5Zm2 8H7a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1Zm0-2H7a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1Z"/>') },
 };
+// Right-hand bottom buttons, exact from Figma (Fit Screen 4781:18268, Mini Map 4781:18271, sort 4781:18274); the border is CSS
+const BOT = {
+  fit: `<svg viewBox="0 0 37 34" width="37" height="34" aria-hidden="true"><path fill="#232121" d="M19.5 18.5H25a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-5.5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1ZM15 17.5v-1.79l2.15 2.15.7-.71L15.71 15h1.79v-1H14v3.5h1Zm2.5 3H13a1 1 0 0 1-1-1V13a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v4.5h-1V13H13v6.5h4.5v1Z"/></svg>`,
+  map: `<svg viewBox="0 0 37 34" width="37" height="34" aria-hidden="true"><path fill="#232121" d="M25.31 12.61a.5.5 0 0 0-.43-.1l-3.82.96-3.84-1.92a.5.5 0 0 0-.35-.04l-4 1a.5.5 0 0 0-.37.48v9a.5.5 0 0 0 .62.49l3.82-.96 3.84 1.92A.5.5 0 0 0 21 23.5a.5.5 0 0 0 .12-.02l4-1a.5.5 0 0 0 .38-.48v-9a.5.5 0 0 0-.19-.39ZM17 20.5a.5.5 0 0 0-.12.02l-3.38.84v-7.97l3.44-.86.06.03v7.94Zm7.5 1.11-3.44.86-.06-.03V14.5a.5.5 0 0 0 .12-.01l3.38-.85v7.97Z"/></svg>`,
+  sort: `<svg viewBox="0 0 61 34" width="61" height="34" aria-hidden="true"><path fill="#232121" d="M24.5 16v2a.5.5 0 0 1-.5.5H13.5v1H19a.5.5 0 0 1 .5.5v1.5a.5.5 0 0 1-.5.5h-5.5v.5a.5.5 0 0 1-1 0v-11a.5.5 0 0 1 1 0v.5H21a.5.5 0 0 1 .5.5V14a.5.5 0 0 1-.5.5h-7.5v1H24a.5.5 0 0 1 .5.5Z"/><path d="M46.63 14.5 43.5 11.38l-3.13 3.12M46.63 19.5 43.5 22.63l-3.13-3.13" fill="none" stroke="#6E6D7A" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+};
 const VIEWS = { full: { name: "Side view", hint: "The product shot as supplied" }, close: { name: "Close-up", hint: "Cropped in on the upper and logo" }, mono: { name: "Silhouette", hint: "Shape only, colour removed" } };
 
 const BD = { study: "FA26 footwear review", tool: "select", sel: new Set(), hl: new Set(), view: "full", matrix: "pareto", groupBy: "type", group2: null, wrap: "row", metric: "units4w", agg: "sum",
@@ -184,10 +190,13 @@ const showBar = () => {
   const dimMenu = (act, cur, skip) => `<div class="o-mgroup">Catalogue</div>${Object.entries(COLS).filter(([k]) => k !== skip).map(([k, l]) => `<button role="menuitemradio" aria-checked="${cur === k}" class="${cur === k ? "cur" : ""}" data-a="${act}" data-v="${k}">${l}</button>`).join("")}<div class="o-mgroup">Attributes</div>${s.published.filter(k => k !== skip).length ? s.published.filter(k => k !== skip).map(k => `<button role="menuitemradio" aria-checked="${cur === k}" class="${cur === k ? "cur" : ""}" data-a="${act}" data-v="${k}">${ic.tag}${esc(attrLabel(k))}</button>`).join("") : `<span class="bx-mnone">Publish an attribute to use it here</span>`}`;
   const fsec = ([k, l, kind]) => `<div class="bx-fsec"><div class="o-mgroup">${kind === "attr" ? ic.tag : ""}${esc(l)}${BD.filters[k] && BD.filters[k].size ? `<button class="o-clear" data-a="bdFilterClear" data-v="${esc(k)}">Clear</button>` : ""}</div>${valuesOf(k).slice(0, 8).map(([v, n]) => { const on = BD.filters[k] && BD.filters[k].has(v); return `<button role="menuitemcheckbox" aria-checked="${!!on}" data-a="bdFilter" data-v="${esc(k)}|${esc(v)}"><span class="o-cb ${on ? "on" : ""}">${on ? ic.check : ""}</span>${esc(v === "—" ? "No value" : v)}<span class="n">${n}</span></button>`; }).join("")}${valuesOf(k).length > 8 ? `<span class="bx-mnone">+${valuesOf(k).length - 8} more</span>` : ""}</div>`;
   const filterMenu = dims().map(fsec).join("") + (active.length ? `<button class="bx-mclear" data-a="bdClearFilters">Clear all filters</button>` : "");
-  // Freeform bar (Figma 4781:18124): one chip per published attribute, then Add Filter. A chip filters by that attribute's
-  // values and can set which attribute the frames follow; Add Filter offers the catalogue columns.
+  // Bottom bar (Figma board screens, 4781:18124) on every board: one chip per published attribute, then Add Filter.
+  // A chip filters by that attribute's values; on Freeform it can set the frames, on Group by the grouping.
+  // Add Filter offers the catalogue columns.
+  const chipLead = k => BD.matrix === "freestyle" ? `<button role="menuitemradio" aria-checked="${BD.show === k}" class="${BD.show === k ? "cur" : ""}" data-a="bdShow" data-v="${k}">${ic.frame}Show as frames</button><hr class="o-msep">`
+    : BD.matrix === "group" ? `<button role="menuitemradio" aria-checked="${BD.groupBy === k}" class="${BD.groupBy === k ? "cur" : ""}" data-a="bdGroup" data-v="${k}">${ic.frame}Group by ${esc(attrLabel(k))}</button><hr class="o-msep">` : "";
   const attrChip = k => { const n = BD.filters[k] ? BD.filters[k].size : 0;
-    return dd(`fchip:${k}`, `${TOOLS.attr.icon}${esc(attrLabel(k))}${n ? `<em>${n}</em>` : ""}`, `<button role="menuitemradio" aria-checked="${BD.show === k}" class="${BD.show === k ? "cur" : ""}" data-a="bdShow" data-v="${k}">${ic.frame}Show as frames</button><hr class="o-msep">${fsec([k, attrLabel(k), "attr"])}`, ` bx-achip${n ? " on" : ""}`, true, tipAttrs(attrLabel(k), "Filter or frame by this attribute")); };
+    return dd(`fchip:${k}`, `${TOOLS.attr.icon}${esc(attrLabel(k))}${n ? `<em>${n}</em>` : ""}`, `${chipLead(k)}${fsec([k, attrLabel(k), "attr"])}`, ` bx-achip${n ? " on" : ""}`, true, tipAttrs(attrLabel(k), "Filter by this attribute")); };
   const freeBar = `${s.published.map(attrChip).join("")}${dd("addfilter", `${ic.plus}Add Filter`, dims().filter(([, , kind]) => kind === "data").map(fsec).join(""), " bx-achip", true, tipAttrs("Add filter", "Narrow by a catalogue column"))}`;
   const metricDD = `<span class="bx-metric">${dd("agg", `${AGGS[BD.agg]}${ic.chev}`, Object.entries(AGGS).map(([k, l]) => `<button role="menuitemradio" aria-checked="${BD.agg === k}" class="${BD.agg === k ? "cur" : ""}" data-a="bdAgg" data-v="${k}">${l}</button>`).join(""), " pill", true, tipAttrs("Aggregation"))}
       ${dd("metric", `<code>${METRICS[BD.metric]}</code>${ic.chev}`, Object.entries(METRICS).map(([k, l]) => `<button role="menuitemradio" aria-checked="${BD.metric === k}" class="${BD.metric === k ? "cur" : ""}" data-a="bdMetric" data-v="${k}"><code>${l}</code>${k !== "price" ? `<span class="n">simulated</span>` : ""}</button>`).join(""), " plain", true, tipAttrs("Metric", "The data column shown"))}</span>`;
@@ -215,17 +224,20 @@ const showBar = () => {
   return `<div class="bx-show bx-nav">
     <div class="bx-box bx-navl">
       <div class="bx-sec">${dd("matrix", `<span class="bx-cur">${mIcon(BD.matrix)}<span><small>Current board</small>${esc(s.name)}</span></span>${ic.sortI}`, matrixMenu, " cur", true, tipAttrs("Change matrix", "Pareto, Rank, Group by or Freeform"))}</div>
-      ${BD.matrix === "freestyle" ? `<div class="bx-sec grow">${freeBar}</div>` : `<div class="bx-sec pad">${dd("filters", `${fi("bot-filter")}Filter${active.length ? `<em>${active.reduce((n, [, set]) => n + set.size, 0)}</em>` : ""}`, filterMenu, active.length ? " on" : " plain", true, tipAttrs("Filter", "Narrow what shows"))}
-        <button class="bx-ib${BD.pct ? " on" : ""}" data-a="bdPct" ${tipAttrs("Toggle image percentage", "Show % on each image")}>${ic.info}</button></div>
-      <div class="bx-sec grow">${byMatrix[BD.matrix]}${addGroup[BD.matrix] || ""}</div>`}
+      <div class="bx-sec grow">${freeBar}</div>
       <div class="bx-sec cap">${dd("more", fi("bot-more"), more, " plain icon", true, tipAttrs("More"))}</div>
     </div>
     <div class="bx-box bx-navr">
-      <div class="bx-sec"><span class="bx-zoom"><button class="bx-ib" data-a="bdZoomStep" data-v="out" ${tipAttrs("Zoom out", "", "−")}>${ic.minus}</button><span class="bx-zoomv">${Math.round(BD.zoom * 100)}%</span><button class="bx-ib" data-a="bdZoomStep" data-v="in" ${tipAttrs("Zoom in", "", "+")}>${ic.plus}</button></span>
-        <button class="bx-sq" data-a="bdZoomFit" ${tipAttrs("Fit to screen", "", "0")}>${fi("bot-fit")}</button></div>
-      <div class="bx-sec"><button class="bx-bb${BD.table ? " on" : ""}" data-a="bdTable" ${tipAttrs(BD.table ? "Hide data table" : "Show data table", "", "D")}>${fi("bot-table")}Data table</button></div>
+      <div class="bx-sec bx-rbtns"><button class="bx-fb" data-a="bdZoomFit" ${tipAttrs("Fit to screen", "", "0")}>${BOT.fit}</button>
+        <button class="bx-fb" data-a="bdToast" data-v="Mini map" ${tipAttrs("Mini map", "Where you are on the board")}>${BOT.map}</button>
+        <button class="bx-fb wide${BD.flyout === "settings" ? " on" : ""}" data-a="bdSettings" ${tipAttrs("Board settings", MATRICES[BD.matrix].hint)}>${BOT.sort}</button></div>
+      <div class="bx-sec"><button class="bx-bb${BD.table ? " on" : ""}" data-a="bdTable" ${tipAttrs(BD.table ? "Hide data table" : "Show data table", "", "D")}>${fi("bot-table")}Data Table</button></div>
     </div>
   </div>
+  ${BD.flyout === "settings" ? `<div class="bx-setpanel" role="dialog" aria-label="Board settings"><div class="bx-sph"><b>${MATRICES[BD.matrix].label} settings</b><span class="sp"></span><button class="icon-btn" data-a="bdSettings" ${tipAttrs("Close", "", "Esc")}>${ic.close}</button></div>
+    <div class="bx-spb">${byMatrix[BD.matrix]}${addGroup[BD.matrix] || ""}</div>
+    <div class="bx-spb"><span class="bx-glab">Zoom</span><span class="bx-zoom"><button class="bx-ib" data-a="bdZoomStep" data-v="out" ${tipAttrs("Zoom out", "", "−")}>${ic.minus}</button><span class="bx-zoomv">${Math.round(BD.zoom * 100)}%</span><button class="bx-ib" data-a="bdZoomStep" data-v="in" ${tipAttrs("Zoom in", "", "+")}>${ic.plus}</button></span>
+      <button class="bx-bb plain${BD.pct ? " on" : ""}" data-a="bdPct">${ic.info}${BD.pct ? "Hide" : "Show"} image percentages</button></div></div>` : ""}
   <div class="bx-drawer"><button class="bx-handle" data-a="bdTable" aria-label="${BD.table ? "Close" : "Open"} the data table" ${tipAttrs(BD.table ? "Hide data table" : "Show data table", "", "D")}></button></div>
   <div class="bx-stats">${BD.tool === "attr" ? (BD.sel.size ? `<span class="sel"><b>${BD.sel.size}</b><small>Selected</small><button class="o-clear" data-a="bdClearSel">Clear</button></span>` : `<span class="sel"><button class="o-clear" data-a="bdSelAll">Select all in view</button></span>`) : ""}${BD.hl.size ? `<span class="sel"><b>${BD.hl.size}</b><small>Highlighted</small><button class="o-clear" data-a="bdClearHl">Clear</button></span>` : ""}</div>`;
 };
@@ -415,6 +427,7 @@ const setZoom = (z, anchor) => {
 };
 ACTIONS.bdZoomStep = el => { setZoom(BD.zoom * (el.dataset.v === "in" ? 1.2 : 1 / 1.2)); return false; };
 ACTIONS.bdZoomFit = () => { setZoom(1); return false; };
+ACTIONS.bdSettings = () => { BD.flyout = BD.flyout === "settings" ? null : "settings"; };
 ACTIONS.bdTable = () => { BD.table = !BD.table; };
 ACTIONS.bdAddGroup = () => { setTool("attr"); if (!BD.sel.size) toast("Drag a frame around the products that belong together, then name the attribute and value."); };
 ACTIONS.bdStudy = el => { BD.study = el.dataset.v; BD.sel.clear(); BD.hl.clear(); BD.filters = {}; BD.peek = null; const s = bdStudy(); BD.show = s.published[0] || null; BD.matrix = s.board || "pareto"; BD.resetScroll = true; };

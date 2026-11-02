@@ -1602,3 +1602,16 @@ body.locked .g-pill kbd { display: none; }
 .cpx-mini .none.rm, .cpx-ps .cpx-mini .none.rm { height: 20px; padding: 0 6px; font-size: var(--fs-12); }
 .cpx-also { grid-column: 1 / -1; margin: 0; font: 400 var(--fs-11)/14px Inter, sans-serif; color: var(--muted); }
 .cpx-also { line-height: 20px; }
+/* Right-hand bottom buttons (Figma Bottom Right Nav): 37×34 and 61×34, hairline border, 8px apart */
+.bx-nav .bx-rbtns { gap: 8px; padding: 0 8px; }
+.bx-fb { width: 37px; height: 34px; padding: 0; display: grid; place-items: center; border: 1px solid #E4E4E4; border-radius: 4px; background: #fff; cursor: pointer; }
+.bx-fb.wide { width: 61px; }
+.bx-fb svg { display: block; }
+.bx-fb:hover { background: #F1F1F1; }
+.bx-fb.on { border-color: var(--accent); }
+/* Board settings: the board-type controls (grouping, metric, buckets, rank) open above the bar from the sort button */
+.bx-setpanel { position: absolute; right: 150px; bottom: 82px; z-index: 9; display: grid; gap: 8px; max-width: min(820px, calc(100% - 180px)); padding: 10px 12px 12px; background: #fff; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 8px 24px rgba(0,0,0,.12); pointer-events: auto; }
+.bx-sph { display: flex; align-items: center; gap: 8px; font: 600 var(--fs-13)/1.2 Inter, sans-serif; }
+.bx-sph .sp { flex: 1; }
+.bx-spb { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.bx-spb .bx-bb { height: 32px; }
