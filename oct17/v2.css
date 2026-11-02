@@ -1615,3 +1615,5 @@ body.locked .g-pill kbd { display: none; }
 .bx-sph .sp { flex: 1; }
 .bx-spb { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .bx-spb .bx-bb { height: 32px; }
+/* The fading strip under the bottom bar blurs whatever sits behind it (Figma: background blur 8) */
+.bx-drawer { -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
