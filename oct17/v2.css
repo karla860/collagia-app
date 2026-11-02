@@ -1570,3 +1570,19 @@ body.locked .g-pill kbd { display: none; }
 .bx-scat { position: absolute; }
 /* Tool rail spacing per Figma 4781:17559: 32px buttons, 8px apart, 4px inset */
 .bx-tools { gap: 8px; padding: 4px; }
+/* Icons are the library black (#232121) by default; red only marks what is selected or open */
+.bx-nav .bx-cur > svg.i, .bx-show .bx-cur > svg.i { color: #232121; }
+.bx-nav .bx-bb.cur.open .bx-cur > svg.i { color: var(--accent); }
+.bx-tools button:not(.on):hover { background: #F1F1F1; color: #232121; }
+.bx-tools button:not(.on):hover svg.ti { color: #232121; }
+.o-tname svg.i, .bx-table th svg.i, .bx-peekb dt svg.i, .cattr svg.i, .cpx-menu button.cpx-opt > svg.i { color: #232121; }
+.o-tname[aria-checked="true"] svg.i { color: var(--accent); }
+/* Value dropdown in the input popover: readable text */
+.bx-ip-dh { font: 500 var(--fs-11)/normal Inter, sans-serif; }
+.bx-ip-dd button { font: 400 var(--fs-13)/normal Inter, sans-serif; letter-spacing: 0; padding: 7px 8px; }
+.bx-ip-dd small { font: 400 var(--fs-12)/normal Inter, sans-serif; }
+.bx-ip-new, .bx-ip-empty { font-size: var(--fs-13); }
+/* The board stats card is gone; the corner only shows selection or highlight counts when there are some */
+.bx-stats:empty { display: none; }
+.bx-show .bx-bb.cur .bx-cur small { color: #6E6D7A; }
+.bx-show .bx-bb.cur .bx-cur > span { color: #232121; }
